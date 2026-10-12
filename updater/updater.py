@@ -634,14 +634,18 @@ class UpdaterApp(ctk.CTk):
                     install_requirements(VENV_DIR, req_file, self.log)
                 except (subprocess.CalledProcessError, RuntimeError) as exc:
                     self.log(f"Component installation failed: {exc}")
-                    self.log("Keeping downloaded build so it can be retried later.")
-                    state["sha"] = sha
+                    self.log("Starting the previous build; the update is retried at the next start.")
+                    # The new build is NOT recorded as deployed: its packages are
+                    # missing, and recording it would make the next start report
+                    # "up to date" and never install them. The stored package
+                    # hash is dropped because a failed install can leave the
+                    # environment between two sets of packages.
                     state.pop("deps_hash", None)
                     save_json(STATE_FILE, state)
                     self.set_step("install", "error")
                     self.set_status("Update failed", "Component installation failed",
                                     progress=0.0, icon="✕", tone=ERROR)
-                    self._launch_existing()
+                    self._launch_existing(exclude=release_dir)
                     return
                 state["deps_hash"] = new_hash
             else:
@@ -668,7 +672,12 @@ class UpdaterApp(ctk.CTk):
             self._launch_existing()
 
     # ------------------------------------------------------------------ #
-    def _launch_existing(self):
+    def _launch_existing(self, exclude: Path | None = None):
+        """Start the recorded build, else the newest one on disk.
+
+        ``exclude`` names a build that must not be started: one that was just
+        downloaded but whose packages could not be installed.
+        """
         if not RELEASES_DIR.exists():
             self.log("No installed builds found — cannot launch.")
             self.set_status("No build available", progress=0.0,
@@ -676,7 +685,7 @@ class UpdaterApp(ctk.CTk):
             return
 
         dirs = sorted(
-            [d for d in RELEASES_DIR.iterdir() if d.is_dir()],
+            [d for d in RELEASES_DIR.iterdir() if d.is_dir() and d != exclude],
             key=lambda d: d.stat().st_mtime, reverse=True,
         )
         if not dirs:
@@ -687,7 +696,8 @@ class UpdaterApp(ctk.CTk):
 
         state = load_json(STATE_FILE, {})
         sha = state.get("sha")
-        release_dir = RELEASES_DIR / sha if sha and (RELEASES_DIR / sha).exists() else dirs[0]
+        recorded = RELEASES_DIR / sha if sha else None
+        release_dir = recorded if recorded in dirs else dirs[0]
         self._launch_release(release_dir)
 
     def _launch_release(self, release_dir: Path):
