@@ -684,7 +684,13 @@ class UpdaterApp(ctk.CTk):
             self.log(f"Unexpected error: {exc}")
             self.set_status("Error", str(exc), progress=0.0,
                             icon="✕", tone=ERROR)
-            self._launch_existing()
+            try:
+                self._launch_existing()
+            except Exception as fallback:
+                # Last resort: never let the worker thread die without a message.
+                self.log(f"The installed build could not be started: {fallback}")
+                self.set_status("Launch failed", str(fallback), progress=0.0,
+                                icon="✕", tone=ERROR)
 
     # ------------------------------------------------------------------ #
     def _launch_existing(self, exclude: Path | None = None):
@@ -730,8 +736,12 @@ class UpdaterApp(ctk.CTk):
                     install_requirements(VENV_DIR, req_file, self.log)
                     state["deps_hash"] = sha256_file(req_file)
                     save_json(STATE_FILE, state)
-        except RuntimeError as exc:
-            self.log(str(exc))
+        except (RuntimeError, subprocess.SubprocessError, OSError) as exc:
+            # This runs on the worker thread, often as the fallback after another
+            # failure. Anything escaping here would end the thread and leave the
+            # window on its previous message, so every failure is shown instead.
+            self.log(f"Runtime environment could not be prepared: {exc}")
+            self.set_step("launch", "error")
             self.set_status("Launch failed", "Runtime environment not ready",
                             progress=0.0, icon="✕", tone=ERROR)
             return
@@ -746,7 +756,14 @@ class UpdaterApp(ctk.CTk):
         self.set_step("launch", "done")
         self.set_status("Starting application …", "Closing updater shortly",
                         progress=1.0, icon="▶", tone=SUCCESS)
-        self.app_proc.start(VENV_DIR, release_dir, ENTRYPOINT, self.log)
+        try:
+            self.app_proc.start(VENV_DIR, release_dir, ENTRYPOINT, self.log)
+        except OSError as exc:
+            self.log(f"Application could not be started: {exc}")
+            self.set_step("launch", "error")
+            self.set_status("Launch failed", "Application could not be started",
+                            progress=0.0, icon="✕", tone=ERROR)
+            return
         self.after(1500, self.destroy)
 
     # ------------------------------------------------------------------ #

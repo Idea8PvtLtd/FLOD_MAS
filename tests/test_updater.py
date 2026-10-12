@@ -81,7 +81,7 @@ class FailedInstallTests(UpdaterCase):
         super().setUp()
         self.release(self.SHA_OLD, requirements='old')
         self.updater.save_json(self.updater.STATE_FILE, {'sha': self.SHA_OLD, 'deps_hash': 'old-hash'})
-        self.ensure = patch.object(self.updater, 'ensure_venv').start()
+        self.ensure = patch.object(self.updater, 'ensure_venv', return_value=False).start()
         self.addCleanup(patch.stopall)
 
     def test_a_failed_install_is_not_recorded_and_the_previous_build_starts(self):
@@ -152,6 +152,43 @@ class EmptyEnvironmentTests(UpdaterCase):
                 patch.object(self.updater, 'install_requirements') as install:
             self.app._update_loop()
         install.assert_called_once()
+
+
+class FallbackLaunchTests(UpdaterCase):
+    """A failure while starting the installed build is shown, never left to end the thread."""
+
+    def setUp(self):
+        super().setUp()
+        self.release(self.SHA_OLD)
+        self.updater.save_json(self.updater.STATE_FILE, {'sha': self.SHA_OLD})
+        self.app.git.fetch.side_effect = subprocess.CalledProcessError(128, ['git'])
+        self.addCleanup(patch.stopall)
+
+    def shown(self):
+        return [call.args[0] for call in self.app.set_status.call_args_list]
+
+    def test_a_failing_environment_in_the_fallback_is_reported(self):
+        for failure in (subprocess.CalledProcessError(1, ['python', '-m', 'venv']),
+                        subprocess.TimeoutExpired(['pip'], 5), OSError('disk full'),
+                        RuntimeError('Python 3.12 was not found')):
+            with self.subTest(failure=type(failure).__name__):
+                self.app.set_status.reset_mock()
+                with patch.object(self.updater, 'ensure_venv', side_effect=failure):
+                    self.app._update_loop()
+                self.assertEqual(self.shown()[-1], 'Launch failed')
+                self.app.app_proc.start.assert_not_called()
+
+    def test_an_app_that_cannot_be_started_is_reported(self):
+        self.app.app_proc.start.side_effect = OSError('python.exe missing')
+        with patch.object(self.updater, 'ensure_venv', return_value=False):
+            self.app._update_loop()
+        self.assertEqual(self.shown()[-1], 'Launch failed')
+        self.app.after.assert_not_called()
+
+    def test_a_fetch_failure_still_starts_the_installed_build(self):
+        with patch.object(self.updater, 'ensure_venv', return_value=False):
+            self.app._update_loop()
+        self.assertEqual(self.started_from().name, self.SHA_OLD)
 
 
 if __name__ == '__main__':
