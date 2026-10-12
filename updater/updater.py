@@ -8,6 +8,13 @@ A modern CustomTkinter-based updater that:
   - If online    -> fetches the remote; if a new commit exists, downloads it,
                     installs requirements if they changed, prunes old releases,
                     and launches the app.
+
+It checks once, when it is started, and closes itself after launching the app; it
+does not keep watching for updates. It does not know about an application that
+is still running from an earlier start: close that one first.
+
+The starter needs customtkinter (updater/requirements.txt). The application
+does not, so it is not in the application's requirements.txt.
 """
 from __future__ import annotations
 
@@ -55,7 +62,6 @@ STATE_FILE   = ROOT / "state.json"
 
 SETTINGS_FILE = ROOT / "updater.json"
 
-CHECK_INTERVAL   = 60
 KEEP_RELEASES    = 3
 INTERNET_HOST    = ("github.com", 443)
 INTERNET_TIMEOUT = 5
@@ -423,7 +429,6 @@ class UpdaterApp(ctk.CTk):
         self.settings = load_settings()
         self.git = GitRepo(REPO_URL, self.settings["branch"], MIRROR_DIR)
         self.app_proc = AppProcess()
-        self._stop_flag = False
 
         self._build_ui()
         threading.Thread(target=self._update_loop, daemon=True).start()
@@ -693,7 +698,6 @@ class UpdaterApp(ctk.CTk):
             self.set_status("Downloading update …", f"New build {sha[:8]}",
                             progress=0.35, icon="▼", tone=ACCENT)
 
-            self.app_proc.stop(log=self.log)
             release_dir = RELEASES_DIR / sha
             if release_dir.exists():
                 shutil.rmtree(release_dir, ignore_errors=True)
@@ -887,7 +891,6 @@ class UpdaterApp(ctk.CTk):
 
     # ------------------------------------------------------------------ #
     def on_close(self):
-        self._stop_flag = True
         self.app_proc.stop(log=self.log)
         self.destroy()
 

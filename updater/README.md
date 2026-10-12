@@ -6,6 +6,10 @@
 started**, and closes itself after the application is running. Without internet, or when
 any step fails or takes too long, it starts the build that is already installed.
 
+The starter itself needs `customtkinter` (`updater/requirements.txt`) and Git. It does
+not notice an application that is still running from an earlier start; close that one
+first, or the second cannot open the camera.
+
 ## Settings (optional)
 
 Copy `updater.example.json` to `updater.json` beside the starter (beside the `.exe` when it
