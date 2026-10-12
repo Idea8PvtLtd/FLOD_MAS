@@ -163,6 +163,7 @@ settings tab replaces the old segmentation/SAM controls.
 | `auto_trigger.hand_absence_seconds` | 1.0 | Quiet period after debounced hand absence |
 | `auto_trigger.debounce_frames` | 3 | Consistent fresh samples per presence change |
 | `inspection.end_exclusion_percent` | 5.0 | Percentage excluded from EACH end before width grading |
+| `inspection.local_defect_length_mm` | 0.0 | 0: a line is graded by the average of each of its ten segments only, as before. Above 0: a run of neighbouring width samples that are all outside target +- tolerance and together at least this long also fails the segments it lies in, and the status text says where and how wide. The samples are 5 px apart. A value of 2-3 is a starting point; it was chosen on sample lines without defects, so try it before relying on it |
 | `inspection.strip_width_mm` | 4.0 | Target width for the new measurements |
 | `inspection.strip_width_tolerance_mm` | 1.0 | Allowed +/- width tolerance |
 | `result_view.show_live_preview` | true | Small live camera panel beside results |

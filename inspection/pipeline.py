@@ -1,6 +1,6 @@
 """Immutable capture -> local ONNX unfolding/refolding -> calibrated measurements."""
 import plane_scale
-from .line_measurement import measurement_record
+from .line_measurement import measurement_record, grading_checks
 
 
 class InspectionPipeline:
@@ -22,7 +22,8 @@ class InspectionPipeline:
                 scale = None
                 warnings.append(f'Millimetre calibration unavailable: {error}')
             measurement = measurement_record(result, scale, target_width, tolerance,
-                    metadata.get('end_exclusion_percent', self.config['inspection'].get('end_exclusion_percent', 5.0)))
+                    metadata.get('end_exclusion_percent', self.config['inspection'].get('end_exclusion_percent', 5.0)),
+                    checks=grading_checks(self.config['inspection']))
             if measurement['status'] == 'WARNING':
                 warnings.append('Pixel measurements available; calibrated widths incomplete or unavailable')
             self.store.save_mask(path, result['mask'])
@@ -53,6 +54,7 @@ class InspectionPipeline:
             except plane_scale.PlaneScaleError as error:
                 scale = None
                 warnings.append(f'Millimetre calibration unavailable: {error}')
+            checks = grading_checks(self.config['inspection'])
             failures = []
             def failed_line(index, error):
                 message = f'Line {index}: {error}'
@@ -62,7 +64,8 @@ class InspectionPipeline:
                     undistorted, inspected=metadata.get('inspected_lines', ()),
                     reserved=metadata.get('queued_captures', 0), on_error=failed_line):
                 measurement = measurement_record(result, scale, target_width, tolerance,
-                    metadata.get('end_exclusion_percent', self.config['inspection'].get('end_exclusion_percent', 5.0)))
+                    metadata.get('end_exclusion_percent', self.config['inspection'].get('end_exclusion_percent', 5.0)),
+                    checks=checks)
                 # The mask is what the operator sees as the strip, so it is
                 # drawn under the graded centrelines rather than instead of them.
                 overlay = annotated_overlay(undistorted, measurement, result['mask'])

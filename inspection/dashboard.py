@@ -207,9 +207,13 @@ class AutomaticDashboard:
             self.result_view.show_inspection(result)
         status = 'WARNING' if result['warnings'] else measurement['status']
         self.set_pass_fail(status)
+        # Why a line failed an extra check (a short defect, missing adhesive) is
+        # not visible from the segment averages, so it is said in words.
+        reasons = measurement.get('fail_reasons') or []
         self.update_progress(100, ' | '.join(result['warnings']) or
-                             f"Line #{measurement['selected_line']} of {measurement['line_count']} "
-                             'measured — results saved — monitoring hands')
+                             (f"Line #{measurement['selected_line']}: " + ' | '.join(reasons) if reasons else
+                              f"Line #{measurement['selected_line']} of {measurement['line_count']} "
+                              'measured — results saved — monitoring hands'))
 
     def _dismiss_result_view(self):
         if getattr(self, 'result_view', None) is not None:
