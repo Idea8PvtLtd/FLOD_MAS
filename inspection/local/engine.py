@@ -8,7 +8,7 @@ from .width_measurement import measure_component
 
 
 class LiveInspection:
-    def __init__(self, source_path, glue_path, offset=100., source_width=1152):
+    def __init__(self, source_path, glue_path, offset=100., source_width=1152, smooth_normal_rows=0):
         from .source_model import SourceMaskOnnx
         from .glue_model import SegformerOnnx
         self.source = SourceMaskOnnx(source_path, width=source_width, flip=False)
@@ -16,6 +16,10 @@ class LiveInspection:
         self.offset = float(offset)
         if not np.isfinite(self.offset) or self.offset <= 0:
             raise ValueError('Inspection offset must be positive and finite')
+        # 0 keeps the band as it always was; see geometry.offset_path.
+        self.smooth_normal_rows = int(smooth_normal_rows)
+        if self.smooth_normal_rows < 0:
+            raise ValueError('Normal smoothing must be zero or a positive number of rows')
 
     def run(self, photo, progress=lambda text: None):
         """Single-line callers want the rightmost line and nothing else."""
@@ -41,7 +45,8 @@ class LiveInspection:
         for chain in chains:
             cv2.polylines(waves, [chain], False, 255, 1, cv2.LINE_8)
         filtered, _, _ = filter_wave_lines(waves, source, .008, .1, .9, make_preview=False)
-        _, _, lines = offset_lines(filtered, self.offset, 'inside', source_mask=source, make_preview=False)
+        _, _, lines = offset_lines(filtered, self.offset, 'inside', source_mask=source, make_preview=False,
+                                   smooth_rows=getattr(self, 'smooth_normal_rows', 0))
         if not lines:
             raise ValueError('No accepted source lines. Check placement or the source mask model.')
         lines.sort(key=lambda line: float(np.mean(np.asarray(line['original_xy'])[:, 0])))

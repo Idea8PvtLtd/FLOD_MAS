@@ -42,6 +42,59 @@ def synthetic_inspection(broken=False):
     return frame, inspector, inspector.run(frame)
 
 
+def stepped_edge():
+    """A gently curved edge as an enlarged mask gives it: x in steps of four pixels."""
+    y = np.arange(0, 1600, dtype=float)
+    x = np.floor((400 + 60 * np.sin(y / 1600 * 2 * np.pi)) / 4) * 4
+    return np.column_stack((x, y))
+
+
+class BandPathTests(unittest.TestCase):
+    """The inward band's inner edge must follow the line, not run back and forth."""
+
+    def backwards(self, path, edge):
+        from inspection.local.geometry import smoothed_path
+        direction = np.gradient(smoothed_path(edge, 101), axis=0)
+        return float(np.mean(np.sum(np.diff(path, axis=0) * direction[1:], axis=1) < 0))
+
+    def length(self, path):
+        return float(np.linalg.norm(np.diff(path, axis=0), axis=1).sum())
+
+    def test_the_default_is_unchanged(self):
+        from inspection.local.geometry import offset_path
+        edge = stepped_edge()
+        np.testing.assert_array_equal(offset_path(edge, 100.), offset_path(edge, 100., smooth_rows=0))
+        self.assertGreater(self.backwards(offset_path(edge, 100.), edge), .02)
+
+    def test_a_smoothed_direction_gives_a_path_that_does_not_run_backwards(self):
+        from inspection.local.geometry import offset_path
+        edge = stepped_edge()
+        raw, smooth = offset_path(edge, 100.), offset_path(edge, 100., smooth_rows=101)
+        self.assertLess(self.backwards(smooth, edge), .01)
+        self.assertLess(self.length(smooth), 1.15 * self.length(edge))
+        self.assertGreater(self.length(raw), 2 * self.length(smooth))
+        # The offset distance itself is untouched: every point is still 100 px away.
+        np.testing.assert_allclose(np.linalg.norm(smooth - edge, axis=1), 100., atol=1e-6)
+
+    def test_the_engine_passes_the_setting_and_still_measures(self):
+        frame, inspector, plain = synthetic_inspection()
+        inspector.smooth_normal_rows = 101
+        smooth = inspector.run(frame)
+        self.assertEqual(smooth['line_count'], plain['line_count'])
+        self.assertAlmostEqual(smooth['mean_width_px'], plain['mean_width_px'], delta=1.5)
+
+    def test_the_setting_is_validated(self):
+        config = copy.deepcopy(CONFIG)
+        config['local_inspection']['smooth_normal_rows'] = 101
+        validate_config(config)
+        for bad in (-1, 2.5, 'many', True):
+            config['local_inspection']['smooth_normal_rows'] = bad
+            with self.assertRaises(ValueError):
+                validate_config(config)
+        del config['local_inspection']['smooth_normal_rows']
+        validate_config(config)
+
+
 class LocalGeometryTests(unittest.TestCase):
     def test_only_rightmost_line_is_refolded_to_full_frame(self):
         frame, _, result = synthetic_inspection()
