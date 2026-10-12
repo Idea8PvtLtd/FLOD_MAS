@@ -245,10 +245,11 @@ class GitRepo:
 # --------------------------------------------------------------------------- #
 # Dependency management
 # --------------------------------------------------------------------------- #
-def ensure_venv(venv: Path, log):
+def ensure_venv(venv: Path, log) -> bool:
+    """Make sure the environment exists. True when it was (re)built, and so is empty."""
     existing = _venv_python_version(venv)
     if existing == TARGET_PYTHON_VERSION:
-        return
+        return False
 
     if existing is not None:
         log(f"Rebuilding environment (Python {existing} → {TARGET_PYTHON_VERSION}) …")
@@ -264,6 +265,7 @@ def ensure_venv(venv: Path, log):
     log(f"Preparing runtime environment (Python {TARGET_PYTHON_VERSION}) …")
     run_cmd([target, "-m", "venv", str(venv)])
     run_cmd([venv_python(venv), "-m", "pip", "install", "--upgrade", "pip", "wheel"])
+    return True
 
 
 def install_requirements(venv: Path, req: Path, log):
@@ -625,12 +627,25 @@ class UpdaterApp(ctk.CTk):
             req_file = release_dir / REQUIREMENTS_FILE
             new_hash = sha256_file(req_file)
 
+            try:
+                # A rebuilt environment is empty, whatever the stored hash says.
+                rebuilt = ensure_venv(VENV_DIR, self.log)
+            except (subprocess.SubprocessError, RuntimeError, OSError) as exc:
+                self.log(f"Runtime environment could not be prepared: {exc}")
+                self.set_step("install", "error")
+                self.set_status("Update failed", "Runtime environment not ready",
+                                progress=0.0, icon="✕", tone=ERROR)
+                self._launch_existing(exclude=release_dir)
+                return
+            if rebuilt:
+                state.pop("deps_hash", None)
+                save_json(STATE_FILE, state)
+
             if new_hash and new_hash != state.get("deps_hash"):
                 self.set_step("install", "active")
                 self.set_status("Installing components …", "This may take a few minutes",
                                 progress=0.6, icon="◆", tone=ACCENT)
                 try:
-                    ensure_venv(VENV_DIR, self.log)
                     install_requirements(VENV_DIR, req_file, self.log)
                 except (subprocess.CalledProcessError, RuntimeError) as exc:
                     self.log(f"Component installation failed: {exc}")
@@ -702,7 +717,19 @@ class UpdaterApp(ctk.CTk):
 
     def _launch_release(self, release_dir: Path):
         try:
-            ensure_venv(VENV_DIR, self.log)
+            if ensure_venv(VENV_DIR, self.log):
+                # The environment was missing or built for another Python: it has
+                # no packages, so this build's requirements go in before it starts.
+                state = load_json(STATE_FILE, {})
+                state.pop("deps_hash", None)
+                save_json(STATE_FILE, state)
+                req_file = release_dir / REQUIREMENTS_FILE
+                if req_file.is_file():
+                    self.set_status("Installing components …", "This may take a few minutes",
+                                    progress=0.6, icon="◆", tone=ACCENT)
+                    install_requirements(VENV_DIR, req_file, self.log)
+                    state["deps_hash"] = sha256_file(req_file)
+                    save_json(STATE_FILE, state)
         except RuntimeError as exc:
             self.log(str(exc))
             self.set_status("Launch failed", "Runtime environment not ready",

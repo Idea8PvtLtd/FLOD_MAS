@@ -112,5 +112,47 @@ class FailedInstallTests(UpdaterCase):
         self.app.app_proc.start.assert_not_called()
 
 
+class EmptyEnvironmentTests(UpdaterCase):
+    """An environment that was just built has no packages, whatever the state file says."""
+
+    def setUp(self):
+        super().setUp()
+        self.folder_old = self.release(self.SHA_OLD)
+        self.hash = self.updater.sha256_file(self.folder_old / 'requirements.txt')
+        self.updater.save_json(self.updater.STATE_FILE, {'sha': self.SHA_OLD, 'deps_hash': self.hash})
+        self.addCleanup(patch.stopall)
+
+    def test_starting_an_installed_build_fills_a_rebuilt_environment(self):
+        self.app.git.rev.return_value = self.SHA_OLD
+        with patch.object(self.updater, 'ensure_venv', return_value=True), \
+                patch.object(self.updater, 'install_requirements') as install:
+            self.app._update_loop()
+        install.assert_called_once()
+        self.assertEqual(install.call_args.args[1], self.folder_old / 'requirements.txt')
+        self.assertEqual(self.state()['deps_hash'], self.hash)
+        self.assertEqual(self.started_from().name, self.SHA_OLD)
+
+    def test_an_existing_environment_is_not_reinstalled(self):
+        self.app.git.rev.return_value = self.SHA_OLD
+        with patch.object(self.updater, 'ensure_venv', return_value=False), \
+                patch.object(self.updater, 'install_requirements') as install:
+            self.app._update_loop()
+        install.assert_not_called()
+
+    def test_an_update_with_unchanged_requirements_still_fills_a_rebuilt_environment(self):
+        with patch.object(self.updater, 'ensure_venv', side_effect=[True, False]), \
+                patch.object(self.updater, 'install_requirements') as install:
+            self.app._update_loop()
+        install.assert_called_once()
+        self.assertEqual(self.state()['sha'], self.SHA_NEW)
+
+    def test_offline_start_fills_a_rebuilt_environment(self):
+        with patch.object(self.updater, 'internet_available', return_value=False), \
+                patch.object(self.updater, 'ensure_venv', return_value=True), \
+                patch.object(self.updater, 'install_requirements') as install:
+            self.app._update_loop()
+        install.assert_called_once()
+
+
 if __name__ == '__main__':
     unittest.main()
