@@ -157,6 +157,7 @@ settings tab replaces the old segmentation/SAM controls.
 | `local_inspection.glue_model` | `inspection/local/models/segformer_b0.onnx` | Local unfolded adhesive weights |
 | `local_inspection.source_width` | 1152 | Aspect-preserving source AI width |
 | `local_inspection.offset_pixels` | 100.0 | Inward band width in full undistorted-frame pixels |
+| `local_inspection.smooth_logits` | false | false: the adhesive class is chosen on the model's 64 x 1024 grid and the labels are enlarged with nearest neighbour, as before. true: the scores are enlarged with bilinear interpolation and the class is chosen at strip resolution, so an edge is not held to the model's rows (one row is about 1.6 px, 0.2 mm) |
 | `local_inspection.smooth_normal_rows` | 0 | 0: the inward band is offset along the raw edge direction, as before. Above 0 (101 was tested): the direction is taken from the edge averaged over that many rows, which stops the band's inner edge zigzagging. The unfolded strip becomes about half as long and readings repeat better between captures; the mean width changes by about 0.2 px |
 | `auto_trigger.marker_confirm_seconds` | 0.5 | Continuous visibility of two physical ID-0 bed markers before reset |
 | `auto_trigger.hand_absence_seconds` | 1.0 | Quiet period after debounced hand absence |

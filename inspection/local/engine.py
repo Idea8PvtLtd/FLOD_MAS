@@ -8,11 +8,12 @@ from .width_measurement import measure_component
 
 
 class LiveInspection:
-    def __init__(self, source_path, glue_path, offset=100., source_width=1152, smooth_normal_rows=0):
+    def __init__(self, source_path, glue_path, offset=100., source_width=1152, smooth_normal_rows=0,
+                 smooth_logits=False):
         from .source_model import SourceMaskOnnx
         from .glue_model import SegformerOnnx
         self.source = SourceMaskOnnx(source_path, width=source_width, flip=False)
-        self.glue = SegformerOnnx(glue_path)
+        self.glue = SegformerOnnx(glue_path, smooth_logits=smooth_logits)
         self.offset = float(offset)
         if not np.isfinite(self.offset) or self.offset <= 0:
             raise ValueError('Inspection offset must be positive and finite')

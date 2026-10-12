@@ -233,6 +233,7 @@
     "glue_model": "inspection/local/models/segformer_b0.onnx",
     "source_width": 1152,
     "offset_pixels": 100.0,
-    "smooth_normal_rows": 0
+    "smooth_normal_rows": 0,
+    "smooth_logits": false
   }
 }

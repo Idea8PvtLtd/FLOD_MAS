@@ -95,6 +95,47 @@ class BandPathTests(unittest.TestCase):
         validate_config(config)
 
 
+class ScoreEnlargementTests(unittest.TestCase):
+    """Where the edge lands when the model's 64 rows are enlarged to the strip's 100."""
+
+    def scores(self, edge_row):
+        """Two-class scores whose true edge lies at a fractional model row."""
+        rows = np.arange(64, dtype=np.float32)[:, None] * np.ones((1, 32), np.float32)
+        glue = np.clip(edge_row - rows, -4, 4)          # positive above the edge
+        return np.stack([-glue, glue])[None]
+
+    def edge(self, mask):
+        return float(np.count_nonzero(mask[:, 5]))
+
+    def test_the_default_is_the_argmax_then_nearest_recipe(self):
+        from inspection.local.glue_model import segformer_mask
+        scores = self.scores(20.4)
+        labels = np.argmax(scores, axis=1)[0].astype(np.uint8) * 255
+        expected = cv2.resize(labels, (50, 100), interpolation=cv2.INTER_NEAREST)
+        np.testing.assert_array_equal(segformer_mask(scores, (100, 50)), expected)
+
+    def test_smooth_enlargement_follows_a_moving_edge_in_finer_steps(self):
+        from inspection.local.glue_model import segformer_mask
+        positions = np.arange(20.0, 22.01, .1)
+        plain = [self.edge(segformer_mask(self.scores(p), (100, 50))) for p in positions]
+        smooth = [self.edge(segformer_mask(self.scores(p), (100, 50), smooth=True)) for p in positions]
+        # Two model rows are 3.1 strip pixels. The plain mask can only move by a
+        # whole model row, so it jumps two pixels at once; the smooth one moves
+        # a pixel at a time and stays closer to where the edge really is.
+        self.assertGreaterEqual(max(np.abs(np.diff(plain))), 2)
+        self.assertLessEqual(max(np.abs(np.diff(smooth))), 1)
+        truth = positions * 100 / 64
+        self.assertLess(np.ptp(np.array(smooth) - truth), np.ptp(np.array(plain) - truth))
+
+    def test_the_setting_is_validated(self):
+        config = copy.deepcopy(CONFIG)
+        config['local_inspection']['smooth_logits'] = True
+        validate_config(config)
+        config['local_inspection']['smooth_logits'] = 'yes'
+        with self.assertRaises(ValueError):
+            validate_config(config)
+
+
 class LocalGeometryTests(unittest.TestCase):
     def test_only_rightmost_line_is_refolded_to_full_frame(self):
         frame, _, result = synthetic_inspection()
