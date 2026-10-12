@@ -58,6 +58,16 @@ KEEP_RELEASES    = 3
 INTERNET_HOST    = ("github.com", 443)
 INTERNET_TIMEOUT = 5
 
+# No external command may wait for ever: a stalled network or a credential prompt
+# would otherwise keep the starter open and the application closed. When a limit
+# is reached the update is abandoned and the installed build is started.
+GIT_CLONE_TIMEOUT = 1800     # first run: the whole repository, with its models
+GIT_FETCH_TIMEOUT = 300
+GIT_LOCAL_TIMEOUT = 60       # commands that only read the local mirror
+EXTRACT_TIMEOUT   = 600
+VENV_TIMEOUT      = 600
+PIP_TIMEOUT       = 3600     # TensorFlow and MediaPipe on a slow line
+
 # --------------------------------------------------------------------------- #
 # Palette
 # --------------------------------------------------------------------------- #
@@ -152,12 +162,12 @@ def _find_target_python() -> str | None:
             out = subprocess.run(
                 ["py", f"-{TARGET_PYTHON_VERSION}", "-c",
                  "import sys; print(sys.executable)"],
-                capture_output=True, text=True, check=True,
+                capture_output=True, text=True, check=True, timeout=30,
             )
             exe = out.stdout.strip()
             if exe and Path(exe).exists():
                 return exe
-        except (FileNotFoundError, subprocess.CalledProcessError):
+        except (OSError, subprocess.SubprocessError):
             pass
 
     for name in (f"python{TARGET_PYTHON_VERSION}", "python3"):
@@ -168,11 +178,11 @@ def _find_target_python() -> str | None:
             out = subprocess.run(
                 [exe, "-c",
                  "import sys; print('.'.join(map(str, sys.version_info[:2])))"],
-                capture_output=True, text=True, check=True,
+                capture_output=True, text=True, check=True, timeout=30,
             )
             if out.stdout.strip() == TARGET_PYTHON_VERSION:
                 return exe
-        except subprocess.CalledProcessError:
+        except (OSError, subprocess.SubprocessError):
             continue
     return None
 
@@ -192,9 +202,21 @@ def _venv_python_version(venv: Path) -> str | None:
         return None
 
 
-def run_cmd(cmd, check=True, capture=False, **kw):
+def run_cmd(cmd, check=True, capture=False, timeout=None, **kw):
+    """Run a command. ``timeout`` (seconds) raises subprocess.TimeoutExpired."""
     cmd = [str(c) for c in cmd]
-    return subprocess.run(cmd, check=check, text=True, capture_output=capture, **kw)
+    return subprocess.run(cmd, check=check, text=True, capture_output=capture,
+                          timeout=timeout, **kw)
+
+
+def git_env() -> dict:
+    """Git must fail rather than ask: nobody is there to answer a prompt."""
+    env = os.environ.copy()
+    env["GIT_TERMINAL_PROMPT"] = "0"
+    env["GCM_INTERACTIVE"] = "Never"
+    env.setdefault("GIT_HTTP_LOW_SPEED_LIMIT", "1000")   # bytes per second ...
+    env.setdefault("GIT_HTTP_LOW_SPEED_TIME", "60")      # ... for this long: give up
+    return env
 
 
 # --------------------------------------------------------------------------- #
@@ -206,18 +228,25 @@ class GitRepo:
         self.branch = branch
         self.mirror = mirror
 
-    def _git(self, *args, **kw):
-        return run_cmd([_git_exe(), f"--git-dir={self.mirror}", *args], **kw)
+    def _git(self, *args, timeout=GIT_LOCAL_TIMEOUT, **kw):
+        return run_cmd([_git_exe(), f"--git-dir={self.mirror}", *args],
+                       timeout=timeout, env=git_env(), **kw)
 
     def ensure_cloned(self, log):
         if self.mirror.exists():
             return
         log("Connecting to remote repository …")
-        run_cmd([_git_exe(), "clone", "--mirror", self.url, str(self.mirror)])
+        try:
+            run_cmd([_git_exe(), "clone", "--mirror", self.url, str(self.mirror)],
+                    timeout=GIT_CLONE_TIMEOUT, env=git_env())
+        except (subprocess.SubprocessError, OSError):
+            # A half-made mirror would be taken for a complete one next time.
+            shutil.rmtree(self.mirror, ignore_errors=True)
+            raise
 
     def fetch(self, log):
         log("Checking for updates …")
-        self._git("fetch", "--prune", "origin")
+        self._git("fetch", "--prune", "origin", timeout=GIT_FETCH_TIMEOUT)
 
     def rev(self) -> str:
         return self._git("rev-parse", f"refs/heads/{self.branch}",
@@ -228,7 +257,7 @@ class GitRepo:
         log(f"Downloading build {sha[:8]} …")
         proc = subprocess.Popen(
             [_git_exe(), f"--git-dir={self.mirror}", "archive", "--format=tar", sha],
-            stdout=subprocess.PIPE,
+            stdout=subprocess.PIPE, env=git_env(),
         )
         try:
             with tarfile.open(fileobj=proc.stdout, mode="r|") as tf:
@@ -238,7 +267,13 @@ class GitRepo:
                     tf.extractall(dest)
         finally:
             proc.stdout.close()
-        if proc.wait() != 0:
+        try:
+            code = proc.wait(timeout=EXTRACT_TIMEOUT)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+            proc.wait()
+            raise
+        if code != 0:
             raise RuntimeError(f"Failed to extract build {sha}")
 
 
@@ -263,14 +298,16 @@ def ensure_venv(venv: Path, log) -> bool:
         )
 
     log(f"Preparing runtime environment (Python {TARGET_PYTHON_VERSION}) …")
-    run_cmd([target, "-m", "venv", str(venv)])
-    run_cmd([venv_python(venv), "-m", "pip", "install", "--upgrade", "pip", "wheel"])
+    run_cmd([target, "-m", "venv", str(venv)], timeout=VENV_TIMEOUT)
+    run_cmd([venv_python(venv), "-m", "pip", "install", "--upgrade", "pip", "wheel"],
+            timeout=PIP_TIMEOUT)
     return True
 
 
 def install_requirements(venv: Path, req: Path, log):
     log("Installing required components …")
-    run_cmd([venv_python(venv), "-m", "pip", "install", "-r", str(req)])
+    run_cmd([venv_python(venv), "-m", "pip", "install", "--no-input", "-r", str(req)],
+            timeout=PIP_TIMEOUT)
 
 
 def prune_releases(releases: Path, keep: int, current_sha: str, log):
@@ -647,7 +684,7 @@ class UpdaterApp(ctk.CTk):
                                 progress=0.6, icon="◆", tone=ACCENT)
                 try:
                     install_requirements(VENV_DIR, req_file, self.log)
-                except (subprocess.CalledProcessError, RuntimeError) as exc:
+                except (subprocess.SubprocessError, RuntimeError, OSError) as exc:
                     self.log(f"Component installation failed: {exc}")
                     self.log("Starting the previous build; the update is retried at the next start.")
                     # The new build is NOT recorded as deployed: its packages are

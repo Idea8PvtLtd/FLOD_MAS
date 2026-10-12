@@ -191,5 +191,58 @@ class FallbackLaunchTests(UpdaterCase):
         self.assertEqual(self.started_from().name, self.SHA_OLD)
 
 
+class TimeLimitTests(UpdaterCase):
+    """No external command may wait for ever."""
+
+    def commands(self, action):
+        seen = []
+        def record(cmd, **kw):
+            seen.append((list(map(str, cmd)), kw))
+            return subprocess.CompletedProcess(cmd, 0, stdout='', stderr='')
+        with patch.object(self.updater.subprocess, 'run', side_effect=record):
+            action()
+        return seen
+
+    def test_every_git_and_pip_command_has_a_time_limit_and_cannot_prompt(self):
+        repo = self.updater.GitRepo('https://example.invalid/x.git', 'main', self.updater.MIRROR_DIR)
+        seen = self.commands(lambda: (repo.ensure_cloned(lambda m: None), repo.fetch(lambda m: None), repo.rev(),
+                                      self.updater.install_requirements(self.updater.VENV_DIR, Path('r.txt'), lambda m: None)))
+        self.assertEqual(len(seen), 4)
+        for cmd, kw in seen:
+            self.assertGreater(kw.get('timeout') or 0, 0, cmd)
+        for cmd, kw in seen[:3]:
+            self.assertEqual(kw['env']['GIT_TERMINAL_PROMPT'], '0', cmd)
+        self.assertIn('--no-input', seen[3][0])
+
+    def test_a_clone_that_fails_leaves_no_half_made_mirror(self):
+        repo = self.updater.GitRepo('https://example.invalid/x.git', 'main', self.updater.MIRROR_DIR)
+        def stall(cmd, **kw):
+            self.updater.MIRROR_DIR.mkdir()
+            raise subprocess.TimeoutExpired(cmd, kw['timeout'])
+        with patch.object(self.updater.subprocess, 'run', side_effect=stall):
+            with self.assertRaises(subprocess.TimeoutExpired):
+                repo.ensure_cloned(lambda m: None)
+        self.assertFalse(self.updater.MIRROR_DIR.exists())
+
+    def test_a_stalled_fetch_starts_the_installed_build(self):
+        self.release(self.SHA_OLD)
+        self.updater.save_json(self.updater.STATE_FILE, {'sha': self.SHA_OLD})
+        self.app.git.fetch.side_effect = subprocess.TimeoutExpired(['git', 'fetch'], 300)
+        with patch.object(self.updater, 'ensure_venv', return_value=False):
+            self.app._update_loop()
+        self.assertEqual(self.started_from().name, self.SHA_OLD)
+        self.assertEqual(self.state()['sha'], self.SHA_OLD)
+
+    def test_a_stalled_install_keeps_the_previous_build(self):
+        self.release(self.SHA_OLD, requirements='old')
+        self.updater.save_json(self.updater.STATE_FILE, {'sha': self.SHA_OLD, 'deps_hash': 'x'})
+        with patch.object(self.updater, 'ensure_venv', return_value=False), \
+                patch.object(self.updater, 'install_requirements',
+                             side_effect=subprocess.TimeoutExpired(['pip'], 3600)):
+            self.app._update_loop()
+        self.assertEqual(self.state()['sha'], self.SHA_OLD)
+        self.assertEqual(self.started_from().name, self.SHA_OLD)
+
+
 if __name__ == '__main__':
     unittest.main()
