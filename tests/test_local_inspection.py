@@ -136,6 +136,43 @@ class ScoreEnlargementTests(unittest.TestCase):
             validate_config(config)
 
 
+class FalseLineTests(unittest.TestCase):
+    """A short false edge must not be numbered as a line when the filter is set."""
+
+    def inspector(self, ratio):
+        frame, inspector, _ = synthetic_inspection()
+        whole = inspector.source.predict(frame)
+        # A third, much shorter panel on the left: its edge is a line of its own.
+        y = np.arange(300, 520)
+        boundary = np.column_stack((120 + 12*np.sin((y-300)*2*np.pi/220), y))
+        cv2.fillPoly(whole, [np.rint(np.vstack(([20, 300], boundary, [20, 519]))).astype(np.int32)], 255)
+        inspector.source = SimpleNamespace(predict=lambda photo: whole.copy())
+        inspector.min_line_length_ratio = ratio
+        return frame, inspector
+
+    def lines(self, ratio):
+        frame, inspector = self.inspector(ratio)
+        return [r['line_count'] for r in inspector.run_lines(frame, on_error=lambda index, error: None)]
+
+    def test_by_default_every_line_is_kept(self):
+        self.assertEqual(set(self.lines(0)), {3})
+
+    def test_a_line_much_shorter_than_the_longest_is_dropped(self):
+        self.assertEqual(self.lines(.5), [2, 2])
+
+    def test_a_low_ratio_keeps_it(self):
+        self.assertEqual(set(self.lines(.2)), {3})
+
+    def test_the_setting_is_validated(self):
+        config = copy.deepcopy(CONFIG)
+        config['local_inspection']['min_line_length_ratio'] = .5
+        validate_config(config)
+        for bad in (-.1, 1, 'half', True):
+            config['local_inspection']['min_line_length_ratio'] = bad
+            with self.assertRaises(ValueError):
+                validate_config(config)
+
+
 class LocalGeometryTests(unittest.TestCase):
     def test_only_rightmost_line_is_refolded_to_full_frame(self):
         frame, _, result = synthetic_inspection()

@@ -13,7 +13,7 @@ class NoAdhesiveError(ValueError):
 
 class LiveInspection:
     def __init__(self, source_path, glue_path, offset=100., source_width=1152, smooth_normal_rows=0,
-                 smooth_logits=False):
+                 smooth_logits=False, min_line_length_ratio=0.):
         from .source_model import SourceMaskOnnx
         from .glue_model import SegformerOnnx
         self.source = SourceMaskOnnx(source_path, width=source_width, flip=False)
@@ -21,6 +21,13 @@ class LiveInspection:
         self.offset = float(offset)
         if not np.isfinite(self.offset) or self.offset <= 0:
             raise ValueError('Inspection offset must be positive and finite')
+        # 0 keeps every source line. Above 0, a line shorter than this share of the
+        # longest one in the capture is dropped before lines are numbered: a soft
+        # picture can give short false edges, and every false line shifts the
+        # left-to-right positions that later captures rely on.
+        self.min_line_length_ratio = float(min_line_length_ratio)
+        if not np.isfinite(self.min_line_length_ratio) or not 0 <= self.min_line_length_ratio < 1:
+            raise ValueError('Minimum line length ratio must be at least 0 and less than 1')
         # 0 keeps the band as it always was; see geometry.offset_path.
         self.smooth_normal_rows = int(smooth_normal_rows)
         if self.smooth_normal_rows < 0:
@@ -54,6 +61,10 @@ class LiveInspection:
                                    smooth_rows=getattr(self, 'smooth_normal_rows', 0))
         if not lines:
             raise ValueError('No accepted source lines. Check placement or the source mask model.')
+        ratio = getattr(self, 'min_line_length_ratio', 0.)
+        if ratio > 0 and len(lines) > 1:
+            lengths = [float(np.ptp(np.asarray(line['original_xy'], dtype=float), axis=0).max()) for line in lines]
+            lines = [line for line, length in zip(lines, lengths) if length >= ratio * max(lengths)]
         lines.sort(key=lambda line: float(np.mean(np.asarray(line['original_xy'])[:, 0])))
         total = len(lines)
         if only_rightmost:

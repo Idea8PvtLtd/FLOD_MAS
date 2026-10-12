@@ -35,6 +35,8 @@ def validate_automatic_config(config):
         number('local_inspection', 'offset_pixels', 0.5)
         if not isinstance(config['local_inspection'].get('smooth_logits', False), bool):
             raise ValueError('local_inspection.smooth_logits must be true or false')
+        if 'min_line_length_ratio' in config['local_inspection']:
+            number('local_inspection', 'min_line_length_ratio', 0, 0.99)
         if 'smooth_normal_rows' in config['local_inspection']:
             number('local_inspection', 'smooth_normal_rows', 0, 1001, integer=True)
         for key in ('source_model', 'glue_model'):
