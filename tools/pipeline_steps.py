@@ -361,7 +361,8 @@ def _centre(ring):
 def fabric_colour(image, roi):
     """'dark', 'pink' or 'white': the fabric inside the ROI, from its brightness and
     saturation. Shown with the result; which filters suit which colour was measured
-    per colour (see AUTOMATIC_INSPECTION.md, Pipeline Lab)."""
+    per colour (see docs/inspection/AUTOMATIC_INSPECTION.md,
+    Pipeline Lab)."""
     inside = _inside(roi)
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     sample = hsv[inside] if inside is not None else hsv.reshape(-1, 3)

@@ -6,7 +6,7 @@ which says where the band's middle runs) and returns ``(low, high)``: the two
 edges per sample, in pixels across the line, sub-pixel where the method allows.
 
 They are compared on painted glue lines of known edges by
-``tools/accuracy_bench.py``; the figures are in ``GLUE_LINE_FINDINGS.md``,
+``tools/accuracy_bench.py``; the figures are in ``docs/glue-line/GLUE_LINE_FINDINGS.md``,
 *Accuracy*. ``METHODS`` lists them by name.
 """
 import numpy as np

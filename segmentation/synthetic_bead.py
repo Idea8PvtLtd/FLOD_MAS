@@ -6,7 +6,7 @@ real fabric without a bead is taken from the same picture (same weave, lighting,
 noise, blur) and a bead is painted into it whose edges are chosen, so they are
 known exactly.
 
-The painted bead follows what was measured on real ones (``GLUE_LINE_FINDINGS.md``,
+The painted bead follows what was measured on real ones (``docs/glue-line/GLUE_LINE_FINDINGS.md``,
 *Accuracy*): a band darker than the fabric with edges blurred by the camera, the
 weave's texture much weaker inside it (glue fills the weave), and in stretches a
 thin bright core with a thin dark line each side. All of it is a model of the
