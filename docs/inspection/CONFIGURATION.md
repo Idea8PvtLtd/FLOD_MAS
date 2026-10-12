@@ -594,8 +594,15 @@ crop points through the region homography.
 - `serial`: Arduino connection enabled, port and baud rate.
 - `inspection`: selectable sizes, starting size, required strip width in millimetres,
   allowed plus/minus width tolerance, and result display time per crop.
-- `segmentation.glue_line`: the white-fabric detector's own settings; see
-  AUTOMATIC_INSPECTION.md for the full table. `track_gaps` is true by default:
+- `capture.buffer_size`: how many frames the camera driver may queue (OpenCV's buffer
+  size). Keep it small so a snapshot is the newest frame.
+- `segmentation`: provider and workflow settings; tables in `AUTOMATIC_INSPECTION.md`
+  (*Configuration* and *Pale and white fabric*).
+- `segmentation.glue_line`: the local glue-line detector's own settings; see
+  `AUTOMATIC_INSPECTION.md` for the full tables (*Local glue-line detector*, *Search guided
+  by the panel-region model*, *The line's shape as a condition*). The guided-search keys
+  are opt-in and change nothing at their shipped values; `sam_refine` uploads image tiles
+  to Roboflow when turned on. `track_gaps` is true by default:
   where a bead fades far enough to break its run into two pieces but its two edges
   are still faintly there, the stretch between them is measured rather than
   guessed, so it counts towards the strip's confidence. Set it to false to fall

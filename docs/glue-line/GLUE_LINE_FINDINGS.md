@@ -1,11 +1,13 @@
 # Glue-line detection: findings and methodology
 
 What has been measured about finding and outlining the glue line on dark, pink and white
-fabric, how each experiment was run, and what is still unverified. State as of 2026-10-08,
-branch `tooling/pipeline-lab`, nothing committed. Start with *Strategies*; the sections after
+fabric, how each experiment was run, and what is still unverified. State as of 2026-10-09,
+branch `tooling/pipeline-lab` (never `main`). Committed there: everything up to and including
+*SegFormer and CLAHE*. Not yet committed: the move of the documents into `docs/`, *The main
+branch's local model* and *Width statistics* with their code. Start with *Strategies*; the sections after
 it hold the measurements behind each statement, in the order the work was done.
 
-How to use the tool is in `AUTOMATIC_INSPECTION.md` (section *Pipeline Lab*). This file
+How to use the tool is in `../inspection/AUTOMATIC_INSPECTION.md` (section *Pipeline Lab*). This file
 records why it works the way it does.
 
 ## Strategies
@@ -119,11 +121,33 @@ only, and the user has not judged it. Details in *SegFormer and CLAHE*.
   its licence is non-commercial.
 - CLAHE before it: no gain, worse on soft frames.
 
+### The glue model on `main` (see *The main branch's local model*)
+
+- It is usable: all 257 lines, widths equal on the three colours, 3 s per frame on the CPU.
+- Best update found: keep its network, add the trees and smooth ribbon after it.
+- Version 5 reads pink 2.6 px narrower than it does; one of them is wrong there.
+
+### Width in millimetres and width changes (see *Width statistics*)
+
+- **Read the width from the segmentation mask**, pixel by pixel across the line: three to
+  five times steadier along a good line than any band-edge reading.
+- **Fit the scale** over the frame from the nominal 4 mm while the camera is uncalibrated.
+- **Use empirical limits from good lines**, over several window lengths together; 3-sigma
+  limits fail because widths are correlated and heavy-tailed.
+- Reached: 0.14-0.20 mm on dark fabric for changes 20-40 mm long. Not reached: pale fabric
+  (0.35-0.76 mm) and short changes.
+- **Mask glitches are separated from width changes** (no mask, mask fading out, mask stepping
+  sideways), and each change is checked against the band edges.
+- **Not covered: sudden changes.** The shortest window is 40 px (about 5 mm); a shorter bump
+  is averaged down, and nothing tests a step in width from one reading to the next.
+
 ### Still open
 
 - **Whether a real width defect is caught at all** (see *Ground facts from the user*): no
   defective sample exists, and the usable rule may be blind where SAM's edge is repaired.
 - **Camera calibration** for millimetres: widths read 7 % differently by position.
+- **Sudden width changes and steps** (see *Width statistics*, *Sudden changes*): no test
+  yet, and the mask may round them off.
 
 - Soft white frames from other sets (`10_05`, some `real_captures`): SAM outlines the wider
   band there (36-50 px) and the ribbon follows it. Marked CHECK BY EYE, not solved.
@@ -540,7 +564,7 @@ whole-frame work done before it.
 - API time depends on the connection and on the service's load at the time.
 - The inspection PC is a lower-powered Windows machine: stages 2-4 and 6-10 will take
   longer there; stage 5 depends on its connection. Nothing was timed on it.
-- This is the Pipeline Lab's flow. The inspection app's own cycle (`PERFORMANCE.md`) was not
+- This is the Pipeline Lab's flow. The inspection app's own cycle (`../inspection/PERFORMANCE.md`) was not
   re-timed.
 
 ## Local GPU flow (offline)
@@ -1103,6 +1127,228 @@ training on an openly licensed network; any test on fabric or products outside t
   the six frames from the other sets are new pieces, and they are few.
 - White: 4 training frames, 2 held out.
 
+## The main branch's local model (commit `4a0680f`)
+
+Checked 2026-10-09 at the user's request: can the glue model merged into `main` by pull
+request #1 be used with the accuracy method here, and do the findings give a way to update
+it? Its files were extracted to `~/flod_experiments/main_model/` and run there unchanged; the
+working branch was not merged or altered. Scripts: `run_main.py`, `compare.py`,
+`update_test.py`, `retrain.py`, `retrain_eval.py`, `page.py` in that folder.
+
+### What that model is
+
+`inspection/local/` on `main` (author: Obhash Mannapperuma), engine `LiveInspection`:
+
+1. The same panel-strip U-Net as here (`strip_unet_resnet34.onnx`) gives the source mask.
+2. Each curved side of the mask becomes a line; a second line is drawn 100 px inside it. The
+   band between the two is where glue is looked for.
+3. The whole photo is contrast-enhanced with **CLAHE** (clip 2, 16x16) and the band is
+   **unfolded** (straightened) to its real size, about 2000 x 100 px.
+4. The band is squeezed to **1024 x 64** and given to a two-class **SegFormer-B0**
+   (`segformer_b0.onnx`, 15 MB, runs on the CPU). Glue = class 1.
+5. The mask is cleaned, folded back into the photo, and its width is read on perpendicular
+   rays every 5 px; ten segment averages per line are what the app grades.
+
+So it is the same idea as the straightened strip used here, with a trained network reading
+the strip. It also is "SegFormer with CLAHE", the subject of the previous section.
+
+### Scored with the accuracy checks (all 74 M1 frames, 257 lines)
+
+| | Dark | Pink | White |
+|---|---|---|---|
+| Lines found / pieces per line | 126 of 126 / 1.00 | 113 of 113 / 1.00 | 18 of 18 / 1.00 |
+| Width, median px | 31.0 | 30.9 | 32.6 |
+| Version 5 width, median px | 31.0 | 28.7 | 31.3 |
+| Difference from version 5, px | +0.5 | **+2.6** | +1.5 |
+| Centre line from version 5's, px | 0.68 | 0.81 | 0.80 |
+| Edges from version 5's, px | 1.02 | 1.73 | 1.50 |
+| Width noise from sample to sample, px RMS | 1.25 | 1.29 | 1.35 |
+| Largest of the ten segment averages off the line's mean, px: mean / worst | 1.3 / 4.7 | 3.2 / 5.5 | 1.6 / 3.1 |
+| Line width between repeat shots, SD px (version 5) | 0.12 (0.07) | 0.13 (0.21) | - |
+
+- Errors: none. Time: 3.0 s per frame on the CPU, no GPU.
+- **It works and it can be used.** It finds every line as one piece and its line width
+  repeats between shots as well as version 5's.
+- **Its widths are the same on all three colours** (31.0 / 30.9 / 32.6 px), which is what a
+  4 mm strip on every colour should give. Version 5 reads pink 2.6 px (about 0.3 mm)
+  narrower than this model does. Which of the two is right on pink is not known; this model
+  is the more consistent across colours, so version 5's pink width is now in doubt. A
+  caliper reading on one pink piece would settle it.
+- Its weakness is evenness along a line: the reading wanders by 1.3 px from sample to
+  sample, and on good (defect-free) pink lines one of the ten segment averages is up to
+  5.5 px (0.7 mm) off the line's mean. A tolerance tighter than that would reject good lines.
+
+Frames from the other sets (soft white): it finds the lines, mostly at 28-32 px, but with
+width spread 5-34 px inside a line, some readings far off (14, 20, 21, 23 px), lines in two
+or three pieces, and on `0049` six lines where there are four.
+
+### Updates from the findings, each tested
+
+| Update | Result | Verdict |
+|---|---|---|
+| **Its mask as evidence for the trees + smooth ribbon** (no retraining) | Held-out M1: centre 0.15-0.43 px from version 5, no line doubtful. Soft frames: a 17.5 px reading becomes 26.0 px, the two false lines on `0049` are refused, 1 line marked "check" | **Recommended.** Gives the even width its raw reading lacks |
+| Enlarge the logits smoothly before choosing the class, instead of enlarging the labels by nearest neighbour | Edges 1.01 -> 0.85 px on dark, no change elsewhere; noise unchanged | Harmless, small |
+| Retrain in the same format (CLAHE, 1024x64) on the version 5 ribbons (179 bands) | Closer to version 5 (trained on it), not more even; worse on soft frames (readings of 13 and 26 px) | Not recommended |
+| Retrain **without CLAHE at 2048x128** (the band keeps its pixels) | Soft frames much steadier: `21_30_28` reads 29 / 29 / 29 / 28 px with spread 6-8 (shipped: 20 in two pieces / 31 / 29 / 29, spread 11-19); `0045` spread 3-9 (shipped 7-16). But noisier on M1 (1.6-2.2 px against 1.2-1.3) | Promising for soft frames; needs more training bands than 179 before it could replace the shipped model |
+
+- The extra lines on `0049` appear with every glue model: they come from the source-line
+  stage (step 2), not from the glue model.
+- Both retraining trials confirm two earlier findings inside this engine too: CLAHE does not
+  help and hurts on soft frames; squeezing the band costs steadiness on soft frames.
+- Not done: merging `main` into the working branch (it is 11 commits ahead of the common
+  base and replaces the automatic inspection, so it will conflict); wiring the trees and
+  ribbon into `inspection/local/engine.py`; retraining with the shipped model's own training
+  data, which is not in the repository.
+
+### Pictures
+
+`~/flod_experiments/out/main_model_check/index.html`: 39 lines from 10 frames; the shipped
+mask, the same with trees and ribbon, and version 5, at full zoom. Not examined by eye here.
+
+## Width statistics: millimetres and where a line widens or narrows
+
+Built 2026-10-09 at the user's request: with the average strip width taken as 4 mm, turn
+pixels into millimetres, find by a proper statistical method where a line is wider or
+narrower, and show it as a page for the M1 captures. The user's target is to resolve changes
+of 0.1-0.2 mm. Code: `segmentation/width_stats.py`, `segmentation/segformer_local.py`,
+`tools/width_report.py`; tests `tests/test_width_stats.py`. Page:
+`~/flod_experiments/out/width_report/index.html` (74 frames, 257 lines).
+
+### Which width signal (the first finding)
+
+All supplied lines are good, so the best measurement is the one that varies least on them.
+Largest change of the width inside one good line, held-out frames, before any correction:
+
+| Width read from | Dark: typical / 95 % of lines, mm (over 40 px) | Pink | White |
+|---|---|---|---|
+| Band edges, steepest slope | 1.34 / 1.76 | 1.69 / 2.08 | 0.74 / 1.26 |
+| Band edges, profile fit | 1.07 / 1.39 | 1.61 / 2.11 | 0.64 / 1.21 |
+| Band edges, trees | 0.84 / 1.10 | 0.96 / 1.28 | 0.54 / 0.72 |
+| SAM 2.1 outline | 0.27 / 0.58 | 1.31 / 2.34 | 1.55 / 2.01 |
+| **Segmentation mask (SegFormer-B2)** | **0.16 / 0.29** | **0.56 / 0.72** | 0.56 / 0.76 |
+| Median of trees, SAM and mask | 0.20 / 0.44 | 0.81 / 1.12 | 0.51 / 0.75 |
+
+- Every band-edge reading has a bump of about 0.8 mm somewhere on nearly every good line
+  (223 of 257 of them where the shiny core shows). The trees are the best edge finder by
+  the painted-truth bench, but as a *width signal along a real line* the band edges are far
+  too bumpy for a 0.1-0.2 mm target.
+- The width read from the **segmentation mask, pixel by pixel across the line** (the user's
+  instruction), is three to five times steadier and is what the report uses. The mask's two
+  ends are placed between pixels where the probability passes one half.
+
+### Method
+
+1. **Width** every 2 px along a line from the mask; 60 px left out at each tip.
+2. **Pixels to millimetres.** The camera is not calibrated: the same 4 mm strip reads 26-35
+   px by place. A scale surface is fitted (quadratic over the frame, one factor per fabric
+   colour, robust fit of the logarithm of width) on the assumption that good lines average
+   4 mm. It explains most of the place-to-place variation; mean 7.57 px per mm (dark 7.87,
+   pink 7.19, white 7.92).
+3. **Departure**: width in mm minus the line's own gradual course (a robust quadratic from
+   end to end). A gradual change along a whole line is mostly the uncalibrated camera and is
+   reported separately.
+4. **Test.** The departure is averaged over windows of 40, 80, 160 and 320 px (5 to 42 mm).
+   The limits are *empirical*: taken from good lines so that 95 % of them stay inside at
+   every window length together ("significant"), or 80 % ("notable"). Why not 3 sigma:
+   neighbouring widths are correlated (0.8 at 10 px, 0.4 at 40 px, 0.2 at 80 px) and the
+   spread has heavy tails (2-9 % of 40 px blocks lie beyond three robust SDs, against 0.27 %
+   for a normal distribution), so normal-theory limits would flag most good lines.
+5. Limits for a line come from other frames (five groups by capture time), and only from
+   the 22 frames the mask model was not trained on; each colour has its own limits when it
+   has 20 such lines (white, with 6, shares the pooled ones).
+
+### Results
+
+| | Dark | Pink | White |
+|---|---|---|---|
+| Line width after the scale, mm (mean +- SD between lines) | 4.00 +- 0.06 | 4.02 +- 0.16 | 4.01 +- 0.08 |
+| Spread of 40 px readings along a good line, mm | 0.048 | 0.168 | 0.130 |
+| Smallest change marked significant, lasting 5 mm (40 px) | +-0.36 mm | +-0.58 | +-0.76 |
+| ... 11 mm (80 px) | +-0.27 | +-0.53 | +-0.59 |
+| ... 21 mm (160 px) | +-0.20 | +-0.44 | +-0.51 |
+| ... 42 mm (320 px) | **+-0.14** | +-0.35 | +-0.37 |
+
+- Check of the method: on the 78 lines new to the mask model, 7 were marked significant
+  (9 %; 5 % expected) and 10 more notable (13 %; 15 % expected). The limits behave as
+  designed. On all 257 lines 31 are marked significant; lines from frames the model was
+  trained on are not a fair count.
+- **Against the 0.1-0.2 mm target.** A single 40 px reading is steady to 0.05 mm on dark
+  fabric, so the measurement itself is fine enough there. What limits detection is the
+  natural variation of good lines: on dark a change of 0.14-0.20 mm is found if it lasts
+  20-40 mm; a change only 5 mm long must reach 0.36 mm. On pink and white the limits are
+  0.35-0.76 mm: the target is **not met** there.
+- Everything marked on the page is natural variation of good lines, since the samples have
+  no defects. The limits are the method's sensitivity, not a tolerance; a tolerance in mm
+  is the user's to set and needs the camera calibrated.
+
+### Segmentation glitches
+
+A change of width read from a mask may be a change of the glue or of the mask. The report
+separates the two (`width_stats.judge_change`, `segformer_local.mask_edges`):
+
+| Check on the mask along a line | A glitch when | Found on the 257 lines |
+|---|---|---|
+| No mask | the line is not inside the mask for 3 readings or more | 0 stretches |
+| Mask fades out | the probability falls slowly at an edge instead of ending abruptly: the softest 2 % of good readings, for 20 px or more | 115 stretches, typically 4 mm long (longest 22 mm) |
+| Mask steps sideways | the mask's middle leaves its own course by more than good lines show (same empirical limits, 40 and 80 px windows) | 24 stretches, typically 19 mm (longest 39 mm) |
+
+88 of 257 lines have at least one such stretch: 30 of 126 dark, 50 of 113 pink, 8 of 18
+white. They are drawn yellow on the pictures and under the charts.
+
+Every width change found is then judged:
+
+- **glitch**: the mask is in question over 30 % or more of the stretch;
+- **also seen in the band edges**: the width read straight from the picture (the band's
+  edges, which do not use the mask) changes the same way by at least half as much;
+- **in the mask only**: neither.
+
+| Width changes | Glitch | Also in the band edges | Mask only |
+|---|---|---|---|
+| Significant (39) | 0 | 33 | 6 |
+| Notable (60) | 2 | 36 | 22 |
+
+- **Most of the width changes marked are real.** 33 of the 39 significant ones show in a
+  second reading that owes nothing to the mask. Good lines do vary by 0.2-0.4 mm locally;
+  that is the glue, not the measurement. This is why the limits cannot be brought down to
+  0.1 mm on short stretches whatever the method.
+- The glitches found are mostly short soft edges that do not coincide with width changes;
+  only 2 of 99 width changes were put down to a glitch.
+- The band edges are too bumpy to be the width signal (see above), but agreeing with the
+  mask over a whole stretch is a different and much stronger thing than a single reading.
+- Not tested: a glitch that both readings share, and the reverse case, a real defect the
+  mask smooths over (there the band edges would change and the mask would not; the report
+  does not yet flag that).
+
+### Sudden changes (what the method does not cover)
+
+Asked by the user on 2026-10-09: can it find places where the width jumps up or down
+suddenly, and glitches. Read from the code, not from a new experiment:
+
+| Case | Found? | Why |
+|---|---|---|
+| Change lasting 40 px (about 5 mm) or more | yes | every window length is tested against its own limit |
+| Bump shorter than 40 px | only if large | the shortest window averages it: a 20 px bump counts at half its size, a 10 px bump at a quarter |
+| Step in width (wide on one side, normal on the other) | late, and not located | no test compares neighbouring readings; the step shows only once the changed part fills a window, and the place of the jump is not marked |
+| Mask missing, fading out or stepping sideways | yes | the three glitch checks |
+| Mask changes width with a sharp edge and without moving sideways | as *mask only*, not as a glitch | none of the three checks looks at width |
+| Real sudden defect the mask rounds off | no | the mask model was trained on even ribbons and outputs at a quarter of the resolution; the band edges would show it and the report does not yet compare in that direction |
+
+What would close it, not built: windows of 8 and 16 px and a test on the jump between
+neighbouring readings, with limits taken from good lines the same way; the place of the jump
+marked on the page; and the catch rate measured with sudden defects painted on the truth
+bench (`segmentation/synthetic_bead.py`), since no real defective sample exists.
+
+### Limits of this
+
+- The window lengths start at 40 px, so the figures above say nothing about shorter changes.
+- The scale assumes good lines average 4 mm; it is a fit to that assumption, not a
+  calibration. After it, line widths agree to 0.06-0.16 mm between lines.
+- The mask model was trained on 52 of the 74 frames and on smooth, even labels (the version
+  5 ribbons). Whether its mask follows a real local width change has **not** been tested:
+  no defective sample exists. A model trained on even labels may smooth a real defect away.
+- Pink and white limits rest on 35 and 6 held-out lines.
+- SegFormer's licence is non-commercial.
+
 ## Methodology
 
 - **Full resolution always.** Every method runs on the original pixels; SAM gets 1024 px
@@ -1131,35 +1377,47 @@ training on an openly licensed network; any test on fabric or products outside t
   lines the tool itself marks doubtful, false defect reports).
 - **A result is not correct because an overlay looks plausible.** An earlier detector
   outlined the wrong feature and looked fine; the user's confirmation is the test.
-- **No regression.** New behaviour is opt-in or in the separate tool. The full suite (336
+- **No regression.** New behaviour is opt-in or in the separate tool. The full suite (366
   tests) passes; default detector output was checked byte-identical to the committed one
   when the opt-in paths were added.
-- **Environment.** `~/flod_experiments/gpu/bin/python` (Python 3.12, RTX 3050, onnxruntime,
-  inference-sdk). The project `.venv` is Python 3.14, where inference-sdk cannot be
+- **Environment.** `~/flod_experiments/gpu/bin/python` (Python 3.12, RTX 3050 6 GB, PyTorch
+  with CUDA, transformers, onnxruntime, ultralytics, scikit-learn, lightgbm, inference-sdk). The project `.venv` is Python 3.14, where inference-sdk cannot be
   installed. SAM calls upload image tiles to Roboflow and need `ROBOFLOW_API_KEY`.
-- **Outputs.** Overlays and per-frame numbers: `~/flod_experiments/out/lab_validation`
-  (first repair) and `lab_validation2` (current).
+- **Outputs** (pages under `~/flod_experiments/out/`, each with an `index.html`):
+  `lab_validation`, `lab_validation2` (leak repair), `v4_m1_all` (version 4, 74 frames),
+  `local_gpu_m1_all` (local GPU flow), `v5_m1_all`, `v5b_m1_all` (version 5),
+  `compare_stages`, `segformer_vs_sam`, `main_model_check`, `width_report`.
 
 ## Not verified
 
-- The bead's-edge widths against a caliper, and whether the dark band is the glue's full
-  width. On pink, which of the two lower edges is the bead's.
-- The edge finder on anything but M1 captures; its sizes are in pixels of a 4608-wide frame.
-
-- **Width in millimetres**, and which width is the glue: SAM's about 30 px ribbon, or the
-  12-17 px between the two dark side lines that the local detector measures. Needs caliper
-  measurements of real lines.
-- Pink lines where SAM outlined little: the width there is the line's own average.
-- Line ends: the outline stops short of the bead's tips on some panels.
-- `real_captures`, `10_05` and the loose files with the current method. Only M1 captures
-  were run.
-- White fabric beyond 2 validation frames.
-- The Windows inspection PC, and the tool's clicked-point and drawn-box modes by hand.
-- Whether the hardest pink lines can be outlined at all without a change of lighting.
+- **Whether any method catches a real width defect.** The supplied strips have none; every
+  deviation reported on them is false or natural variation. Painted defects are a model.
+- **Sudden width changes and steps**: no test for them (see *Width statistics*).
+- **Width in millimetres.** The camera is not calibrated; the scale is fitted to the nominal
+  4 mm. No caliper measurement exists, nor proof that the 30 px band is the glue's full
+  width (the local detector measures 12-17 px between the two dark side lines).
+- **Pink fabric**: the least certain colour. Version 5 and the model on `main` differ by
+  2.6 px there; which is right is unknown.
+- **White fabric**: 18 lines in the M1 set, 6 of them held out.
+- **Soft white frames from other sets** (`10_05`, some `real_captures`): SAM outlines the
+  wider band; only the trained segmenter handled them, on few frames.
+- **Line ends**: the outline stops short of the bead's tips on some panels.
+- **The trained segmenter on another product**, and its mask on a real local width change.
+- **Local SAM 3**: not run (gated weights need a Hugging Face login).
+- **The Windows inspection PC**: none of this has run there. The opt-in detector settings
+  and the tool's clicked-point and drawn-box modes have not been tried by hand on it.
+- The edge finder's sizes are in pixels of a 4608-wide frame; another camera height needs
+  them revisited.
 
 ## Next steps worth taking
 
-1. Caliper widths on a few lines per colour, to settle the width definition and the scale.
-2. Run the current method on `real_captures` and the white `10_05` frames.
-3. For pink: a second light at a low angle, or use the outlines already made as labels for
-   a small bead model on native tiles.
+1. **Defective samples**: a few strips made too wide and too narrow on purpose, sudden and
+   gradual. Nothing about catching defects can be settled without them.
+2. **Calibrate the camera** (`../calibration/CALIBRATION_PIPELINE.md`), then caliper widths
+   on a few lines per colour: settles the scale, the width definition and the pink dispute.
+3. **Short windows and a jump test** in `segmentation/width_stats.py`, measured on painted
+   sudden defects; flag a change the band edges show and the mask does not.
+4. **Trees and ribbon after the glue model on `main`**: the best update found for it.
+5. Decide on the trained segmenter: its licence is non-commercial, and it needs retraining
+   per product.
+6. For pink: a second light at a low angle.

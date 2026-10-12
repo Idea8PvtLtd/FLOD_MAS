@@ -14,8 +14,14 @@ inspection PC (Python 3.12); this Linux machine is used for development and expe
 - `strip_analysis.py`, `sam_detection.py` — centreline, width, grading.
 - `CalibrateAPP/`, `plane_scale.py` — camera calibration and millimetre scale.
 - `tools/replay_capture.py` — offline replay of image files through the pipeline.
-- Docs: `AUTOMATIC_INSPECTION.md`, `CONFIGURATION.md`, `CALIBRATION_PIPELINE.md`.
-  `GLUE_LINE_FINDINGS.md` records what was measured for glue-line detection and how.
+- `tools/pipeline_lab.py` — separate window for glue-line experiments; with it
+  `segmentation/sam_refine.py`, `sam_local.py`, `bead_edges.py`, `ribbon.py`, `bead_ml.py`.
+  `tools/accuracy_bench.py`, `benchmark_flow.py`, `width_report.py` measure accuracy, time
+  and width changes. None of these are used by the inspection app.
+- Docs: everything is under `docs/` (index: `docs/README.md`). `docs/inspection/` holds
+  `AUTOMATIC_INSPECTION.md`, `CONFIGURATION.md`, `PERFORMANCE.md`, `UI_DESIGN.md`;
+  `docs/calibration/CALIBRATION_PIPELINE.md`; `docs/glue-line/GLUE_LINE_FINDINGS.md` records
+  what was measured for glue-line detection and how. New documents go there, not in the root.
 
 ## Commands
 
@@ -23,7 +29,8 @@ inspection PC (Python 3.12); this Linux machine is used for development and expe
   and lacks some dependencies; use an environment with `scikit-image` and `scipy`.
 - GPU experiments: `~/flod_experiments/gpu/bin/python`.
 - Experiment scripts, trained models and result pages that are not part of the app live in
-  `~/flod_experiments/` (for example `segformer/`, `out/`); `GLUE_LINE_FINDINGS.md` says which.
+  `~/flod_experiments/` (for example `segformer/`, `out/`);
+  `docs/glue-line/GLUE_LINE_FINDINGS.md` says which.
 
 ## Rules for changes
 

@@ -97,7 +97,7 @@ working — the fit reproducing independent points on the plane, matching the pr
 own board geometry, and agreeing with the global plane — and then breaks it on
 purpose in the three ways that leave a *perfect* residual and a wrong answer: a
 board off the plane, a board declared at the wrong size, and a focal length five
-times wrong. See the region homography section of `CONFIGURATION.md`.
+times wrong. See the region homography section of `../inspection/CONFIGURATION.md`.
 
 ## Region homography mode (optional)
 

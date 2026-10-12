@@ -62,6 +62,8 @@ in the existing inspection-profile UI.
 | `segmentation.input_width`, `input_height` | 1024, 768 | Workflow input dimensions |
 | `segmentation.timeout_seconds` | 180.0 | Per-attempt workflow timeout |
 | `segmentation.max_retries` | 3 | Reference workflow retry count |
+| `segmentation.max_fabrics` | 4 | Most fabrics one capture may hold (1-4); more strip predictions than this stop the capture with an error |
+| `segmentation.convert_to_rgb` | false | Send the image to the workflow in RGB channel order instead of OpenCV's BGR |
 | `capture_storage.save_rejected_triggers` | false | Save sources before the fabric gate, including rejects/errors/superseded captures |
 | `capture_storage.max_sets` | 1000 | Maximum number of capture directories |
 | `capture_storage.jpeg_quality` | 82 | Derived-image JPEG quality |
@@ -200,6 +202,42 @@ again along the stretch at a relaxed threshold and measures the width there, so
 that stretch counts as seen rather than as a guess; if neither edge survives, the
 straight bridge is used and confidence falls exactly as before.
 
+### Search guided by the panel-region model (opt-in)
+
+A second way of finding the line, added for coloured fabric and for tables that are not
+white. A trained model marks the glue-bearing panels; one line is then looked for along the
+curved side of each panel, so mesh, cups, folds and the table are never considered. Every
+key below is in `segmentation.glue_line` and is off or neutral by default: with the shipped
+values the detector's output is the same as without them (checked byte for byte when they
+were added).
+
+| Setting | Default | Purpose |
+|---|---:|---|
+| `background` | `white` | `white`: the white table the detector was first built for. `any`: fabric is whatever is left once the dark background is removed |
+| `bead_model` | `edges` | How the bead shows. `edges`: bright bead between two dark lines (pale fabric). `line`: one band (coloured fabric). `auto`: chosen from the fabric's colour |
+| `coloured_saturation` | 25 | With `auto`: fabric more saturated than this uses `line` |
+| `roi_model` | empty | File of the panel-region model (ONNX). Empty: not used. The weights are not in the repository |
+| `roi_input_width` | 768 | Width the region model was trained at |
+| `roi_mirror_pass` | false | Average a second, mirrored pass of the region model |
+| `roi_grow_px` | 25 | How far the marked region is widened, to be safe at its edge (not applied with `roi_guided`) |
+| `roi_guided` | false | With `roi_model`: look for one line along each panel's curved side |
+| `corridor_near_px`, `corridor_far_px` | -55, 170 | With `roi_guided`: the bead lies between these distances inside the curved side (negative = outside it) |
+| `roi_strict` | false | The glue line is always inside the region: never search outside it |
+| `cardboard_saturation` | 60 | Warm surfaces more saturated than this are cardboard or tape, not fabric |
+| `enhance_bead` | false | With `roi_guided`: search on the bead-enhanced image |
+| `sam_refine` | false | With `roi_guided`: outline each found line with SAM 3. **Uploads image tiles to Roboflow** and needs `ROBOFLOW_API_KEY` |
+| `sam_max_width_px` | 80 | A SAM mask wider than this is not a bead and is refused |
+
+Two more keys are read when present and are not in the shipped `config.json`:
+`guided_skip_frame_filters` (false; with `roi_guided`, skip whole-frame filters the guided
+search does not use: the rough line took 8-11 s per frame with them and under 1 s without,
+with the same lines found on 44 of 44 tested) and `sam_prep` (an object of
+tile-preparation values for SAM; see `PREP_DEFAULTS` in `segmentation/sam_refine.py`).
+
+These settings are what the Pipeline Lab drives. The inspection app has not been run with
+them on the inspection PC; what was measured with them is in
+`../glue-line/GLUE_LINE_FINDINGS.md`.
+
 ### The line's shape as a condition
 
 On these products the glue line always has the same wave: two humps on one side of
@@ -311,7 +349,7 @@ box ticked the final outline is read from the original picture along the line
 its two edges are found in a strip straightened and averaged along the line. Nothing is
 uploaded for this step. The overlay shows the final outline in green and SAM's own thin in
 magenta; the result row adds "edges steady N %". Measured results and the method are in
-`GLUE_LINE_FINDINGS.md`.
+`../glue-line/GLUE_LINE_FINDINGS.md`.
 
 **SAM on this PC's GPU.** "SAM runs on" chooses between the Roboflow cloud (image tiles are
 uploaded) and this PC's own GPU (nothing is uploaded; the default when a CUDA GPU is found).
@@ -321,20 +359,32 @@ Local models: `sam2.1-large` (default), `sam2.1-base-plus`, `sam2.1-small`, `sam
 (measured: not usable on pale fabric). With the GPU the ROI model also runs on it. "Ask SAM
 once per line" skips the repeat askings; with the ribbon the result is the same and a frame
 takes about 5 s instead of 22-45 s. The text prompt needs the cloud. Measurements are in
-`GLUE_LINE_FINDINGS.md`, *Local GPU flow*; `tools/benchmark_flow.py` re-measures them.
+`../glue-line/GLUE_LINE_FINDINGS.md`, *Local GPU flow*; `tools/benchmark_flow.py` re-measures them.
 
 **Trained segmenter (researched, not in the tool).** A SegFormer fine-tuned on the tool's
 own best outlines marks every glue line on native 512 px tiles with no prompts, in about a
 second, and copes with soft white frames where SAM does not. It is not offered in the window
 yet: its licence is non-commercial and it must be trained per product. Method, settings,
-results and how to repeat it: `GLUE_LINE_FINDINGS.md`, *SegFormer and CLAHE*; scripts and
+results and how to repeat it: `../glue-line/GLUE_LINE_FINDINGS.md`, *SegFormer and CLAHE*; scripts and
 models in `~/flod_experiments/segformer/`.
+
+**Width report (script, not in the window).** `tools/width_report.py --runs DIR --out DIR
+[--mask-model SEGFORMER_DIR --held-out FILE]` writes a page showing, for every glue line of
+a set of frames, its width in millimetres along its length and the places where it is wider
+or narrower than good lines' natural variation allows. The scale is fitted from the nominal
+4 mm width; the limits are empirical (`segmentation/width_stats.py`). With a mask model the
+width is read from its mask, and stretches where the mask itself is in doubt (missing,
+fading out, stepping sideways) are marked as segmentation glitches; each width change is
+labelled *glitch*, *also seen in the band edges* or *in the mask only*. It finds changes
+that last 40 px (about 5 mm) or more; a shorter or sudden change is averaged down and there
+is no test for a step in width. Method, results and limits:
+`../glue-line/GLUE_LINE_FINDINGS.md`, *Width statistics*.
 
 **Edges placed by.** With the ribbon, how the band's two edges are placed: `trees` (a
 trained correction by gradient-boosted trees, the most accurate on the truth bench; offered
 once `tools/train_bead_ml.py` has been run and `lightgbm` is installed), `slope` (steepest
 slope, as before) or `profile_fit` (a fitted edge model). `tools/accuracy_bench.py` measures
-any of them against painted glue lines of known edges; results in `GLUE_LINE_FINDINGS.md`,
+any of them against painted glue lines of known edges; results in `../glue-line/GLUE_LINE_FINDINGS.md`,
 *Accuracy*.
 
 **Smooth ribbon from the true shape** (tick box, off by default, automatic points only).
@@ -445,6 +495,11 @@ OpenCV 4.12.0.88, inference-sdk 1.7.1. Both OpenCV distributions are pinned to
 the same build because the SDK and MediaPipe request different distribution names.
 The project `.venv` contains the installed dependencies; no reference environment
 or reference source files are modified. Virtual environments are not copied.
+
+The Pipeline Lab with SAM on the GPU, and the research scripts, use a separate environment
+on the development PC (`~/flod_experiments/gpu`: PyTorch with CUDA, transformers,
+onnxruntime, ultralytics, scikit-learn, lightgbm); none of those are needed by the
+inspection app.
 
 Run `python -m unittest discover -s tests -p "test_*.py"` and
 `python tests/verify_automatic_ui.py` using this project's interpreter.

@@ -72,6 +72,6 @@ resolution. Settings and their tradeoffs are described in `CONFIGURATION.md`.
 ## Glue-line Pipeline Lab
 
 The Pipeline Lab (`tools/pipeline_lab.py`) is separate from the inspection cycle reviewed
-above. Its time per frame, stage by stage, is in `GLUE_LINE_FINDINGS.md`, section *Time per
+above. Its time per frame, stage by stage, is in `../glue-line/GLUE_LINE_FINDINGS.md`, section *Time per
 frame*: about 22 s on dark and white fabric and 45 s on pink on the development PC with
 the cloud API, and about 5 s with SAM on the PC's own GPU (section *Local GPU flow*).

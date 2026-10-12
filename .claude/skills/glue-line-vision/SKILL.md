@@ -131,7 +131,7 @@ confident wrong call before.
 
 ## Outlining with SAM 3 (2026-10-08)
 
-Full record, numbers and method: `GLUE_LINE_FINDINGS.md` in the repo root. In short:
+Full record, numbers and method: `docs/glue-line/GLUE_LINE_FINDINGS.md`. In short:
 
 - Working chain: panel ROI model -> rough line per ROI region -> SAM 3 point prompts on
   native 1024 tiles -> leak repair (`sam_refine.trim_ring`) inside the ROI. On 18 M1 frames
@@ -148,7 +148,7 @@ Full record, numbers and method: `GLUE_LINE_FINDINGS.md` in the repo root. In sh
 
 ## Best strategy so far (version 4, 2026-10-08)
 
-The user judged this the best result to date. Read *Strategies* in `GLUE_LINE_FINDINGS.md`
+The user judged this the best result to date. Read *Strategies* in `docs/glue-line/GLUE_LINE_FINDINGS.md`
 before changing any of it. Chain: panel ROI model -> rough line -> SAM 3 point prompts on raw
 full-resolution tiles (leak repair, ask again up to twice) -> state of the picture place by
 place (`bead_edges.measure`: shiny, matte, one-sided, weak, none) -> band edges from the
@@ -167,7 +167,7 @@ shots. Measured: steepest-slope edges are unbiased and about 1 px RMS; the train
 edge and from blur; glue fills the weave (texture inside the band is 0.2-0.4 of the
 fabric's) and that helps as a feature, not as an edge. Width defects: smallest found reliably
 is about 8 px over 60 px; on real lines the rule alone gives too many single-shot reports.
-Averaging repeat shots does not help. Full tables: `GLUE_LINE_FINDINGS.md`, *Accuracy*.
+Averaging repeat shots does not help. Full tables: `docs/glue-line/GLUE_LINE_FINDINGS.md`, *Accuracy*.
 
 ## Ground facts from the user (2026-10-08)
 
@@ -176,7 +176,7 @@ defects**. So: the ~30 px band is the 4 mm strip (about 7.6 px/mm, uncalibrated)
 width deviation reported on the supplied images is a false alarm (use them to measure the
 false-alarm rate, never as proof of detection); band edges alone flag 40-87 % of good lines,
 only the rule needing SAM's agreement is usable (1 of 257 lines at threshold 7); whether it
-catches a real defect is untested. Details: `GLUE_LINE_FINDINGS.md`, *Ground facts from the
+catches a real defect is untested. Details: `docs/glue-line/GLUE_LINE_FINDINGS.md`, *Ground facts from the
 user*.
 
 ## SegFormer (2026-10-09)
@@ -188,4 +188,29 @@ frames from `10_05` / `real_captures` (widths 28-32 px, 1 of 17 lines doubtful; 
 px, 9 of 17). Its output is at quarter resolution: use the mask as evidence for the ribbon,
 not as the edge. CLAHE before it does not help and hurts on soft frames. Its licence is
 non-commercial (NVIDIA). Models and scripts: `~/flod_experiments/segformer/`. Not wired into
-the tool. Tables: `GLUE_LINE_FINDINGS.md`, *SegFormer and CLAHE*.
+the tool. Tables: `docs/glue-line/GLUE_LINE_FINDINGS.md`, *SegFormer and CLAHE*.
+
+## The glue model on `main` (checked 2026-10-09)
+
+`main` (commit `4a0680f`) has `inspection/local/`: panel-strip U-Net -> band 100 px inside each
+curved side -> CLAHE -> unfold -> squeeze to 1024x64 -> SegFormer-B0 ONNX on the CPU -> width
+on perpendicular rays. Measured on the 74 M1 frames: all 257 lines found, widths 31.0 / 30.9 /
+32.6 px on dark / pink / white (version 5: 31.0 / 28.7 / 31.3, so pink is in dispute), 3 s per
+frame. Weak in evenness along a line (1.3 px noise; segment averages up to 5.5 px off on good
+lines) and on soft frames. Feeding its mask to the trees + ribbon fixes both without
+retraining. Retraining without CLAHE at 2048x128 steadies soft frames but needs more data.
+Copy and scripts: `~/flod_experiments/main_model/`. Tables: `docs/glue-line/GLUE_LINE_FINDINGS.md`.
+
+## Width in mm and width changes (2026-10-09)
+
+User's target: resolve width changes of 0.1-0.2 mm. Read the width from the segmentation
+mask (SegFormer) pixel by pixel across the line: band-edge widths, trees included, have
+bumps of about 0.8 mm on nearly every good line. Scale: fit pixels-per-mm over the frame
+from the nominal 4 mm (`width_stats.fit_scale`); about 7.6 px/mm. Limits must be empirical,
+from good lines, over several window lengths together (`width_stats.limits_from_good_lines`):
+widths are autocorrelated and heavy-tailed, 3 sigma flags most good lines. Reached on dark
+fabric: 0.14-0.20 mm for changes 20-40 mm long; pale fabric 0.35-0.76 mm. Untested: whether
+the mask follows a real defect. Report: `tools/width_report.py`; it also marks mask glitches
+(no mask, fading, sideways step) and labels each change glitch / confirmed by band edges /
+mask only. Not covered: changes shorter than 40 px (averaged down) and steps in width (no
+jump test); fix not built: 8/16 px windows + jump test, judged on painted sudden defects.
