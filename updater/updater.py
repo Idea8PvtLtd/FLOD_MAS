@@ -35,7 +35,7 @@ APP_SUBTITLE = "Vision Inspection"
 APP_VERSION  = "v1.0.0"
 
 REPO_URL = "https://github.com/mmocbm/FLOD_MAS.git"   # never logged
-BRANCH = "main"
+BRANCH = "main"               # default; "branch" in updater.json replaces it
 ENTRYPOINT = "main_1366.py"
 REQUIREMENTS_FILE = "requirements.txt"
 
@@ -52,6 +52,8 @@ MIRROR_DIR   = ROOT / "repo.git"
 RELEASES_DIR = ROOT / "releases"
 VENV_DIR     = ROOT / "venv"
 STATE_FILE   = ROOT / "state.json"
+
+SETTINGS_FILE = ROOT / "updater.json"
 
 CHECK_INTERVAL   = 60
 KEEP_RELEASES    = 3
@@ -217,6 +219,31 @@ def git_env() -> dict:
     env.setdefault("GIT_HTTP_LOW_SPEED_LIMIT", "1000")   # bytes per second ...
     env.setdefault("GIT_HTTP_LOW_SPEED_TIME", "60")      # ... for this long: give up
     return env
+
+
+def load_settings(path: Path | None = None) -> dict:
+    """Optional per-machine settings beside the starter (updater.json).
+
+    branch               which branch is installed. Default "main". Pointing the
+                         inspection PC at a branch that only receives tested
+                         commits (for example "release") keeps untested pushes
+                         to main away from it.
+    start_check_seconds  after an update, how long the new build is watched.
+                         If it exits with an error inside that time the previous
+                         build is started again and the bad commit is skipped
+                         until a newer one arrives. Default 0: no check.
+    A missing or unreadable file, or a bad value, gives the defaults.
+    """
+    data = load_json(path or SETTINGS_FILE, {})
+    if not isinstance(data, dict):
+        data = {}
+    branch = data.get("branch", BRANCH)
+    if not isinstance(branch, str) or not branch.strip():
+        branch = BRANCH
+    seconds = data.get("start_check_seconds", 0)
+    if isinstance(seconds, bool) or not isinstance(seconds, (int, float)) or not 0 <= seconds <= 600:
+        seconds = 0
+    return {"branch": branch.strip(), "start_check_seconds": float(seconds)}
 
 
 # --------------------------------------------------------------------------- #
@@ -393,7 +420,8 @@ class UpdaterApp(ctk.CTk):
         self.geometry(f"{w}x{h}+{x}+{y}")
         self.resizable(False, False)
 
-        self.git = GitRepo(REPO_URL, BRANCH, MIRROR_DIR)
+        self.settings = load_settings()
+        self.git = GitRepo(REPO_URL, self.settings["branch"], MIRROR_DIR)
         self.app_proc = AppProcess()
         self._stop_flag = False
 
@@ -637,6 +665,18 @@ class UpdaterApp(ctk.CTk):
             state = load_json(STATE_FILE, {})
             deployed = state.get("sha")
 
+            if sha == state.get("bad_sha") and sha != deployed:
+                # This commit was installed before and did not start. It is not
+                # tried again; a newer commit clears the mark.
+                self.log(f"Build {sha[:8]} failed to start earlier — keeping the current build.")
+                self.set_step("download", "done")
+                self.set_step("install",  "done")
+                self.set_status("Update skipped", f"Build {sha[:8]} did not start last time",
+                                progress=1.0, icon="◆", tone=WARNING)
+                time.sleep(0.6)
+                self._launch_existing()
+                return
+
             if sha == deployed:
                 self.log("Application is up to date.")
                 self.set_step("download", "done")
@@ -707,6 +747,7 @@ class UpdaterApp(ctk.CTk):
 
             # ---- 5. Save & prune --------------------------------------------- #
             state["sha"] = sha
+            state.pop("bad_sha", None)
             save_json(STATE_FILE, state)
             prune_releases(RELEASES_DIR, KEEP_RELEASES, sha, self.log)
 
@@ -715,7 +756,10 @@ class UpdaterApp(ctk.CTk):
             self.set_status("Update complete", f"Build {sha[:8]} ready",
                             progress=0.95, icon="▶", tone=SUCCESS)
             time.sleep(0.6)
-            self._launch_release(release_dir)
+            previous = RELEASES_DIR / deployed if deployed else None
+            if previous is not None and (previous == release_dir or not previous.is_dir()):
+                previous = None
+            self._launch_release(release_dir, previous=previous)
 
         except Exception as exc:
             self.log(f"Unexpected error: {exc}")
@@ -758,7 +802,9 @@ class UpdaterApp(ctk.CTk):
         release_dir = recorded if recorded in dirs else dirs[0]
         self._launch_release(release_dir)
 
-    def _launch_release(self, release_dir: Path):
+    def _launch_release(self, release_dir: Path, previous: Path | None = None):
+        """Start a build. ``previous`` is the build to go back to if this one,
+        freshly installed, exits with an error during the start check."""
         try:
             if ensure_venv(VENV_DIR, self.log):
                 # The environment was missing or built for another Python: it has
@@ -801,7 +847,43 @@ class UpdaterApp(ctk.CTk):
             self.set_status("Launch failed", "Application could not be started",
                             progress=0.0, icon="✕", tone=ERROR)
             return
+        seconds = getattr(self, "settings", {}).get("start_check_seconds", 0)
+        if previous is not None and seconds > 0 and self._failed_to_start(seconds):
+            self._roll_back(release_dir, previous)
+            return
         self.after(1500, self.destroy)
+
+    def _failed_to_start(self, seconds: float) -> bool:
+        """True when the application just started exits with an error in time."""
+        self.set_status("Checking the new build …", f"Watching it for {seconds:.0f} s",
+                        progress=1.0, icon="▶", tone=ACCENT)
+        try:
+            code = self.app_proc.proc.wait(timeout=seconds)
+        except subprocess.TimeoutExpired:
+            return False          # still running: it started
+        return code != 0          # 0 is the operator closing it
+
+    def _roll_back(self, failed: Path, previous: Path):
+        self.log(f"Build {failed.name[:8]} exited with an error right after starting.")
+        self.log(f"Going back to build {previous.name[:8]}.")
+        state = load_json(STATE_FILE, {})
+        state["sha"] = previous.name
+        state["bad_sha"] = failed.name
+        # The environment now holds the failed build's packages.
+        state.pop("deps_hash", None)
+        save_json(STATE_FILE, state)
+        self.app_proc.proc = None
+        req_file = previous / REQUIREMENTS_FILE
+        try:
+            if req_file.is_file() and sha256_file(req_file) != sha256_file(failed / REQUIREMENTS_FILE):
+                install_requirements(VENV_DIR, req_file, self.log)
+            state["deps_hash"] = sha256_file(req_file)
+            save_json(STATE_FILE, state)
+        except (subprocess.SubprocessError, RuntimeError, OSError) as exc:
+            self.log(f"Previous components could not be restored: {exc}")
+        self.set_status("Update rolled back", f"Build {failed.name[:8]} did not start",
+                        progress=1.0, icon="◆", tone=WARNING)
+        self._launch_release(previous)
 
     # ------------------------------------------------------------------ #
     def on_close(self):

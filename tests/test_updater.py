@@ -53,6 +53,7 @@ class UpdaterCase(unittest.TestCase):
         self.app.after = MagicMock()
         self.app.destroy = MagicMock()
         self.app.app_proc = MagicMock()
+        self.app.settings = {'branch': 'main', 'start_check_seconds': 0}
         self.app.git = MagicMock()
         self.app.git.rev.return_value = self.SHA_NEW
         self.app.git.extract.side_effect = self.extract
@@ -242,6 +243,98 @@ class TimeLimitTests(UpdaterCase):
             self.app._update_loop()
         self.assertEqual(self.state()['sha'], self.SHA_OLD)
         self.assertEqual(self.started_from().name, self.SHA_OLD)
+
+
+class SettingsTests(UpdaterCase):
+    def read(self, text):
+        path = Path(self.folder.name) / 'updater.json'
+        path.write_text(text)
+        return self.updater.load_settings(path)
+
+    def test_no_file_keeps_main_and_no_start_check(self):
+        self.assertEqual(self.updater.load_settings(Path(self.folder.name) / 'absent.json'),
+                         {'branch': 'main', 'start_check_seconds': 0.0})
+
+    def test_branch_and_start_check_are_read(self):
+        self.assertEqual(self.read('{"branch": " release ", "start_check_seconds": 20}'),
+                         {'branch': 'release', 'start_check_seconds': 20.0})
+
+    def test_bad_values_fall_back_to_the_defaults(self):
+        for text in ('not json', '[]', '{"branch": "", "start_check_seconds": -1}',
+                     '{"branch": 5, "start_check_seconds": true}', '{"start_check_seconds": "soon"}'):
+            with self.subTest(text=text):
+                self.assertEqual(self.read(text), {'branch': 'main', 'start_check_seconds': 0.0})
+
+
+class StartCheckTests(UpdaterCase):
+    """After an update, a build that exits with an error at once is rolled back."""
+
+    def setUp(self):
+        super().setUp()
+        self.release(self.SHA_OLD)
+        self.updater.save_json(self.updater.STATE_FILE, {'sha': self.SHA_OLD, 'deps_hash': 'x'})
+        self.app.settings = {'branch': 'main', 'start_check_seconds': 20}
+        patch.object(self.updater, 'ensure_venv', return_value=False).start()
+        self.install = patch.object(self.updater, 'install_requirements').start()
+        self.addCleanup(patch.stopall)
+
+    def exits(self, code):
+        self.app.app_proc.proc = MagicMock()   # the real start() makes a new process
+        if code is None:
+            self.app.app_proc.proc.wait.side_effect = subprocess.TimeoutExpired(['app'], 20)
+        else:
+            self.app.app_proc.proc.wait.return_value = code
+
+    def starts(self):
+        return [call.args[1].name for call in self.app.app_proc.start.call_args_list]
+
+    def test_a_build_that_keeps_running_is_kept(self):
+        self.exits(None)
+        self.app._update_loop()
+        self.assertEqual(self.starts(), [self.SHA_NEW])
+        self.assertEqual(self.state()['sha'], self.SHA_NEW)
+        self.assertNotIn('bad_sha', self.state())
+
+    def test_a_build_closed_normally_is_kept(self):
+        self.exits(0)
+        self.app._update_loop()
+        self.assertEqual(self.starts(), [self.SHA_NEW])
+        self.assertEqual(self.state()['sha'], self.SHA_NEW)
+
+    def test_a_build_that_exits_with_an_error_is_rolled_back(self):
+        self.exits(1)
+        self.app._update_loop()
+        self.assertEqual(self.starts(), [self.SHA_NEW, self.SHA_OLD])
+        self.assertEqual(self.state()['sha'], self.SHA_OLD)
+        self.assertEqual(self.state()['bad_sha'], self.SHA_NEW)
+
+    def test_the_bad_commit_is_not_installed_again_but_a_newer_one_is(self):
+        self.exits(1)
+        self.app._update_loop()
+        self.app.app_proc.start.reset_mock()
+        self.app.git.extract.reset_mock()
+        self.app._update_loop()
+        self.app.git.extract.assert_not_called()
+        self.assertEqual(self.starts(), [self.SHA_OLD])
+        newer = 'c' * 40
+        self.app.git.rev.return_value = newer
+        self.exits(None)
+        self.app.app_proc.start.reset_mock()
+        self.app._update_loop()
+        self.assertEqual(self.starts(), [newer])
+        self.assertEqual(self.state()['sha'], newer)
+        self.assertNotIn('bad_sha', self.state())
+
+    def test_without_the_setting_nothing_is_watched(self):
+        self.app.settings = {'branch': 'main', 'start_check_seconds': 0}
+        self.app._update_loop()
+        self.app.app_proc.proc.wait.assert_not_called()
+        self.assertEqual(self.starts(), [self.SHA_NEW])
+
+    def test_an_ordinary_start_is_never_watched(self):
+        self.app.git.rev.return_value = self.SHA_OLD
+        self.app._update_loop()
+        self.app.app_proc.proc.wait.assert_not_called()
 
 
 if __name__ == '__main__':
