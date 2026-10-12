@@ -25,9 +25,21 @@ def parse_value(text, original):
     return text
 
 
-def save_config(config, path=CONFIG_PATH):
+def load_config():
+    """The defaults beside the code with this PC's saved changes laid over them."""
+    import machine_settings
+    return machine_settings.load_config(CONFIG_PATH)
+
+
+def save_config(config, path=None):
+    """Validate and save. Without ``path`` the changes go to this PC's settings in
+    Documents, which an update does not replace; with it, the whole file is written."""
     from config_validation import validate_config
     validate_config(config)
+    if path is None:
+        import machine_settings
+        machine_settings.save_config(config, CONFIG_PATH)
+        return
     temporary = None
     try:
         with tempfile.NamedTemporaryFile(mode='w', encoding='utf-8', dir=path.parent,
@@ -93,7 +105,7 @@ class StartupWindow:
         self.root.unbind('<KeyPress-s>')
         self.root.unbind('<KeyPress-S>')
         try:
-            self.config = json.loads(CONFIG_PATH.read_text(encoding='utf-8-sig'))
+            self.config = load_config()
         except (OSError, ValueError) as error:
             messagebox.showerror('Cannot read settings', str(error), parent=self.root)
             self.quit()
