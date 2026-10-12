@@ -3,8 +3,12 @@ from time import perf_counter
 import numpy as np
 from .geometry import (cv2, extract_lines, filter_wave_lines, offset_lines,
     region_mask, original_dimensions, unfold_maps, enhance_image, clean_mask,
-    individual_crop, mapped_mask)
+    individual_crop, mapped_mask, smoothed_path)
 from .width_measurement import measure_component
+
+
+class NoAdhesiveError(ValueError):
+    """The band of a line holds no adhesive that can be measured."""
 
 
 class LiveInspection:
@@ -91,7 +95,7 @@ class LiveInspection:
         mask[y:y+h, x:x+w] = local
         mask[selected == 0] = 0
         if not mask.any():
-            raise ValueError(f'Line {index}: adhesive model returned an empty mask.')
+            raise NoAdhesiveError(f'Line {index}: adhesive model returned an empty mask.')
         progress('Measuring strip in undistorted frame pixels')
         # Measure each real component. Do not bridge disconnected glue across long gaps.
         count, labels, stats, _ = cv2.connectedComponentsWithStats(mask, 8)
@@ -120,12 +124,18 @@ class LiveInspection:
                         sample[key] += int(delta)
             measurements.append(result)
         if not measurements:
-            raise ValueError('Detected adhesive is too small to measure reliably.')
+            raise NoAdhesiveError('Detected adhesive is too small to measure reliably.')
         main = max(measurements, key=lambda item: item['length_px'])
         widths = [s['width_px'] for s in main['samples'] if s['valid']]
+        # How long the line is that adhesive was looked for along: the panel edge,
+        # averaged so that its pixel steps do not add length. Measured adhesive is
+        # compared with it to tell a complete line from a partial one.
+        edge = smoothed_path(np.asarray(line['original_xy'], dtype=float), 101)
+        band_length = float(np.linalg.norm(np.diff(edge, axis=0), axis=1).sum())
         return dict(mask=mask, overlay=overlay, line_count=line_count, selected_line=index,
                     length_px=sum(m['length_px'] for m in measurements),
                     longest_length_px=main['length_px'], component_count=len(measurements),
                     mean_width_px=float(np.mean(widths)) if widths else None,
                     segments=main['segments'], components=measurements,
-                    selected_boundary=line, seconds=perf_counter()-started)
+                    selected_boundary=line, seconds=perf_counter()-started,
+                    band_length_px=band_length)

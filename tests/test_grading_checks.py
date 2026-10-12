@@ -9,7 +9,11 @@ import numpy as np
 from config_validation import validate_config
 from inspection.line_measurement import (CHECKS, grading_checks, measurement_record,
                                          with_distance_ratio)
+from inspection.pipeline import InspectionPipeline
+from inspection.storage import CaptureStore
 from plane_scale import PlaneScale
+import tempfile
+from unittest.mock import patch
 from test_local_inspection import synthetic_inspection
 
 CONFIG = json.loads((Path(__file__).resolve().parents[1] / 'config.json').read_text())
@@ -115,6 +119,151 @@ class LocalDefectTests(unittest.TestCase):
         record = measurement_record(line_with(15), None, 3, 1, 5, checks={'local_defect_length_mm': 2})
         self.assertEqual(record['status'], 'WARNING')
         self.assertEqual(record['local_defects'], [])
+
+
+class CompleteLineTests(unittest.TestCase):
+    """A line in pieces, or with adhesive on part of it only, is not a pass."""
+
+    def broken(self):
+        _, _, result = synthetic_inspection(broken=True)
+        return result
+
+    def test_coverage_and_gap_are_always_recorded(self):
+        _, _, whole = synthetic_inspection()
+        record = grade(whole)
+        self.assertGreater(record['coverage_percent'], 85)
+        self.assertEqual(record['largest_gap_mm'], 0)
+        broken = grade(self.broken())
+        self.assertLess(broken['coverage_percent'], record['coverage_percent'])
+        self.assertGreater(broken['largest_gap_mm'], 3)
+
+    def test_without_checks_two_pieces_inside_tolerance_still_pass(self):
+        record = grade(self.broken())
+        self.assertEqual(record['component_count'], 2)
+        self.assertEqual(record['status'], 'PASS')
+
+    def test_a_gap_above_the_limit_fails_the_line(self):
+        gap = grade(self.broken())['largest_gap_mm']
+        record = grade(self.broken(), max_gap_mm=gap - 1)
+        self.assertEqual(record['status'], 'FAIL')
+        self.assertIn('gap of', record['fail_reasons'][0])
+        self.assertEqual(grade(self.broken(), max_gap_mm=gap + 1)['status'], 'PASS')
+
+    def test_coverage_below_the_limit_fails_the_line(self):
+        coverage = grade(self.broken())['coverage_percent']
+        record = grade(self.broken(), min_coverage_percent=coverage + 5)
+        self.assertEqual(record['status'], 'FAIL')
+        self.assertIn('% of the line', record['fail_reasons'][0])
+        self.assertEqual(grade(self.broken(), min_coverage_percent=coverage - 5)['status'], 'PASS')
+
+    def test_an_incomplete_line_fails_even_without_calibration(self):
+        record = measurement_record(self.broken(), None, 3, 1, 5, checks={'min_coverage_percent': 99})
+        self.assertEqual(record['status'], 'FAIL')
+
+    def stray(self):
+        """The whole line plus a 2 mm scrap of adhesive beside its end."""
+        _, _, result = synthetic_inspection()
+        result = copy.deepcopy(result)
+        scrap = copy.deepcopy(result['components'][0])
+        scrap['samples'] = scrap['samples'][:5]
+        scrap['length_px'] = 20.0
+        for sample in scrap['samples']:
+            for key in ('center_x', 'left_x', 'right_x'):
+                sample[key] += 60
+        result['components'].append(scrap)
+        result['component_count'] = 2
+        return result
+
+    def test_a_scrap_shorter_than_one_segment_turns_the_line_to_warning_by_default(self):
+        self.assertEqual(grade(self.stray())['status'], 'WARNING')
+
+    def test_a_scrap_below_the_ignore_length_is_not_graded(self):
+        record = grade(self.stray(), ignore_pieces_shorter_than_mm=5)
+        self.assertEqual(record['status'], 'PASS')
+        self.assertEqual([c['ignored'] for c in record['components']], [False, True])
+
+    def test_the_longest_piece_is_never_ignored(self):
+        record = grade(self.broken(), ignore_pieces_shorter_than_mm=1000)
+        self.assertEqual(sum(not c['ignored'] for c in record['components']), 1)
+
+    def test_the_ratio_preview_keeps_the_verdict(self):
+        gap = grade(self.broken())['largest_gap_mm']
+        record = grade(self.broken(), max_gap_mm=gap - 1)
+        self.assertEqual(with_distance_ratio(record, record['distance_ratio'])['status'], 'FAIL')
+        self.assertEqual(with_distance_ratio(record, record['distance_ratio'] * .5)['status'], 'FAIL')
+
+
+class MissingLineTests(unittest.TestCase):
+    """A line with no adhesive at all: an error by default, FAIL when coverage is checked."""
+
+    def run_batch(self, coverage, with_missing=True):
+        frame, inspector, _ = synthetic_inspection()
+        real = inspector.glue.predict
+        calls = []
+        def first_line_empty(flat):
+            calls.append(1)
+            return np.zeros(flat.shape[:2], np.uint8) if len(calls) == 1 else real(flat)
+        inspector.glue.predict = first_line_empty
+        config = copy.deepcopy(CONFIG)
+        config['inspection']['min_coverage_percent'] = coverage
+        results, errors, missing = [], [], []
+        with tempfile.TemporaryDirectory() as folder:
+            store = CaptureStore(folder, config['capture_storage'])
+            pipeline = InspectionPipeline(inspector, store, config)
+            extra = {'on_missing': missing.append} if with_missing else {}
+            with patch('inspection.pipeline.plane_scale.load_frame_scale', return_value=SCALE):
+                pipeline.run_batch(frame, frame, {}, 3, 1, on_result=results.append,
+                                   on_error=errors.append, **extra)
+            record = json.loads((store._sets()[0] / 'result.json').read_text())
+        return results, errors, missing, record
+
+    def test_by_default_an_empty_line_is_an_error_as_before(self):
+        results, errors, missing, record = self.run_batch(0)
+        self.assertEqual(len(results), 1)
+        self.assertEqual(len(errors), 1)
+        self.assertEqual(missing, [])
+        self.assertNotIn('missing_lines', record)
+
+    def test_with_a_coverage_check_an_empty_line_is_reported_as_failed(self):
+        results, errors, missing, record = self.run_batch(80)
+        self.assertEqual(len(results), 1)
+        self.assertEqual(errors, [])
+        self.assertEqual(len(missing), 1)
+        self.assertIn('no adhesive found', missing[0])
+        self.assertEqual(record['missing_lines'], [1])
+        self.assertEqual(record['status'], 'complete_with_errors')
+
+    def test_a_caller_without_the_callback_still_gets_the_error(self):
+        _, errors, _, _ = self.run_batch(80, with_missing=False)
+        self.assertEqual(len(errors), 1)
+
+    def test_the_controller_turns_it_into_a_line_failed_event(self):
+        from auto_trigger.controller import AutoController
+        controller = AutoController.__new__(AutoController)
+        import queue, threading
+        controller.events = queue.SimpleQueue()
+        controller.lock = threading.Lock()
+        controller.wake = threading.Event()
+        controller.stopped = threading.Event()
+        controller.generation = 0
+        controller.inspected_lines = set()
+        controller.preparing_count = 0
+        controller.pending_jobs = []
+        controller.has_results = False
+        controller.last_status = None
+        class Pipeline:
+            store = None
+            def run_batch(self, original, corrected, metadata, width, tolerance, path,
+                          on_result=None, on_error=None, on_missing=None):
+                on_missing('Line 1: no adhesive found (FAIL)')
+        controller.pipeline = Pipeline()
+        controller._start_job({'original': None, 'corrected': None, 'metadata': {}, 'path': None,
+                               'profile': {'width': 3, 'tolerance': 1}, 'generation': 0, 'epoch': 0})
+        controller.future.result(timeout=5)
+        events = []
+        while not controller.events.empty():
+            events.append(controller.events.get())
+        self.assertIn(('line_failed', 0, 'Line 1: no adhesive found (FAIL)'), events)
 
 
 class SettingsTests(unittest.TestCase):

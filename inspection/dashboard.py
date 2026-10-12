@@ -116,6 +116,11 @@ class AutomaticDashboard:
                     continue
                 self.set_pass_fail('WARNING')
                 self.update_progress(100, payload)
+            elif event == 'line_failed':
+                if not active or generation != controller.generation:
+                    continue
+                self.set_pass_fail('FAIL')
+                self.update_progress(100, payload)
             elif event == 'status':
                 if getattr(self, '_models_loading', False) or (active and generation == controller.generation):
                     self.update_progress(100, payload)
