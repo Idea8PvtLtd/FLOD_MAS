@@ -70,7 +70,11 @@ to the application data folder described below.
 preview, crops, calibration, and inspection all use the same orientation. A 90° or
 270° rotation swaps the output width and height. After changing rotation, recalibrate
 that camera and recreate its saved crop regions; calibration from another orientation is
-not geometrically valid.
+not geometrically valid. New calibration files record the rotation they were made with
+(`camera_rotation`). A file recorded with another rotation is refused: the camera
+reports that calibration is required, and millimetre results are withheld, until the
+camera is calibrated again or the rotation is set back. Files saved before this record
+existed are accepted as they are.
 
 All camera acquisition goes through the same configured capture path. The app
 checks actual frame sizes. If the requested size is unavailable, it tests the
