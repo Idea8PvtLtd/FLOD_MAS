@@ -13,7 +13,9 @@ class AppStorageTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
-        self.root = Path(self.temp.name)
+        # Resolved: on Windows the temporary folder can be given as a short 8.3 path
+        # (RUNNER~1), which data_path() expands, so the comparison must be expanded too.
+        self.root = Path(self.temp.name).resolve()
         self.data = self.root / 'Redirected Documents' / 'data files'
         mocked = patch.object(app_storage, 'DATA_ROOT', self.data)
         mocked.start()
