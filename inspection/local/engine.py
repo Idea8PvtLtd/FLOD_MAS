@@ -76,21 +76,39 @@ class LiveInspection:
             # The rightmost of what is outstanding is what this capture owes once
             # the queued captures have taken their share of it.
             indices = [position - 1 for position in outstanding[max(0, int(reserved)):]]
-        for index in indices:
-            progress(f'Inspecting line {index+1} of {len(lines)}')
-            try:
-                yield self._inspect_line(photo, source, lines[index], index+1, len(lines), started, progress)
-            except Exception as error:
-                if on_error is None:
-                    raise
-                on_error(index+1, error)
+        try:
+            for index in indices:
+                progress(f'Inspecting line {index+1} of {len(lines)}')
+                try:
+                    yield self._inspect_line(photo, source, lines[index], index+1, len(lines), started, progress)
+                except Exception as error:
+                    if on_error is None:
+                        raise
+                    on_error(index+1, error)
+        finally:
+            # The enhanced photo is kept only while this capture's lines are measured.
+            self._enhanced = None
+
+    def _enhanced_photo(self, photo):
+        """The contrast-enhanced photo, computed once per capture.
+
+        Every line of a capture is cut from the same enhanced photo. Enhancing the
+        whole 16-megapixel frame again for each line gave the same picture each
+        time and was the largest single cost of a capture.
+        """
+        cached = getattr(self, '_enhanced', None)
+        if cached is None or cached[0] is not photo:
+            cached = (photo, enhance_image(photo, 2., 16, 16))
+            self._enhanced = cached
+        return cached[1]
 
     def _inspect_line(self, photo, source, line, index, line_count, started, progress):
+        line_started = perf_counter()
         selected = region_mask(source.shape, [line])
         width, height = original_dimensions(line, self.offset)
         mx, my, _ = unfold_maps(line, width, height, 'horizontal')
         progress('Enhancing and unfolding the selected inward band')
-        flat = cv2.remap(enhance_image(photo, 2., 16, 16), mx, my, cv2.INTER_LINEAR)
+        flat = cv2.remap(self._enhanced_photo(photo), mx, my, cv2.INTER_LINEAR)
         allowed = cv2.remap(selected, mx, my, cv2.INTER_NEAREST)
         flat[allowed == 0] = 0
         progress('Local SegFormer adhesive detection')
@@ -148,5 +166,8 @@ class LiveInspection:
                     longest_length_px=main['length_px'], component_count=len(measurements),
                     mean_width_px=float(np.mean(widths)) if widths else None,
                     segments=main['segments'], components=measurements,
+                    # seconds counts from the start of the capture, so for a later
+                    # line it includes the lines before it; line_seconds is this line alone.
                     selected_boundary=line, seconds=perf_counter()-started,
+                    line_seconds=perf_counter()-line_started,
                     band_length_px=band_length)

@@ -97,5 +97,15 @@ class MachineSettingsTests(unittest.TestCase):
         self.assertEqual(json.loads(self.defaults.read_text()), DEFAULTS)
 
 
+class TrueFalseTextTests(unittest.TestCase):
+    def test_text_is_read_by_its_meaning(self):
+        for text, expected in (('False', False), ('false', False), ('0', False), ('no', False), ('', False),
+                               ('True', True), ('1', True), ('yes', True), (True, True), (False, False)):
+            with self.subTest(text=text):
+                self.assertIs(startup_settings.parse_value(text, True), expected)
+        with self.assertRaises(ValueError):
+            startup_settings.parse_value('maybe', False)
+
+
 if __name__ == '__main__':
     unittest.main()

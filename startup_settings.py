@@ -14,6 +14,15 @@ CONFIG_PATH = Path(__file__).resolve().parent / 'config.json'
 
 def parse_value(text, original):
     if isinstance(original, bool):
+        # A checkbox gives a real True/False. Text is read by its meaning: bool()
+        # of any non-empty text, "False" included, is True.
+        if isinstance(text, str):
+            word = text.strip().lower()
+            if word in ('true', '1', 'yes', 'on'):
+                return True
+            if word in ('false', '0', 'no', 'off', ''):
+                return False
+            raise ValueError('Enter true or false')
         return bool(text)
     if isinstance(original, int):
         return int(text)

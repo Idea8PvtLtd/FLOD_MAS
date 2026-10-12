@@ -240,6 +240,7 @@ def measurement_record(result, scale, target_width, tolerance, end_exclusion_per
                 target_width_mm=float(target_width), tolerance_mm=float(tolerance),
                 segments=main['segments'], components=components,
                 selected_boundary=result['selected_boundary'], seconds=result['seconds'],
+                line_seconds=result.get('line_seconds'),
                 coordinate_space='undistorted input frame',
                 segment_basis='ten equal pixel arc-length intervals of the retained centreline in each component',
                 length_basis='sum of separately measured adhesive components; no gap bridging',

@@ -173,6 +173,44 @@ class FalseLineTests(unittest.TestCase):
                 validate_config(config)
 
 
+class CaptureCostTests(unittest.TestCase):
+    def test_the_photo_is_enhanced_once_for_all_lines_of_a_capture(self):
+        frame, inspector, _ = synthetic_inspection()
+        with patch('inspection.local.engine.enhance_image', wraps=__import__(
+                'inspection.local.engine', fromlist=['enhance_image']).enhance_image) as enhance:
+            results = list(inspector.run_lines(frame))
+            self.assertEqual(len(results), 2)
+            self.assertEqual(enhance.call_count, 1)
+            # The next capture is a different photo and is enhanced afresh.
+            list(inspector.run_lines(frame.copy()))
+            self.assertEqual(enhance.call_count, 2)
+        self.assertIsNone(inspector._enhanced)
+
+    def test_the_result_is_the_same_as_enhancing_for_every_line(self):
+        frame, inspector, _ = synthetic_inspection()
+        rng = np.random.default_rng(1)
+        frame = rng.integers(60, 200, frame.shape, dtype=np.uint8)
+        seen = []
+        real = inspector.glue.predict
+        inspector.glue.predict = lambda flat: (seen.append(flat.copy()), real(flat))[1]
+        list(inspector.run_lines(frame))
+        once = list(seen)
+        seen.clear()
+        inspector._enhanced_photo = lambda photo: __import__(
+            'inspection.local.engine', fromlist=['enhance_image']).enhance_image(photo, 2., 16, 16)
+        list(inspector.run_lines(frame))
+        self.assertEqual(len(once), len(seen))
+        for a, b in zip(once, seen):
+            np.testing.assert_array_equal(a, b)
+
+    def test_each_line_reports_its_own_time(self):
+        frame, inspector, _ = synthetic_inspection()
+        first, second = list(inspector.run_lines(frame))
+        self.assertLessEqual(first['line_seconds'], first['seconds'])
+        self.assertLess(second['line_seconds'], second['seconds'])
+        self.assertGreater(second['seconds'], first['seconds'])
+
+
 class LocalGeometryTests(unittest.TestCase):
     def test_only_rightmost_line_is_refolded_to_full_frame(self):
         frame, _, result = synthetic_inspection()
