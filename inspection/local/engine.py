@@ -6,6 +6,34 @@ from .geometry import (cv2, extract_lines, filter_wave_lines, offset_lines,
     individual_crop, mapped_mask)
 from .width_measurement import measure_component
 
+# The line geometry finds glue edges that run top-to-bottom. Fabric laid
+# sideways puts its edge left-to-right, so such a capture is processed turned a
+# quarter anticlockwise (np.rot90 k=1): the top of the photo becomes the left,
+# keeping positions in placement order. Measurement always happens back in the
+# real camera frame, where the lens and millimetre calibration apply.
+TURN = 1
+
+
+def _turn(image):
+    return np.ascontiguousarray(np.rot90(image, TURN))
+
+
+def _turn_back(image):
+    return np.ascontiguousarray(np.rot90(image, -TURN))
+
+
+def _turn_back_line(line, width):
+    """A line found in the turned frame, in camera-frame pixel coordinates.
+
+    np.rot90(k=1) puts camera pixel (x, y) at turned (y, width-1-x), so turned
+    (xt, yt) is camera (width-1-yt, xt). `width` is the camera frame's width.
+    """
+    def points(xy):
+        xy = np.asarray(xy, float)
+        return np.column_stack((width - 1 - xy[:, 1], xy[:, 0])).tolist()
+    return dict(line, original_xy=points(line['original_xy']),
+                offset_xy=points(line['offset_xy']), turned_for_detection=True)
+
 
 class LiveInspection:
     segments = 10  # instances built without __init__ (the tests) keep the reference ten
@@ -39,12 +67,14 @@ class LiveInspection:
         started = perf_counter()
         progress('AI source mask')
         source = self.source.predict(photo)
-        chains = extract_lines(source, hook_zone=.04, hook_angle=65)
-        waves = np.zeros_like(source)
-        for chain in chains:
-            cv2.polylines(waves, [chain], False, 255, 1, cv2.LINE_8)
-        filtered, _, _ = filter_wave_lines(waves, source, .008, .1, .9, make_preview=False)
-        _, _, lines = offset_lines(filtered, self.offset, 'inside', source_mask=source, make_preview=False)
+        # The source model sees any orientation; only the line geometry needs the
+        # edge upright. Try both ways and keep the one that finds more lines;
+        # a tie stays upright, so upright fabric is processed exactly as before.
+        lines = self._accepted_lines(source)
+        turned_lines = self._accepted_lines(_turn(source))
+        turned = len(turned_lines) > len(lines)
+        if turned:
+            lines = turned_lines
         if not lines:
             raise ValueError('No accepted source lines. Check placement or the source mask model.')
         lines.sort(key=lambda line: float(np.mean(np.asarray(line['original_xy'])[:, 0])))
@@ -61,13 +91,28 @@ class LiveInspection:
         for index in indices:
             progress(f'Inspecting line {index+1} of {len(lines)}')
             try:
-                yield self._inspect_line(photo, source, lines[index], index+1, len(lines), started, progress)
+                yield self._inspect_line(photo, source, lines[index], index+1, len(lines), started,
+                                         progress, turned)
             except Exception as error:
                 if on_error is None:
                     raise
                 on_error(index+1, error)
 
-    def _inspect_line(self, photo, source, line, index, line_count, started, progress):
+    def _accepted_lines(self, source):
+        """Curved glue edges in a source mask whose edges run top-to-bottom."""
+        chains = extract_lines(source, hook_zone=.04, hook_angle=65)
+        waves = np.zeros_like(source)
+        for chain in chains:
+            cv2.polylines(waves, [chain], False, 255, 1, cv2.LINE_8)
+        filtered, _, _ = filter_wave_lines(waves, source, .008, .1, .9, make_preview=False)
+        _, _, lines = offset_lines(filtered, self.offset, 'inside', source_mask=source, make_preview=False)
+        return lines
+
+    def _inspect_line(self, photo, source, line, index, line_count, started, progress, turned=False):
+        """`photo` and `source` are camera frame; `line` is in the turned frame when turned."""
+        camera_photo = photo
+        if turned:
+            photo, source = _turn(photo), _turn(source)
         selected = region_mask(source.shape, [line])
         width, height = original_dimensions(line, self.offset)
         mx, my, _ = unfold_maps(line, width, height, 'horizontal')
@@ -89,6 +134,12 @@ class LiveInspection:
         mask[selected == 0] = 0
         if not mask.any():
             raise ValueError(f'Line {index}: adhesive model returned an empty mask.')
+        if turned:
+            # A quarter turn is an exact pixel permutation, so the mask returns to
+            # the camera frame unchanged; everything below is camera-frame pixels.
+            mask = _turn_back(mask)
+            line = _turn_back_line(line, camera_photo.shape[1])
+            photo = camera_photo
         progress('Measuring strip in undistorted frame pixels')
         # Measure each real component. Do not bridge disconnected glue across long gaps.
         count, labels, stats, _ = cv2.connectedComponentsWithStats(mask, 8)
