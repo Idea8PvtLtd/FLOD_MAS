@@ -1,6 +1,6 @@
 """Immutable capture -> local ONNX unfolding/refolding -> calibrated measurements."""
 import plane_scale
-from .line_measurement import measurement_record
+from .line_measurement import measurement_record, grading_checks
 
 
 class InspectionPipeline:
@@ -22,7 +22,8 @@ class InspectionPipeline:
                 scale = None
                 warnings.append(f'Millimetre calibration unavailable: {error}')
             measurement = measurement_record(result, scale, target_width, tolerance,
-                    metadata.get('end_exclusion_percent', self.config['inspection'].get('end_exclusion_percent', 5.0)))
+                    metadata.get('end_exclusion_percent', self.config['inspection'].get('end_exclusion_percent', 5.0)),
+                    checks=grading_checks(self.config['inspection']))
             if measurement['status'] == 'WARNING':
                 warnings.append('Pixel measurements available; calibrated widths incomplete or unavailable')
             self.store.save_mask(path, result['mask'])
@@ -40,8 +41,13 @@ class InspectionPipeline:
             self.store.finish(path, record)
 
     def run_batch(self, original, undistorted, metadata, target_width, tolerance,
-                  capture_path=None, on_result=lambda result: None, on_error=lambda message: None):
+                  capture_path=None, on_result=lambda result: None, on_error=lambda message: None,
+                  on_missing=None):
+        """``on_missing(message)`` is told about a line with no measurable adhesive
+        when a coverage check is set; without it, or without the check, such a
+        line is reported through ``on_error`` as before."""
         from .overlay import annotated_overlay
+        from .local.engine import NoAdhesiveError
         path = capture_path or self.store.begin(original, undistorted, metadata)
         self.store.update_metadata(path, metadata)
         record = {'status': 'error', 'capture': metadata, 'method': 'local_onnx_lines', 'lines': []}
@@ -53,16 +59,24 @@ class InspectionPipeline:
             except plane_scale.PlaneScaleError as error:
                 scale = None
                 warnings.append(f'Millimetre calibration unavailable: {error}')
+            checks = grading_checks(self.config['inspection'])
             failures = []
             def failed_line(index, error):
                 message = f'Line {index}: {error}'
                 failures.append(message)
-                on_error(message)
+                if (on_missing is not None and isinstance(error, NoAdhesiveError)
+                        and checks['min_coverage_percent'] > 0):
+                    # No adhesive at all is the extreme case of too little of it.
+                    record.setdefault('missing_lines', []).append(index)
+                    on_missing(f'Line {index}: no adhesive found (FAIL)')
+                else:
+                    on_error(message)
             for result in self.inspector.run_lines(
                     undistorted, inspected=metadata.get('inspected_lines', ()),
                     reserved=metadata.get('queued_captures', 0), on_error=failed_line):
                 measurement = measurement_record(result, scale, target_width, tolerance,
-                    metadata.get('end_exclusion_percent', self.config['inspection'].get('end_exclusion_percent', 5.0)))
+                    metadata.get('end_exclusion_percent', self.config['inspection'].get('end_exclusion_percent', 5.0)),
+                    checks=checks)
                 # The mask is what the operator sees as the strip, so it is
                 # drawn under the graded centrelines rather than instead of them.
                 overlay = annotated_overlay(undistorted, measurement, result['mask'])

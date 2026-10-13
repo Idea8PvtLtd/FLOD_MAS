@@ -8,6 +8,13 @@ A modern CustomTkinter-based updater that:
   - If online    -> fetches the remote; if a new commit exists, downloads it,
                     installs requirements if they changed, prunes old releases,
                     and launches the app.
+
+It checks once, when it is started, and closes itself after launching the app; it
+does not keep watching for updates. It does not know about an application that
+is still running from an earlier start: close that one first.
+
+The starter needs customtkinter (updater/requirements.txt). The application
+does not, so it is not in the application's requirements.txt.
 """
 from __future__ import annotations
 
@@ -35,7 +42,7 @@ APP_SUBTITLE = "Vision Inspection"
 APP_VERSION  = "v1.0.0"
 
 REPO_URL = "https://github.com/mmocbm/FLOD_MAS.git"   # never logged
-BRANCH = "main"
+BRANCH = "main"               # default; "branch" in updater.json replaces it
 ENTRYPOINT = "main_1366.py"
 REQUIREMENTS_FILE = "requirements.txt"
 
@@ -53,10 +60,21 @@ RELEASES_DIR = ROOT / "releases"
 VENV_DIR     = ROOT / "venv"
 STATE_FILE   = ROOT / "state.json"
 
-CHECK_INTERVAL   = 60
+SETTINGS_FILE = ROOT / "updater.json"
+
 KEEP_RELEASES    = 3
 INTERNET_HOST    = ("github.com", 443)
 INTERNET_TIMEOUT = 5
+
+# No external command may wait for ever: a stalled network or a credential prompt
+# would otherwise keep the starter open and the application closed. When a limit
+# is reached the update is abandoned and the installed build is started.
+GIT_CLONE_TIMEOUT = 1800     # first run: the whole repository, with its models
+GIT_FETCH_TIMEOUT = 300
+GIT_LOCAL_TIMEOUT = 60       # commands that only read the local mirror
+EXTRACT_TIMEOUT   = 600
+VENV_TIMEOUT      = 600
+PIP_TIMEOUT       = 3600     # TensorFlow and MediaPipe on a slow line
 
 # --------------------------------------------------------------------------- #
 # Palette
@@ -152,12 +170,12 @@ def _find_target_python() -> str | None:
             out = subprocess.run(
                 ["py", f"-{TARGET_PYTHON_VERSION}", "-c",
                  "import sys; print(sys.executable)"],
-                capture_output=True, text=True, check=True,
+                capture_output=True, text=True, check=True, timeout=30,
             )
             exe = out.stdout.strip()
             if exe and Path(exe).exists():
                 return exe
-        except (FileNotFoundError, subprocess.CalledProcessError):
+        except (OSError, subprocess.SubprocessError):
             pass
 
     for name in (f"python{TARGET_PYTHON_VERSION}", "python3"):
@@ -168,11 +186,11 @@ def _find_target_python() -> str | None:
             out = subprocess.run(
                 [exe, "-c",
                  "import sys; print('.'.join(map(str, sys.version_info[:2])))"],
-                capture_output=True, text=True, check=True,
+                capture_output=True, text=True, check=True, timeout=30,
             )
             if out.stdout.strip() == TARGET_PYTHON_VERSION:
                 return exe
-        except subprocess.CalledProcessError:
+        except (OSError, subprocess.SubprocessError):
             continue
     return None
 
@@ -192,9 +210,46 @@ def _venv_python_version(venv: Path) -> str | None:
         return None
 
 
-def run_cmd(cmd, check=True, capture=False, **kw):
+def run_cmd(cmd, check=True, capture=False, timeout=None, **kw):
+    """Run a command. ``timeout`` (seconds) raises subprocess.TimeoutExpired."""
     cmd = [str(c) for c in cmd]
-    return subprocess.run(cmd, check=check, text=True, capture_output=capture, **kw)
+    return subprocess.run(cmd, check=check, text=True, capture_output=capture,
+                          timeout=timeout, **kw)
+
+
+def git_env() -> dict:
+    """Git must fail rather than ask: nobody is there to answer a prompt."""
+    env = os.environ.copy()
+    env["GIT_TERMINAL_PROMPT"] = "0"
+    env["GCM_INTERACTIVE"] = "Never"
+    env.setdefault("GIT_HTTP_LOW_SPEED_LIMIT", "1000")   # bytes per second ...
+    env.setdefault("GIT_HTTP_LOW_SPEED_TIME", "60")      # ... for this long: give up
+    return env
+
+
+def load_settings(path: Path | None = None) -> dict:
+    """Optional per-machine settings beside the starter (updater.json).
+
+    branch               which branch is installed. Default "main". Pointing the
+                         inspection PC at a branch that only receives tested
+                         commits (for example "release") keeps untested pushes
+                         to main away from it.
+    start_check_seconds  after an update, how long the new build is watched.
+                         If it exits with an error inside that time the previous
+                         build is started again and the bad commit is skipped
+                         until a newer one arrives. Default 0: no check.
+    A missing or unreadable file, or a bad value, gives the defaults.
+    """
+    data = load_json(path or SETTINGS_FILE, {})
+    if not isinstance(data, dict):
+        data = {}
+    branch = data.get("branch", BRANCH)
+    if not isinstance(branch, str) or not branch.strip():
+        branch = BRANCH
+    seconds = data.get("start_check_seconds", 0)
+    if isinstance(seconds, bool) or not isinstance(seconds, (int, float)) or not 0 <= seconds <= 600:
+        seconds = 0
+    return {"branch": branch.strip(), "start_check_seconds": float(seconds)}
 
 
 # --------------------------------------------------------------------------- #
@@ -206,18 +261,25 @@ class GitRepo:
         self.branch = branch
         self.mirror = mirror
 
-    def _git(self, *args, **kw):
-        return run_cmd([_git_exe(), f"--git-dir={self.mirror}", *args], **kw)
+    def _git(self, *args, timeout=GIT_LOCAL_TIMEOUT, **kw):
+        return run_cmd([_git_exe(), f"--git-dir={self.mirror}", *args],
+                       timeout=timeout, env=git_env(), **kw)
 
     def ensure_cloned(self, log):
         if self.mirror.exists():
             return
         log("Connecting to remote repository …")
-        run_cmd([_git_exe(), "clone", "--mirror", self.url, str(self.mirror)])
+        try:
+            run_cmd([_git_exe(), "clone", "--mirror", self.url, str(self.mirror)],
+                    timeout=GIT_CLONE_TIMEOUT, env=git_env())
+        except (subprocess.SubprocessError, OSError):
+            # A half-made mirror would be taken for a complete one next time.
+            shutil.rmtree(self.mirror, ignore_errors=True)
+            raise
 
     def fetch(self, log):
         log("Checking for updates …")
-        self._git("fetch", "--prune", "origin")
+        self._git("fetch", "--prune", "origin", timeout=GIT_FETCH_TIMEOUT)
 
     def rev(self) -> str:
         return self._git("rev-parse", f"refs/heads/{self.branch}",
@@ -228,7 +290,7 @@ class GitRepo:
         log(f"Downloading build {sha[:8]} …")
         proc = subprocess.Popen(
             [_git_exe(), f"--git-dir={self.mirror}", "archive", "--format=tar", sha],
-            stdout=subprocess.PIPE,
+            stdout=subprocess.PIPE, env=git_env(),
         )
         try:
             with tarfile.open(fileobj=proc.stdout, mode="r|") as tf:
@@ -238,17 +300,24 @@ class GitRepo:
                     tf.extractall(dest)
         finally:
             proc.stdout.close()
-        if proc.wait() != 0:
+        try:
+            code = proc.wait(timeout=EXTRACT_TIMEOUT)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+            proc.wait()
+            raise
+        if code != 0:
             raise RuntimeError(f"Failed to extract build {sha}")
 
 
 # --------------------------------------------------------------------------- #
 # Dependency management
 # --------------------------------------------------------------------------- #
-def ensure_venv(venv: Path, log):
+def ensure_venv(venv: Path, log) -> bool:
+    """Make sure the environment exists. True when it was (re)built, and so is empty."""
     existing = _venv_python_version(venv)
     if existing == TARGET_PYTHON_VERSION:
-        return
+        return False
 
     if existing is not None:
         log(f"Rebuilding environment (Python {existing} → {TARGET_PYTHON_VERSION}) …")
@@ -262,13 +331,16 @@ def ensure_venv(venv: Path, log):
         )
 
     log(f"Preparing runtime environment (Python {TARGET_PYTHON_VERSION}) …")
-    run_cmd([target, "-m", "venv", str(venv)])
-    run_cmd([venv_python(venv), "-m", "pip", "install", "--upgrade", "pip", "wheel"])
+    run_cmd([target, "-m", "venv", str(venv)], timeout=VENV_TIMEOUT)
+    run_cmd([venv_python(venv), "-m", "pip", "install", "--upgrade", "pip", "wheel"],
+            timeout=PIP_TIMEOUT)
+    return True
 
 
 def install_requirements(venv: Path, req: Path, log):
     log("Installing required components …")
-    run_cmd([venv_python(venv), "-m", "pip", "install", "-r", str(req)])
+    run_cmd([venv_python(venv), "-m", "pip", "install", "--no-input", "-r", str(req)],
+            timeout=PIP_TIMEOUT)
 
 
 def prune_releases(releases: Path, keep: int, current_sha: str, log):
@@ -354,9 +426,9 @@ class UpdaterApp(ctk.CTk):
         self.geometry(f"{w}x{h}+{x}+{y}")
         self.resizable(False, False)
 
-        self.git = GitRepo(REPO_URL, BRANCH, MIRROR_DIR)
+        self.settings = load_settings()
+        self.git = GitRepo(REPO_URL, self.settings["branch"], MIRROR_DIR)
         self.app_proc = AppProcess()
-        self._stop_flag = False
 
         self._build_ui()
         threading.Thread(target=self._update_loop, daemon=True).start()
@@ -598,6 +670,18 @@ class UpdaterApp(ctk.CTk):
             state = load_json(STATE_FILE, {})
             deployed = state.get("sha")
 
+            if sha == state.get("bad_sha") and sha != deployed:
+                # This commit was installed before and did not start. It is not
+                # tried again; a newer commit clears the mark.
+                self.log(f"Build {sha[:8]} failed to start earlier — keeping the current build.")
+                self.set_step("download", "done")
+                self.set_step("install",  "done")
+                self.set_status("Update skipped", f"Build {sha[:8]} did not start last time",
+                                progress=1.0, icon="◆", tone=WARNING)
+                time.sleep(0.6)
+                self._launch_existing()
+                return
+
             if sha == deployed:
                 self.log("Application is up to date.")
                 self.set_step("download", "done")
@@ -614,7 +698,6 @@ class UpdaterApp(ctk.CTk):
             self.set_status("Downloading update …", f"New build {sha[:8]}",
                             progress=0.35, icon="▼", tone=ACCENT)
 
-            self.app_proc.stop(log=self.log)
             release_dir = RELEASES_DIR / sha
             if release_dir.exists():
                 shutil.rmtree(release_dir, ignore_errors=True)
@@ -625,23 +708,40 @@ class UpdaterApp(ctk.CTk):
             req_file = release_dir / REQUIREMENTS_FILE
             new_hash = sha256_file(req_file)
 
+            try:
+                # A rebuilt environment is empty, whatever the stored hash says.
+                rebuilt = ensure_venv(VENV_DIR, self.log)
+            except (subprocess.SubprocessError, RuntimeError, OSError) as exc:
+                self.log(f"Runtime environment could not be prepared: {exc}")
+                self.set_step("install", "error")
+                self.set_status("Update failed", "Runtime environment not ready",
+                                progress=0.0, icon="✕", tone=ERROR)
+                self._launch_existing(exclude=release_dir)
+                return
+            if rebuilt:
+                state.pop("deps_hash", None)
+                save_json(STATE_FILE, state)
+
             if new_hash and new_hash != state.get("deps_hash"):
                 self.set_step("install", "active")
                 self.set_status("Installing components …", "This may take a few minutes",
                                 progress=0.6, icon="◆", tone=ACCENT)
                 try:
-                    ensure_venv(VENV_DIR, self.log)
                     install_requirements(VENV_DIR, req_file, self.log)
-                except (subprocess.CalledProcessError, RuntimeError) as exc:
+                except (subprocess.SubprocessError, RuntimeError, OSError) as exc:
                     self.log(f"Component installation failed: {exc}")
-                    self.log("Keeping downloaded build so it can be retried later.")
-                    state["sha"] = sha
+                    self.log("Starting the previous build; the update is retried at the next start.")
+                    # The new build is NOT recorded as deployed: its packages are
+                    # missing, and recording it would make the next start report
+                    # "up to date" and never install them. The stored package
+                    # hash is dropped because a failed install can leave the
+                    # environment between two sets of packages.
                     state.pop("deps_hash", None)
                     save_json(STATE_FILE, state)
                     self.set_step("install", "error")
                     self.set_status("Update failed", "Component installation failed",
                                     progress=0.0, icon="✕", tone=ERROR)
-                    self._launch_existing()
+                    self._launch_existing(exclude=release_dir)
                     return
                 state["deps_hash"] = new_hash
             else:
@@ -651,6 +751,7 @@ class UpdaterApp(ctk.CTk):
 
             # ---- 5. Save & prune --------------------------------------------- #
             state["sha"] = sha
+            state.pop("bad_sha", None)
             save_json(STATE_FILE, state)
             prune_releases(RELEASES_DIR, KEEP_RELEASES, sha, self.log)
 
@@ -659,16 +760,30 @@ class UpdaterApp(ctk.CTk):
             self.set_status("Update complete", f"Build {sha[:8]} ready",
                             progress=0.95, icon="▶", tone=SUCCESS)
             time.sleep(0.6)
-            self._launch_release(release_dir)
+            previous = RELEASES_DIR / deployed if deployed else None
+            if previous is not None and (previous == release_dir or not previous.is_dir()):
+                previous = None
+            self._launch_release(release_dir, previous=previous)
 
         except Exception as exc:
             self.log(f"Unexpected error: {exc}")
             self.set_status("Error", str(exc), progress=0.0,
                             icon="✕", tone=ERROR)
-            self._launch_existing()
+            try:
+                self._launch_existing()
+            except Exception as fallback:
+                # Last resort: never let the worker thread die without a message.
+                self.log(f"The installed build could not be started: {fallback}")
+                self.set_status("Launch failed", str(fallback), progress=0.0,
+                                icon="✕", tone=ERROR)
 
     # ------------------------------------------------------------------ #
-    def _launch_existing(self):
+    def _launch_existing(self, exclude: Path | None = None):
+        """Start the recorded build, else the newest one on disk.
+
+        ``exclude`` names a build that must not be started: one that was just
+        downloaded but whose packages could not be installed.
+        """
         if not RELEASES_DIR.exists():
             self.log("No installed builds found — cannot launch.")
             self.set_status("No build available", progress=0.0,
@@ -676,7 +791,7 @@ class UpdaterApp(ctk.CTk):
             return
 
         dirs = sorted(
-            [d for d in RELEASES_DIR.iterdir() if d.is_dir()],
+            [d for d in RELEASES_DIR.iterdir() if d.is_dir() and d != exclude],
             key=lambda d: d.stat().st_mtime, reverse=True,
         )
         if not dirs:
@@ -687,14 +802,33 @@ class UpdaterApp(ctk.CTk):
 
         state = load_json(STATE_FILE, {})
         sha = state.get("sha")
-        release_dir = RELEASES_DIR / sha if sha and (RELEASES_DIR / sha).exists() else dirs[0]
+        recorded = RELEASES_DIR / sha if sha else None
+        release_dir = recorded if recorded in dirs else dirs[0]
         self._launch_release(release_dir)
 
-    def _launch_release(self, release_dir: Path):
+    def _launch_release(self, release_dir: Path, previous: Path | None = None):
+        """Start a build. ``previous`` is the build to go back to if this one,
+        freshly installed, exits with an error during the start check."""
         try:
-            ensure_venv(VENV_DIR, self.log)
-        except RuntimeError as exc:
-            self.log(str(exc))
+            if ensure_venv(VENV_DIR, self.log):
+                # The environment was missing or built for another Python: it has
+                # no packages, so this build's requirements go in before it starts.
+                state = load_json(STATE_FILE, {})
+                state.pop("deps_hash", None)
+                save_json(STATE_FILE, state)
+                req_file = release_dir / REQUIREMENTS_FILE
+                if req_file.is_file():
+                    self.set_status("Installing components …", "This may take a few minutes",
+                                    progress=0.6, icon="◆", tone=ACCENT)
+                    install_requirements(VENV_DIR, req_file, self.log)
+                    state["deps_hash"] = sha256_file(req_file)
+                    save_json(STATE_FILE, state)
+        except (RuntimeError, subprocess.SubprocessError, OSError) as exc:
+            # This runs on the worker thread, often as the fallback after another
+            # failure. Anything escaping here would end the thread and leave the
+            # window on its previous message, so every failure is shown instead.
+            self.log(f"Runtime environment could not be prepared: {exc}")
+            self.set_step("launch", "error")
             self.set_status("Launch failed", "Runtime environment not ready",
                             progress=0.0, icon="✕", tone=ERROR)
             return
@@ -709,12 +843,54 @@ class UpdaterApp(ctk.CTk):
         self.set_step("launch", "done")
         self.set_status("Starting application …", "Closing updater shortly",
                         progress=1.0, icon="▶", tone=SUCCESS)
-        self.app_proc.start(VENV_DIR, release_dir, ENTRYPOINT, self.log)
+        try:
+            self.app_proc.start(VENV_DIR, release_dir, ENTRYPOINT, self.log)
+        except OSError as exc:
+            self.log(f"Application could not be started: {exc}")
+            self.set_step("launch", "error")
+            self.set_status("Launch failed", "Application could not be started",
+                            progress=0.0, icon="✕", tone=ERROR)
+            return
+        seconds = getattr(self, "settings", {}).get("start_check_seconds", 0)
+        if previous is not None and seconds > 0 and self._failed_to_start(seconds):
+            self._roll_back(release_dir, previous)
+            return
         self.after(1500, self.destroy)
+
+    def _failed_to_start(self, seconds: float) -> bool:
+        """True when the application just started exits with an error in time."""
+        self.set_status("Checking the new build …", f"Watching it for {seconds:.0f} s",
+                        progress=1.0, icon="▶", tone=ACCENT)
+        try:
+            code = self.app_proc.proc.wait(timeout=seconds)
+        except subprocess.TimeoutExpired:
+            return False          # still running: it started
+        return code != 0          # 0 is the operator closing it
+
+    def _roll_back(self, failed: Path, previous: Path):
+        self.log(f"Build {failed.name[:8]} exited with an error right after starting.")
+        self.log(f"Going back to build {previous.name[:8]}.")
+        state = load_json(STATE_FILE, {})
+        state["sha"] = previous.name
+        state["bad_sha"] = failed.name
+        # The environment now holds the failed build's packages.
+        state.pop("deps_hash", None)
+        save_json(STATE_FILE, state)
+        self.app_proc.proc = None
+        req_file = previous / REQUIREMENTS_FILE
+        try:
+            if req_file.is_file() and sha256_file(req_file) != sha256_file(failed / REQUIREMENTS_FILE):
+                install_requirements(VENV_DIR, req_file, self.log)
+            state["deps_hash"] = sha256_file(req_file)
+            save_json(STATE_FILE, state)
+        except (subprocess.SubprocessError, RuntimeError, OSError) as exc:
+            self.log(f"Previous components could not be restored: {exc}")
+        self.set_status("Update rolled back", f"Build {failed.name[:8]} did not start",
+                        progress=1.0, icon="◆", tone=WARNING)
+        self._launch_release(previous)
 
     # ------------------------------------------------------------------ #
     def on_close(self):
-        self._stop_flag = True
         self.app_proc.stop(log=self.log)
         self.destroy()
 

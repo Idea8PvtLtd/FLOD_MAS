@@ -7,6 +7,7 @@ from concurrent.futures import Future
 from collections import deque
 from .bed_markers import BedMarkers
 from datetime import datetime
+import inspect
 import queue
 import threading
 import time
@@ -219,10 +220,17 @@ class AutoController(threading.Thread):
                             self.inspected_lines.add(result['measurement']['selected_line'])
                         self.events.put(('result', job['generation'], result))
                 if hasattr(self.pipeline, 'run_batch'):
+                    extra = {}
+                    if 'on_missing' in inspect.signature(self.pipeline.run_batch).parameters:
+                        # A line with no adhesive, when a coverage check is set, is a
+                        # verdict (FAIL) rather than a processing error (WARNING).
+                        extra['on_missing'] = lambda message: self.events.put(
+                            ('line_failed', job['generation'], message))
                     self.pipeline.run_batch(job['original'], job['corrected'], job['metadata'],
                         job['profile']['width'], job['profile']['tolerance'], job['path'],
                         on_result=publish,
-                        on_error=lambda message: self.events.put(('error', job['generation'], message)))
+                        on_error=lambda message: self.events.put(('error', job['generation'], message)),
+                        **extra)
                     future.set_result(None)
                     return
                 future.set_result(self.pipeline.run(

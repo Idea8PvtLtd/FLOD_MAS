@@ -27,9 +27,18 @@ def validate_automatic_config(config):
     trim = config.get('inspection', {}).get('end_exclusion_percent', 5.0)
     if isinstance(trim, bool) or not isinstance(trim, (int, float)) or not math.isfinite(trim) or not 0 <= trim < 50:
         raise ValueError('inspection.end_exclusion_percent must be at least 0 and less than 50')
+    # Extra grading checks; absent or 0 means off (inspection/line_measurement.py).
+    from inspection.line_measurement import grading_checks
+    grading_checks(config.get('inspection', {}))
     if 'local_inspection' in config:
         number('local_inspection', 'source_width', 32, integer=True)
         number('local_inspection', 'offset_pixels', 0.5)
+        if not isinstance(config['local_inspection'].get('smooth_logits', False), bool):
+            raise ValueError('local_inspection.smooth_logits must be true or false')
+        if 'min_line_length_ratio' in config['local_inspection']:
+            number('local_inspection', 'min_line_length_ratio', 0, 0.99)
+        if 'smooth_normal_rows' in config['local_inspection']:
+            number('local_inspection', 'smooth_normal_rows', 0, 1001, integer=True)
         for key in ('source_model', 'glue_model'):
             value = config['local_inspection'][key]
             if not isinstance(value, str) or not value.strip() or not value.lower().endswith('.onnx'):

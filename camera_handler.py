@@ -6,6 +6,7 @@ import time
 import cv2
 from app_config import CONFIG, camera_config, project_path
 from pathlib import Path
+import calibration_rotation
 from measure.makeUndistored import ImageUndistorter
 
 
@@ -276,6 +277,10 @@ class CameraHandler:
     def reload_calibration(self):
         try:
             self.undistorter = ImageUndistorter(self.calib_file_path)
+            # A lens calibration fits only the rotation it was made with.
+            calibration_rotation.check_file(self.calib_file_path,
+                                            getattr(self.stream, 'rotation', 0),
+                                            'camera calibration')
         except Exception as error:
             self.undistorter = None
             self.calibration_available = False

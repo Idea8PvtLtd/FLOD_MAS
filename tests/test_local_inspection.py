@@ -42,6 +42,175 @@ def synthetic_inspection(broken=False):
     return frame, inspector, inspector.run(frame)
 
 
+def stepped_edge():
+    """A gently curved edge as an enlarged mask gives it: x in steps of four pixels."""
+    y = np.arange(0, 1600, dtype=float)
+    x = np.floor((400 + 60 * np.sin(y / 1600 * 2 * np.pi)) / 4) * 4
+    return np.column_stack((x, y))
+
+
+class BandPathTests(unittest.TestCase):
+    """The inward band's inner edge must follow the line, not run back and forth."""
+
+    def backwards(self, path, edge):
+        from inspection.local.geometry import smoothed_path
+        direction = np.gradient(smoothed_path(edge, 101), axis=0)
+        return float(np.mean(np.sum(np.diff(path, axis=0) * direction[1:], axis=1) < 0))
+
+    def length(self, path):
+        return float(np.linalg.norm(np.diff(path, axis=0), axis=1).sum())
+
+    def test_the_default_is_unchanged(self):
+        from inspection.local.geometry import offset_path
+        edge = stepped_edge()
+        np.testing.assert_array_equal(offset_path(edge, 100.), offset_path(edge, 100., smooth_rows=0))
+        self.assertGreater(self.backwards(offset_path(edge, 100.), edge), .02)
+
+    def test_a_smoothed_direction_gives_a_path_that_does_not_run_backwards(self):
+        from inspection.local.geometry import offset_path
+        edge = stepped_edge()
+        raw, smooth = offset_path(edge, 100.), offset_path(edge, 100., smooth_rows=101)
+        self.assertLess(self.backwards(smooth, edge), .01)
+        self.assertLess(self.length(smooth), 1.15 * self.length(edge))
+        self.assertGreater(self.length(raw), 2 * self.length(smooth))
+        # The offset distance itself is untouched: every point is still 100 px away.
+        np.testing.assert_allclose(np.linalg.norm(smooth - edge, axis=1), 100., atol=1e-6)
+
+    def test_the_engine_passes_the_setting_and_still_measures(self):
+        frame, inspector, plain = synthetic_inspection()
+        inspector.smooth_normal_rows = 101
+        smooth = inspector.run(frame)
+        self.assertEqual(smooth['line_count'], plain['line_count'])
+        self.assertAlmostEqual(smooth['mean_width_px'], plain['mean_width_px'], delta=1.5)
+
+    def test_the_setting_is_validated(self):
+        config = copy.deepcopy(CONFIG)
+        config['local_inspection']['smooth_normal_rows'] = 101
+        validate_config(config)
+        for bad in (-1, 2.5, 'many', True):
+            config['local_inspection']['smooth_normal_rows'] = bad
+            with self.assertRaises(ValueError):
+                validate_config(config)
+        del config['local_inspection']['smooth_normal_rows']
+        validate_config(config)
+
+
+class ScoreEnlargementTests(unittest.TestCase):
+    """Where the edge lands when the model's 64 rows are enlarged to the strip's 100."""
+
+    def scores(self, edge_row):
+        """Two-class scores whose true edge lies at a fractional model row."""
+        rows = np.arange(64, dtype=np.float32)[:, None] * np.ones((1, 32), np.float32)
+        glue = np.clip(edge_row - rows, -4, 4)          # positive above the edge
+        return np.stack([-glue, glue])[None]
+
+    def edge(self, mask):
+        return float(np.count_nonzero(mask[:, 5]))
+
+    def test_the_default_is_the_argmax_then_nearest_recipe(self):
+        from inspection.local.glue_model import segformer_mask
+        scores = self.scores(20.4)
+        labels = np.argmax(scores, axis=1)[0].astype(np.uint8) * 255
+        expected = cv2.resize(labels, (50, 100), interpolation=cv2.INTER_NEAREST)
+        np.testing.assert_array_equal(segformer_mask(scores, (100, 50)), expected)
+
+    def test_smooth_enlargement_follows_a_moving_edge_in_finer_steps(self):
+        from inspection.local.glue_model import segformer_mask
+        positions = np.arange(20.0, 22.01, .1)
+        plain = [self.edge(segformer_mask(self.scores(p), (100, 50))) for p in positions]
+        smooth = [self.edge(segformer_mask(self.scores(p), (100, 50), smooth=True)) for p in positions]
+        # Two model rows are 3.1 strip pixels. The plain mask can only move by a
+        # whole model row, so it jumps two pixels at once; the smooth one moves
+        # a pixel at a time and stays closer to where the edge really is.
+        self.assertGreaterEqual(max(np.abs(np.diff(plain))), 2)
+        self.assertLessEqual(max(np.abs(np.diff(smooth))), 1)
+        truth = positions * 100 / 64
+        self.assertLess(np.ptp(np.array(smooth) - truth), np.ptp(np.array(plain) - truth))
+
+    def test_the_setting_is_validated(self):
+        config = copy.deepcopy(CONFIG)
+        config['local_inspection']['smooth_logits'] = True
+        validate_config(config)
+        config['local_inspection']['smooth_logits'] = 'yes'
+        with self.assertRaises(ValueError):
+            validate_config(config)
+
+
+class FalseLineTests(unittest.TestCase):
+    """A short false edge must not be numbered as a line when the filter is set."""
+
+    def inspector(self, ratio):
+        frame, inspector, _ = synthetic_inspection()
+        whole = inspector.source.predict(frame)
+        # A third, much shorter panel on the left: its edge is a line of its own.
+        y = np.arange(300, 520)
+        boundary = np.column_stack((120 + 12*np.sin((y-300)*2*np.pi/220), y))
+        cv2.fillPoly(whole, [np.rint(np.vstack(([20, 300], boundary, [20, 519]))).astype(np.int32)], 255)
+        inspector.source = SimpleNamespace(predict=lambda photo: whole.copy())
+        inspector.min_line_length_ratio = ratio
+        return frame, inspector
+
+    def lines(self, ratio):
+        frame, inspector = self.inspector(ratio)
+        return [r['line_count'] for r in inspector.run_lines(frame, on_error=lambda index, error: None)]
+
+    def test_by_default_every_line_is_kept(self):
+        self.assertEqual(set(self.lines(0)), {3})
+
+    def test_a_line_much_shorter_than_the_longest_is_dropped(self):
+        self.assertEqual(self.lines(.5), [2, 2])
+
+    def test_a_low_ratio_keeps_it(self):
+        self.assertEqual(set(self.lines(.2)), {3})
+
+    def test_the_setting_is_validated(self):
+        config = copy.deepcopy(CONFIG)
+        config['local_inspection']['min_line_length_ratio'] = .5
+        validate_config(config)
+        for bad in (-.1, 1, 'half', True):
+            config['local_inspection']['min_line_length_ratio'] = bad
+            with self.assertRaises(ValueError):
+                validate_config(config)
+
+
+class CaptureCostTests(unittest.TestCase):
+    def test_the_photo_is_enhanced_once_for_all_lines_of_a_capture(self):
+        frame, inspector, _ = synthetic_inspection()
+        with patch('inspection.local.engine.enhance_image', wraps=__import__(
+                'inspection.local.engine', fromlist=['enhance_image']).enhance_image) as enhance:
+            results = list(inspector.run_lines(frame))
+            self.assertEqual(len(results), 2)
+            self.assertEqual(enhance.call_count, 1)
+            # The next capture is a different photo and is enhanced afresh.
+            list(inspector.run_lines(frame.copy()))
+            self.assertEqual(enhance.call_count, 2)
+        self.assertIsNone(inspector._enhanced)
+
+    def test_the_result_is_the_same_as_enhancing_for_every_line(self):
+        frame, inspector, _ = synthetic_inspection()
+        rng = np.random.default_rng(1)
+        frame = rng.integers(60, 200, frame.shape, dtype=np.uint8)
+        seen = []
+        real = inspector.glue.predict
+        inspector.glue.predict = lambda flat: (seen.append(flat.copy()), real(flat))[1]
+        list(inspector.run_lines(frame))
+        once = list(seen)
+        seen.clear()
+        inspector._enhanced_photo = lambda photo: __import__(
+            'inspection.local.engine', fromlist=['enhance_image']).enhance_image(photo, 2., 16, 16)
+        list(inspector.run_lines(frame))
+        self.assertEqual(len(once), len(seen))
+        for a, b in zip(once, seen):
+            np.testing.assert_array_equal(a, b)
+
+    def test_each_line_reports_its_own_time(self):
+        frame, inspector, _ = synthetic_inspection()
+        first, second = list(inspector.run_lines(frame))
+        self.assertLessEqual(first['line_seconds'], first['seconds'])
+        self.assertLess(second['line_seconds'], second['seconds'])
+        self.assertGreater(second['seconds'], first['seconds'])
+
+
 class LocalGeometryTests(unittest.TestCase):
     def test_only_rightmost_line_is_refolded_to_full_frame(self):
         frame, _, result = synthetic_inspection()

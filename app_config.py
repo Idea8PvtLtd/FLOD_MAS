@@ -4,9 +4,13 @@ from pathlib import Path
 import cv2
 from app_storage import DATA_ROOT, data_path, initialize_storage
 
-ROOT = Path(__file__).resolve().parent
-CONFIG = json.loads((ROOT / "config.json").read_text(encoding="utf-8"))
 from config_validation import validate_config
+import machine_settings
+
+ROOT = Path(__file__).resolve().parent
+# config.json beside the code holds the defaults and is replaced by every update;
+# what was changed on this PC is kept in Documents and laid over it.
+CONFIG = machine_settings.load_config(ROOT / "config.json", validate=validate_config)
 
 validate_config(CONFIG)
 CAMERA_COUNT = CONFIG.get('camera_count', len(CONFIG['cameras']))

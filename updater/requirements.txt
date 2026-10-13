@@ -1,0 +1,4 @@
+# For the starter only (updater.py). The application's packages are in the
+# requirements.txt at the top of the repository and are installed by the starter
+# into its own environment.
+customtkinter

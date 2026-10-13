@@ -14,6 +14,7 @@ if __package__ in (None, ''):
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from app_config import CONFIG, ACTIVE_CAMERAS, DATA_ROOT, camera_config, project_path
 from camera_handler import CameraStream
+import calibration_rotation
 from CalibrateAPP.calibration_store import replace_calibration_files
 # The optional per-region homography mode. Imported at module level like the other
 # runtime modules, but nothing below this line changes because of it: the existing checks
@@ -1864,7 +1865,10 @@ class CalibrationApp:
                 reprojection_metrics(obj, img, rv, tv, camera_matrix, dist_coeffs)["rms"]
                 for obj, img, rv, tv in zip(object_views, image_views, rvecs, tvecs)
             ]
-            data = {
+            # The rotation the frames had when this was calculated is recorded: a
+            # later change of the setting makes the file invalid (calibration_rotation).
+            data = calibration_rotation.stamp({}, getattr(self, 'camera_index', None))
+            data |= {
                 "camera_matrix": camera_matrix.tolist(),
                 "dist_coeffs": dist_coeffs.tolist(),
                 "rms_error": float(rms),
@@ -2050,7 +2054,8 @@ class CalibrationApp:
                 offset_plane_tvec(rvec, tvec, thickness_mm, away_from_camera=True)
                 if thickness_enabled and thickness_mm > 0 else tvec.copy()
             )
-            data = {
+            data = calibration_rotation.stamp({}, getattr(self, 'camera_index', None))
+            data |= {
                 "rvec": rvec.reshape(-1).tolist(),
                 "tvec": measurement_tvec.reshape(-1).tolist(),
                 "reference_board_tvec": reference_board_tvec.reshape(-1).tolist(),

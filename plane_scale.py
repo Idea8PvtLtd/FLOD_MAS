@@ -157,10 +157,21 @@ def load_frame_scale(camera_number, frame_size, calibration_path=None, extrinsic
     ImageUndistorter preserves the scaled intrinsic matrix and frame size.
     There is no manually selected crop transform in automatic inspection.
     """
-    if calibration_path is None or extrinsics_path is None:
+    configured = calibration_path is None or extrinsics_path is None
+    if configured:
         calibration_path, extrinsics_path = _paths_for(camera_number)
     calibration = _read_json(calibration_path, 'camera calibration')
     extrinsics = _read_json(extrinsics_path, 'camera extrinsics')
+    if configured:
+        # Both files describe the rotated picture; see calibration_rotation.
+        import calibration_rotation
+        from app_config import CONFIG
+        rotation = CONFIG['cameras'][int(camera_number) - 1].get('rotation', 0)
+        try:
+            calibration_rotation.check(calibration, rotation, 'camera calibration')
+            calibration_rotation.check(extrinsics, rotation, 'measurement surface')
+        except calibration_rotation.RotationMismatch as error:
+            raise PlaneScaleError(str(error)) from error
     try:
         matrix = scale_camera_matrix(np.asarray(calibration['camera_matrix'], np.float64),
                                      calibration['image_size'], frame_size)

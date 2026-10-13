@@ -157,10 +157,17 @@ settings tab replaces the old segmentation/SAM controls.
 | `local_inspection.glue_model` | `inspection/local/models/segformer_b0.onnx` | Local unfolded adhesive weights |
 | `local_inspection.source_width` | 1152 | Aspect-preserving source AI width |
 | `local_inspection.offset_pixels` | 100.0 | Inward band width in full undistorted-frame pixels |
+| `local_inspection.min_line_length_ratio` | 0.0 | 0: every source line found is numbered and inspected, as before. Above 0 (0.5 was tried): a line shorter than this share of the longest line in the capture is dropped first. Soft pictures can give short false edges, and each false line shifts the left-to-right positions later captures rely on |
+| `local_inspection.smooth_logits` | false | false: the adhesive class is chosen on the model's 64 x 1024 grid and the labels are enlarged with nearest neighbour, as before. true: the scores are enlarged with bilinear interpolation and the class is chosen at strip resolution, so an edge is not held to the model's rows (one row is about 1.6 px, 0.2 mm) |
+| `local_inspection.smooth_normal_rows` | 0 | 0: the inward band is offset along the raw edge direction, as before. Above 0 (101 was tested): the direction is taken from the edge averaged over that many rows, which stops the band's inner edge zigzagging. The unfolded strip becomes about half as long and readings repeat better between captures; the mean width changes by about 0.2 px |
 | `auto_trigger.marker_confirm_seconds` | 0.5 | Continuous visibility of two physical ID-0 bed markers before reset |
 | `auto_trigger.hand_absence_seconds` | 1.0 | Quiet period after debounced hand absence |
 | `auto_trigger.debounce_frames` | 3 | Consistent fresh samples per presence change |
 | `inspection.end_exclusion_percent` | 5.0 | Percentage excluded from EACH end before width grading |
+| `inspection.local_defect_length_mm` | 0.0 | 0: a line is graded by the average of each of its ten segments only, as before. Above 0: a run of neighbouring width samples that are all outside target +- tolerance and together at least this long also fails the segments it lies in, and the status text says where and how wide. The samples are 5 px apart. A value of 2-3 is a starting point; it was chosen on sample lines without defects, so try it before relying on it |
+| `inspection.min_coverage_percent` | 0.0 | 0: off. Above 0: the adhesive measured on a line, all pieces together, must be at least this share of the length of the panel edge it was looked for along, or the line is FAIL. A line with no adhesive at all is then shown as FAIL instead of WARNING. Every result records `coverage_percent` whether the check is on or not. Good sample lines read 91-96 %; 80 is a starting point |
+| `inspection.max_gap_mm` | 0.0 | 0: off. Above 0: a gap between two pieces of one line that is longer than this fails the line. Every result records `largest_gap_mm` |
+| `inspection.ignore_pieces_shorter_than_mm` | 0.0 | 0: every piece of adhesive is cut into ten segments and graded, as before, so a scrap a few millimetres long turns the line to WARNING. Above 0: pieces shorter than this are not graded (the longest piece always is); they still count towards coverage and gaps |
 | `inspection.strip_width_mm` | 4.0 | Target width for the new measurements |
 | `inspection.strip_width_tolerance_mm` | 1.0 | Allowed +/- width tolerance |
 | `result_view.show_live_preview` | true | Small live camera panel beside results |

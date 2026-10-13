@@ -5,7 +5,7 @@ for hand triggers, queued local ONNX inspection of selected source lines, calibr
 measurements, overlay/mask results and capture-retention settings.
 The manual crop/ESP inspection sections below describe the older workflow.
 
-Start `main_1366.py` and press **S** (or click **Settings**) during the five-second countdown. Change values in the grouped settings tabs and click **Save & restart**. The app validates and saves `config.json`, then initializes the app immediately with the new settings. Settings are completed before configuration-dependent modules and cameras load, so no external Python relaunch or machine-specific executable path is required. Only `config.json` stays beside the application code, regardless of the launch directory. Invalid values leave the editor open and the saved file unchanged. **Cancel / start app** discards edits. If you do nothing for five seconds, the app starts with the current settings. You can still edit `config.json` manually if needed.
+Start `main_1366.py` and press **S** (or click **Settings**) during the five-second countdown. Change values in the grouped settings tabs and click **Save & restart**. The app validates the settings and saves what differs from `config.json` to `Documents/data files/Files/machine_settings.json`, then initializes the app immediately with the new settings. `config.json` beside the code holds the defaults and is replaced by every application update; the file in Documents is not, so settings changed on a PC survive updates, and a default changed by an update still arrives unless it was changed on that PC. Settings are completed before configuration-dependent modules and cameras load, so no external Python relaunch or machine-specific executable path is required. Only `config.json` stays beside the application code, regardless of the launch directory. Invalid values leave the editor open and the saved file unchanged. **Cancel / start app** discards edits. If you do nothing for five seconds, the app starts with the current settings. You can still edit `config.json` manually if needed; a value saved on this PC takes precedence over it. Delete `machine_settings.json` to return to the defaults.
 
 
 ## Saved data location
@@ -70,7 +70,11 @@ to the application data folder described below.
 preview, crops, calibration, and inspection all use the same orientation. A 90° or
 270° rotation swaps the output width and height. After changing rotation, recalibrate
 that camera and recreate its saved crop regions; calibration from another orientation is
-not geometrically valid.
+not geometrically valid. New calibration files record the rotation they were made with
+(`camera_rotation`). A file recorded with another rotation is refused: the camera
+reports that calibration is required, and millimetre results are withheld, until the
+camera is calibrated again or the rotation is set back. Files saved before this record
+existed are accepted as they are.
 
 All camera acquisition goes through the same configured capture path. The app
 checks actual frame sizes. If the requested size is unavailable, it tests the

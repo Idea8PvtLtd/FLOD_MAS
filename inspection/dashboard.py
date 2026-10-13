@@ -28,7 +28,10 @@ class AutomaticDashboard:
             settings = CONFIG['local_inspection']
             root = Path(__file__).resolve().parents[1]
             inspector = LiveInspection(root / settings['source_model'], root / settings['glue_model'],
-                                       settings['offset_pixels'], settings['source_width'])
+                                       settings['offset_pixels'], settings['source_width'],
+                                       smooth_normal_rows=settings.get('smooth_normal_rows', 0),
+                                       smooth_logits=settings.get('smooth_logits', False),
+                                       min_line_length_ratio=settings.get('min_line_length_ratio', 0.))
             return InspectionPipeline(inspector, store, CONFIG)
         self.auto_controller = AutoController(CONFIG, factory)
         self._reset_due = None
@@ -113,6 +116,11 @@ class AutomaticDashboard:
                 if not active or generation != controller.generation:
                     continue
                 self.set_pass_fail('WARNING')
+                self.update_progress(100, payload)
+            elif event == 'line_failed':
+                if not active or generation != controller.generation:
+                    continue
+                self.set_pass_fail('FAIL')
                 self.update_progress(100, payload)
             elif event == 'status':
                 if getattr(self, '_models_loading', False) or (active and generation == controller.generation):
@@ -205,9 +213,13 @@ class AutomaticDashboard:
             self.result_view.show_inspection(result)
         status = 'WARNING' if result['warnings'] else measurement['status']
         self.set_pass_fail(status)
+        # Why a line failed an extra check (a short defect, missing adhesive) is
+        # not visible from the segment averages, so it is said in words.
+        reasons = measurement.get('fail_reasons') or []
         self.update_progress(100, ' | '.join(result['warnings']) or
-                             f"Line #{measurement['selected_line']} of {measurement['line_count']} "
-                             'measured — results saved — monitoring hands')
+                             (f"Line #{measurement['selected_line']}: " + ' | '.join(reasons) if reasons else
+                              f"Line #{measurement['selected_line']} of {measurement['line_count']} "
+                              'measured — results saved — monitoring hands'))
 
     def _dismiss_result_view(self):
         if getattr(self, 'result_view', None) is not None:

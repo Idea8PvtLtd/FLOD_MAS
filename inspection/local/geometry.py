@@ -146,11 +146,31 @@ def filter_wave_lines(waves, source_mask, min_wave=.008, min_span=.1, min_suppor
                        'bbox_xywh': [int(x), int(y), int(width), int(height)]})
     return result, preview, report
 
-def offset_path(points, pixels, side='right', tangent_window=5):
-    """Points must be ordered top to bottom. Image y increases downwards."""
+def smoothed_path(points, rows):
+    """Moving average of the points over ``rows`` of them, ends held."""
+    points = np.asarray(points, dtype=float)
+    window = min(int(rows) // 2 * 2 + 1, max(1, len(points) // 2 * 2 - 1))
+    if window <= 1:
+        return points
+    kernel = np.ones(window) / window
+    return np.column_stack([np.convolve(np.pad(points[:, i], window // 2, mode='edge'), kernel, mode='valid')
+                            for i in range(points.shape[1])])
+
+
+def offset_path(points, pixels, side='right', tangent_window=5, smooth_rows=0):
+    """Points must be ordered top to bottom. Image y increases downwards.
+
+    The direction of the offset is taken from the points themselves. They are
+    raw pixels of an enlarged mask, so that direction swings from row to row
+    and the offset path zigzags, part of it running backwards. With
+    ``smooth_rows`` above zero the direction comes from the points averaged
+    over that many rows instead; the points being offset are not moved.
+    """
+    points = np.asarray(points, dtype=float)
+    guide = smoothed_path(points, smooth_rows) if smooth_rows and smooth_rows > 1 else points
     indices = np.arange(len(points))
-    before = points[np.maximum(indices - tangent_window, 0)]
-    after = points[np.minimum(indices + tangent_window, len(points) - 1)]
+    before = guide[np.maximum(indices - tangent_window, 0)]
+    after = guide[np.minimum(indices + tangent_window, len(points) - 1)]
     tangent = after - before
     lengths = np.linalg.norm(tangent, axis=1)
     if np.any(lengths == 0):
@@ -179,7 +199,8 @@ def mask_interior_side(points, source_mask, tangent_window=5):
         raise ValueError(f'Cannot confidently identify mask interior for a line: {scores}')
     return max(scores, key=scores.get), scores
 
-def offset_lines(mask, pixels, side='inside', thickness=0, tangent_window=5, source_mask=None, make_preview=True):
+def offset_lines(mask, pixels, side='inside', thickness=0, tangent_window=5, source_mask=None, make_preview=True,
+                 smooth_rows=0):
     if side in ('inside', 'outside') and (source_mask is None or source_mask.shape != mask.shape):
         raise ValueError('Inside/outside offsets require the matching source mask at the same resolution')
     binary = np.uint8(mask > 127)
@@ -201,7 +222,7 @@ def offset_lines(mask, pixels, side='inside', thickness=0, tangent_window=5, sou
             line_side, scores = mask_interior_side(points, source_mask, tangent_window)
             if side == 'outside':
                 line_side = 'right' if line_side == 'left' else 'left'
-        shifted = offset_path(points, pixels, line_side, tangent_window)
+        shifted = offset_path(points, pixels, line_side, tangent_window, smooth_rows)
         if thickness:
             stroke = thickness
         else:

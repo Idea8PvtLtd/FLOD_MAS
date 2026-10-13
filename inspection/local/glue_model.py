@@ -9,17 +9,31 @@ def segformer_input(image,width=1024,height=64):
     rgb=(rgb-np.array([.485,.456,.406],np.float32))/np.array([.229,.224,.225],np.float32)
     return np.ascontiguousarray(rgb.transpose(2,0,1)[None],dtype=np.float32)
 
-def segformer_mask(logits,shape):
+def segformer_mask(logits,shape,smooth=False):
+    """Scores [1,2,h,w] -> mask of the strip's size.
+
+    By default the class is chosen on the model's own grid and the labels are
+    enlarged with nearest neighbour, so an edge can only sit on that grid (one
+    model row is about 1.6 strip pixels). With ``smooth`` the difference of the
+    two scores is enlarged with bilinear interpolation first and the class is
+    chosen at strip resolution, which places the edge between grid rows.
+    """
     if logits.ndim!=4 or logits.shape[:2]!=(1,2):
         raise ValueError(f'Expected SegFormer output [1,2,H,W], got {logits.shape}.')
     if not np.isfinite(logits).all():raise ValueError('Model returned nonfinite values.')
+    if smooth:
+        margin=np.ascontiguousarray(logits[0,1]-logits[0,0],dtype=np.float32)
+        margin=cv2.resize(margin,(shape[1],shape[0]),interpolation=cv2.INTER_LINEAR)
+        # Strictly greater, as argmax gives class 0 on a tie.
+        return np.uint8(margin>0)*255
     labels=np.argmax(logits,axis=1)[0].astype(np.uint8)*255
     return cv2.resize(labels,(shape[1],shape[0]),interpolation=cv2.INTER_NEAREST)
 
 class SegformerOnnx:
     """Match the user's two-class SegFormer training/inference recipe."""
-    def __init__(self,path,width=1024,height=64):
+    def __init__(self,path,width=1024,height=64,smooth_logits=False):
         self.path=str(Path(path).resolve());self.width=int(width);self.height=int(height)
+        self.smooth_logits=bool(smooth_logits)
         if min(self.width,self.height)<2:raise ValueError('Invalid model input dimensions.')
         try:import onnxruntime as ort
         except ImportError as exc:raise ValueError('ONNX Runtime is missing. Install requirements.txt into the application environment.') from exc
@@ -35,7 +49,7 @@ class SegformerOnnx:
 
     def predict(self,image):
         logits=self.session.run([self.output_name],{self.input_name:segformer_input(image,self.width,self.height)})[0]
-        return segformer_mask(logits,image.shape)
+        return segformer_mask(logits,image.shape,getattr(self,'smooth_logits',False))
 
     def settings(self):
         return dict(path=self.path,width=self.width,height=self.height,
