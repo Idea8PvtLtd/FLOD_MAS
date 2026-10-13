@@ -1,4 +1,5 @@
 """Immutable capture -> local ONNX unfolding/refolding -> calibrated measurements."""
+import numpy as np
 import plane_scale
 from .line_measurement import measurement_record
 
@@ -6,6 +7,29 @@ from .line_measurement import measurement_record
 class InspectionPipeline:
     def __init__(self, inspector, store, config):
         self.inspector, self.store, self.config = inspector, store, config
+
+    def _line_length_filter(self, scale, warnings):
+        """Reject fabric edges shorter than the minimum glue line, measured in mm.
+
+        A partly visible fabric or a stray edge gives a short line that is not a
+        glue line; it is dropped instead of graded. Millimetres need the plane
+        calibration, so without it nothing is filtered (the result is already a
+        WARNING in that case).
+        """
+        minimum = self.config['inspection'].get('min_line_length_mm')
+        if not minimum:
+            return None
+        if scale is None:
+            warnings.append('Minimum glue line length not checked: millimetre calibration unavailable')
+            return None
+        from measurement_adjustment import current_ratio
+        ratio = current_ratio()
+        def keep(line):
+            points = scale.to_mm(line['original_xy'])
+            length = float(np.linalg.norm(np.diff(points, axis=0), axis=1).sum()) * ratio
+            line['length_mm'] = length
+            return length >= minimum
+        return keep
 
     def run(self, original, undistorted, metadata, target_width, tolerance, capture_path=None,
             progress=lambda text: None):
@@ -62,7 +86,8 @@ class InspectionPipeline:
                 on_error(message)
             for result in self.inspector.run_lines(
                     undistorted, inspected=metadata.get('inspected_lines', ()),
-                    reserved=metadata.get('queued_captures', 0), on_error=failed_line):
+                    reserved=metadata.get('queued_captures', 0), on_error=failed_line,
+                    keep_line=self._line_length_filter(scale, warnings)):
                 measurement = measurement_record(result, scale, target_width, tolerance,
                     metadata.get('end_exclusion_percent', self.config['inspection'].get('end_exclusion_percent', 5.0)),
                     self.config['inspection'].get('end_exclusion_px'),

@@ -162,7 +162,8 @@
     "end_exclusion_percent": 5.0,
     "end_exclusion_px": 40,
     "end_trim_px": 10,
-    "segment_count": 40
+    "segment_count": 40,
+    "min_line_length_mm": 150
   },
   "sam_detection": {
     "enabled": true,
