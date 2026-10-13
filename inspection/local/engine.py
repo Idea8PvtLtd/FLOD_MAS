@@ -25,7 +25,7 @@ class LiveInspection:
         return next(self.run_lines(photo, progress, only_rightmost=True))
 
     def run_lines(self, photo, progress=lambda text: None, inspected=(), reserved=0,
-                  only_rightmost=False, on_error=None, keep_line=None):
+                  only_rightmost=False, on_error=None):
         """Measure the lines this capture still owes, leftmost first.
 
         Positions are counted from the left and name the same physical line in
@@ -35,8 +35,6 @@ class LiveInspection:
         `reserved` is how many captures are already queued behind this one: each
         will measure one more of the lines still outstanding, so this capture
         leaves that many for them instead of measuring the same line twice.
-        `keep_line`, when given, rejects edges that are not glue lines (too short)
-        before positions are counted, so a false edge never shifts the numbering.
         """
         started = perf_counter()
         progress('AI source mask')
@@ -49,12 +47,6 @@ class LiveInspection:
         _, _, lines = offset_lines(filtered, self.offset, 'inside', source_mask=source, make_preview=False)
         if not lines:
             raise ValueError('No accepted source lines. Check placement or the source mask model.')
-        if keep_line is not None:
-            found = len(lines)
-            lines = [line for line in lines if keep_line(line)]
-            if not lines:
-                raise ValueError(f'{found} fabric edge(s) found, all shorter than the minimum '
-                                 'glue line length. Place the whole fabric inside the camera view.')
         lines.sort(key=lambda line: float(np.mean(np.asarray(line['original_xy'])[:, 0])))
         total = len(lines)
         if only_rightmost:
