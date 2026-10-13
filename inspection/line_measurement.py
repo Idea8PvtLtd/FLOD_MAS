@@ -59,10 +59,15 @@ def measurement_record(result, scale, target_width, tolerance, end_exclusion_per
         component['excluded_each_end_px'] = low
         component['inspected_length_px'] = max(0.0, high-low)
         count = len(component['segments'])
+        # In pixel mode the two end zones are measured and graded as their own
+        # segments (0 before the equal split, count+1 after it) instead of ignored.
+        graded_ends = end_exclusion_px is not None and low > 0 and not empty
         for sample in samples:
             excluded = empty or not low <= sample['arc_px'] <= high
-            sample['excluded_end'] = excluded
-            if excluded:
+            sample['excluded_end'] = excluded and not graded_ends
+            if excluded and graded_ends:
+                sample['segment'] = 0 if sample['arc_px'] < low else count + 1
+            elif excluded:
                 sample.update(segment=0, valid=False, width_px=None)
             elif low:
                 sample['segment'] = min(count, int((sample['arc_px']-low)/(high-low)*count)+1)
@@ -70,6 +75,13 @@ def measurement_record(result, scale, target_width, tolerance, end_exclusion_per
             span = max(0.0, high-low)
             segment['start_arc_px'] = low+(segment['segment']-1)*span/count
             segment['end_arc_px'] = low+segment['segment']*span/count
+        if graded_ends:
+            component['segments'] = (
+                [{'segment': 0, 'end_zone': 'start', 'start_arc_px': 0.0, 'end_arc_px': low}]
+                + component['segments']
+                + [{'segment': count + 1, 'end_zone': 'end', 'start_arc_px': high,
+                    'end_arc_px': component['length_px']}])
+        for segment in component['segments']:
             pixels = [s['width_px'] for s in samples if s['segment'] == segment['segment'] and s['valid']]
             segment['sample_count'] = len(pixels)
             for name, operation in [('average', np.mean), ('minimum', np.min), ('maximum', np.max)]:
