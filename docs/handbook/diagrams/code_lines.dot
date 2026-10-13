@@ -1,0 +1,22 @@
+// The two lines of code that grew from the same base and have not been merged.
+digraph G {
+  graph [fontname="Liberation Sans", fontsize=11, bgcolor="white", nodesep=0.28, ranksep=0.38, pad=0.1];
+  node  [fontname="Liberation Sans", fontsize=10.5, shape=box, style="rounded,filled", fillcolor="white", color="#5a6577", penwidth=0.9, margin="0.12,0.07"];
+  edge  [fontname="Liberation Sans", fontsize=9, color="#5a6577", arrowsize=0.7, penwidth=0.9];
+  rankdir=TB;
+  base [label="common base\n8a59658\n(2026-10-05)", fillcolor="#EEEEEE"];
+  subgraph cluster_a { label="tooling/pipeline-lab (this branch)"; style=rounded; color="#6b9a6b";
+    a1 [label="inspection app with the\ncloud workflow provider\n(as at the base)", fillcolor="#DCE8F7"];
+    a2 [label="local glue-line detector,\nopt-in guided search", fillcolor="#DCE8F7"];
+    a3 [label="Pipeline Lab, accuracy bench,\nlocal GPU flow, ribbon,\nwidth statistics", fillcolor="#DDF0DD"];
+    a1 -> a2 -> a3;
+  }
+  subgraph cluster_m { label="main (colleague, read at 485c4b6)"; style=rounded; color="#8a6fb5";
+    m1 [label="local ONNX inspection\ninspection/local/", fillcolor="#E8DDF5"];
+    m2 [label="bed markers, per-line queue,\nend exclusion, developer ratio", fillcolor="#E8DDF5"];
+    m3 [label="updater/\n(downloads main, launches app)", fillcolor="#E8DDF5"];
+    m1 -> m2 -> m3;
+  }
+  base -> a1; base -> m1;
+  a3 -> m1 [label="not merged;\nmodel tested read-only\n(chapter 20)", style=dashed, constraint=false];
+}

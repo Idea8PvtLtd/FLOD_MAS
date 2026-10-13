@@ -1,0 +1,15 @@
+// The versions of the detection flow and the user verdict on each.
+digraph G {
+  graph [fontname="Liberation Sans", fontsize=11, bgcolor="white", nodesep=0.28, ranksep=0.38, pad=0.1];
+  node  [fontname="Liberation Sans", fontsize=10.5, shape=box, style="rounded,filled", fillcolor="white", color="#5a6577", penwidth=0.9, margin="0.12,0.07"];
+  edge  [fontname="Liberation Sans", fontsize=9, color="#5a6577", arrowsize=0.7, penwidth=0.9];
+  rankdir=TB; nodesep=0.2;
+  v1 [label="Version 1\nSAM 3, each answer accepted or thrown away whole\nVerdict: dark good; pale mostly thrown away", fillcolor="#DDF0DD"];
+  v2 [label="Version 2\n+ leak repair, asking again with other tiles\nVerdict: good; black perfect; white jagged, ends wrong", fillcolor="#DDF0DD"];
+  v3 [label="Version 3\n+ band edges drawn directly as the outline\nVerdict: worse than 2 (steps, notches, wrong ends)", fillcolor="#F6D5D0"];
+  v4 [label="Version 4\nband edges as evidence + place-by-place states\n+ smooth even-width ribbon\nVerdict: best so far (user, 2026-10-08)", fillcolor="#BFE3C0", penwidth=1.8];
+  v5 [label="Version 5\nversion 4 on the local GPU (SAM 2.1 large, asked once)\n+ trained-trees edges + noise-scaled defect rule\nNot yet judged by the user", fillcolor="#DDF0DD"];
+  v6 [label="Version 6 (candidate, not in the tool)\ntrained SegFormer-B2 mask in place of SAM\nNot yet judged by the user", fillcolor="#EEEEEE", style="rounded,filled,dashed"];
+  ws [label="Width statistics\nmm scale, empirical limits, glitch checks\n(reads the version 6 mask)", fillcolor="#DDF0DD"];
+  v1 -> v2 -> v3; v2 -> v4 [label="back to 2,\nnew idea"]; v3 -> v4 [style=invis]; v4 -> v5 -> v6 -> ws;
+}

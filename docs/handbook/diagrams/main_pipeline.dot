@@ -1,0 +1,26 @@
+// The inspection pipeline on main (inspection/local/engine.py and line_measurement.py).
+digraph G {
+  graph [fontname="Liberation Sans", fontsize=11, bgcolor="white", nodesep=0.28, ranksep=0.38, pad=0.1];
+  node  [fontname="Liberation Sans", fontsize=10.5, shape=box, style="rounded,filled", fillcolor="white", color="#5a6577", penwidth=0.9, margin="0.12,0.07"];
+  edge  [fontname="Liberation Sans", fontsize=9, color="#5a6577", arrowsize=0.7, penwidth=0.9];
+  rankdir=TB;
+  img [label="Undistorted photo", shape=note, style=filled, fillcolor="#EEEEEE"];
+  src [label="1  Source mask: strip U-Net (ResNet-34, ONNX),\ninput 1152 px wide", fillcolor="#E8DDF5"];
+  lines [label="2  Curved side of each strip as a line; end hooks trimmed;\nlines without a wave filtered out\nextract_lines, filter_wave_lines", fillcolor="#E8DDF5"];
+  off [label="3  Second line 100 px inside (offset_pixels):\nthe band between them is where glue is looked for", fillcolor="#E8DDF5"];
+  pick [label="4  Lines sorted left to right; this capture takes the\nlines still owed (see the queue)", fillcolor="#E8DDF5"];
+  clahe [label="5  CLAHE on the photo (clip 2, 16 x 16)", fillcolor="#E8DDF5"];
+  unf [label="6  Unfold the band to a straight strip\n(4500-6000 x 100 px)", fillcolor="#E8DDF5"];
+  seg [label="7  Squeeze to 1024 x 64; SegFormer-B0 (ONNX, CPU),\ntwo classes, argmax, nearest-neighbour enlarge", fillcolor="#E8DDF5"];
+  clean [label="8  Clean the mask (median profile, gaps up to 12,\nwidth tolerance 15 %, rounded tips)", fillcolor="#E8DDF5"];
+  fold [label="9  Fold the mask back into the photo", fillcolor="#E8DDF5"];
+  meas [label="10  Per connected piece: centreline (PCA + recentring),\nwidth on perpendicular rays every 5 px, 0.25 px steps", fillcolor="#E8DDF5"];
+  mm [label="11  End exclusion (5 % each end), ten segments,\nedge points mapped to mm, x user ratio", fillcolor="#E8DDF5"];
+  st [label="Every segment\ngraded?", shape=diamond, style=filled, fillcolor="#FFF3BF", margin="0.02,0.02"];
+  pf [label="PASS if all inside tolerance,\nelse FAIL", fillcolor="#E8DDF5"]; wn [label="WARNING", fillcolor="#EEEEEE"];
+  img -> src -> lines -> off -> pick -> clahe -> unf;
+  unf -> seg [constraint=false];
+  seg -> clean -> fold -> meas -> mm -> st;
+  { rank=same; src; seg; }
+  st -> pf [label="yes"]; st -> wn [label="no"];
+}

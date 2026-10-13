@@ -1,0 +1,20 @@
+// Where the time goes: cloud flow against the local GPU flow.
+digraph G {
+  graph [fontname="Liberation Sans", fontsize=11, bgcolor="white", nodesep=0.28, ranksep=0.38, pad=0.1, newrank=true];
+  node  [fontname="Liberation Sans", fontsize=10.5, shape=box, style="rounded,filled", fillcolor="white", color="#5a6577", penwidth=0.9, margin="0.12,0.07"];
+  edge  [fontname="Liberation Sans", fontsize=9, color="#5a6577", arrowsize=0.7, penwidth=0.9];
+  rankdir=TB; nodesep=0.5;
+  subgraph cluster_c { label="Cloud flow (version 4): 22-45 s per frame"; style=rounded; color="#c8873d";
+    c1 [label="ROI model\nONNX on the CPU\n2.1 s", fillcolor="#DDF0DD"];
+    c2 [label="Rough line with\nwhole-frame filters\n8-11 s", fillcolor="#DDF0DD"];
+    c3 [label="SAM 3, Roboflow API\n0.7-0.9 s per call,\nasked up to 3 times\n9-33 s", fillcolor="#FBE3C8"];
+    c4 [label="Repair, edges,\nribbon\n0.7-1.1 s", fillcolor="#DDF0DD"];
+    c1 -> c2 -> c3 -> c4; }
+  subgraph cluster_l { label="Local flow (version 5): about 5 s per frame, nothing uploaded"; style=rounded; color="#6b9a6b";
+    l1 [label="ROI model\nPyTorch on the GPU\n0.25 s", fillcolor="#DDF0DD"];
+    l2 [label="Rough line, unused\nfilters skipped\n0.7-0.9 s", fillcolor="#DDF0DD"];
+    l3 [label="SAM 2.1 large, half precision\nencode a tile once (0.3 s),\nask for 10 ms; asked once\n3.2-4.6 s", fillcolor="#DDF0DD"];
+    l4 [label="Repair, trees,\nribbon\n0.6-0.8 s", fillcolor="#DDF0DD"];
+    l1 -> l2 -> l3 -> l4; }
+  c1 -> l1 [style=invis];
+}

@@ -1,0 +1,20 @@
+// Band edges, states and the ribbon fit (bead_edges.py, bead_ml.py, ribbon.py).
+digraph G {
+  graph [fontname="Liberation Sans", fontsize=11, bgcolor="white", nodesep=0.28, ranksep=0.38, pad=0.1];
+  node  [fontname="Liberation Sans", fontsize=10.5, shape=box, style="rounded,filled", fillcolor="white", color="#5a6577", penwidth=0.9, margin="0.12,0.07"];
+  edge  [fontname="Liberation Sans", fontsize=9, color="#5a6577", arrowsize=0.7, penwidth=0.9];
+  rankdir=TB;
+  line [label="Line course (repaired SAM outline or rough line)", shape=note, style=filled, fillcolor="#EEEEEE"];
+  st [label="Straighten: sample the picture 70 px to each side,\nevery 2 px along the line", fillcolor="#DDF0DD"];
+  av [label="Average 21 samples along the line\n(never across it): the weave cancels, the band stays", fillcolor="#DDF0DD"];
+  mo [label="Closing (7) removes the dark side lines,\nopening (21) removes the shiny core", fillcolor="#DDF0DD"];
+  tr [label="Follow the dark band along the strip\n(dynamic programming)", fillcolor="#DDF0DD"];
+  state [label="State at each place:\nshiny | matte | one-sided | weak | none", fillcolor="#DDF0DD"];
+  ed [label="Two edges at each place:\nsteepest slope, then corrected by the trained trees\n(92 features: lightness, core-removed lightness, weave energy)", fillcolor="#DDF0DD"];
+  wt [label="Weight each reading by its state;\nSAM's edges are the second source", fillcolor="#DDF0DD"];
+  fit [label="Robust fit: smooth centre (201 samples),\nslowly varying width (sigma 75 samples)", fillcolor="#DDF0DD"];
+  dev [label="Both sources off the ribbon\nby more than 7 spreads?", shape=diamond, style=filled, fillcolor="#FFF3BF", margin="0.02,0.02"];
+  ok [label="Ribbon is the outline", shape=note, style=filled, fillcolor="#EEEEEE"];
+  flag [label="Stretch drawn red:\nwidth deviation", shape=note, style=filled, fillcolor="#EEEEEE"];
+  line -> st -> av -> mo -> tr -> state -> wt; tr -> ed -> wt; wt -> fit -> dev; dev -> ok [label="no"]; dev -> flag [label="yes"];
+}

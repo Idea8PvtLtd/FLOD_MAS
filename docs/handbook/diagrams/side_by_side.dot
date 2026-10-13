@@ -1,0 +1,19 @@
+// The two detection pipelines side by side, and the one combination that was tested.
+digraph G {
+  graph [fontname="Liberation Sans", fontsize=11, bgcolor="white", nodesep=0.28, ranksep=0.38, pad=0.1, newrank=true];
+  node  [fontname="Liberation Sans", fontsize=10.5, shape=box, style="rounded,filled", fillcolor="white", color="#5a6577", penwidth=0.9, margin="0.12,0.07"];
+  edge  [fontname="Liberation Sans", fontsize=9, color="#5a6577", arrowsize=0.7, penwidth=0.9];
+  rankdir=TB; nodesep=0.5;
+  subgraph cluster_a { label="This branch, version 5 (research tool)"; style=rounded; color="#6b9a6b";
+    a1 [label="Strip U-Net\n(PyTorch, GPU)", fillcolor="#DDF0DD"]; a2 [label="Rough line\n(classical)", fillcolor="#DDF0DD"];
+    a3 [label="SAM 2.1 large,\npoint prompts,\nnative tiles", fillcolor="#DDF0DD"]; a4 [label="Straightened strip:\nstates, band edges,\ntrees", fillcolor="#DDF0DD"];
+    a5 [label="Smooth even-width\nribbon", fillcolor="#DDF0DD"]; a6 [label="Width along the line,\ndeviation rule", fillcolor="#DDF0DD"];
+    a1 -> a2 -> a3 -> a4 -> a5 -> a6; }
+  subgraph cluster_b { label="main (inspection app)"; style=rounded; color="#8a6fb5";
+    b1 [label="Strip U-Net\n(ONNX, CPU)", fillcolor="#E8DDF5"]; b2 [label="Curved side +\n100 px band", fillcolor="#E8DDF5"];
+    b3 [label="CLAHE, unfold,\nsqueeze to 1024 x 64", fillcolor="#E8DDF5"]; b4 [label="SegFormer-B0\n(ONNX, CPU)", fillcolor="#E8DDF5"];
+    b5 [label="Clean, refold", fillcolor="#E8DDF5"]; b6 [label="Ray widths, ten\nsegments, mm, grade", fillcolor="#E8DDF5"];
+    b1 -> b2 -> b3 -> b4 -> b5 -> b6; }
+  a1 -> b1 [style=dotted, arrowhead=none, label="same model", constraint=false];
+  b5 -> a4 [style=dashed, color="#2f6f4f", label="tested: its mask as evidence\nfor trees + ribbon", constraint=false];
+}

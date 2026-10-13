@@ -4,6 +4,16 @@ All project documents live in this folder, grouped by subject. `CLAUDE.md` stays
 repository root because coding assistants read it from there; two READMEs stay beside the
 code they describe.
 
+## Handbook (start here)
+
+| Document | What it covers |
+|---|---|
+| [FLOD_MAS Handbook (PDF)](handbook/FLOD_MAS_Handbook.pdf) | One structured book with diagrams: architecture and runtime flow of the application, the glue-line detection pipeline stage by stage, speed, accuracy, width statistics, the application on `main` and how the two compare, what is verified and what is not |
+
+Its sources are in `handbook/` (`chapters/*.md`, `diagrams/*.dot`, `charts.py`); rebuild it
+with `python docs/handbook/build.py`. The documents below hold the detail the book
+summarises.
+
 ## Inspection application
 
 | Document | What it covers |
@@ -25,7 +35,9 @@ code they describe.
 |---|---|
 | [Findings and methodology](glue-line/GLUE_LINE_FINDINGS.md) | Strategies in use and those that failed, accuracy against painted truth, time per stage, local GPU flow, SegFormer and CLAHE, the glue model on `main`, width in millimetres with statistical limits and mask glitches, ground facts, what is unverified |
 
-Start with its *Strategies* section; *Not verified* and *Next steps* close it. Scripts,
+| [Review of the implementation on `main`](glue-line/MAIN_BRANCH_REVIEW.md) | Measurement issues, bugs and updater issues found in the colleague's code at `485c4b6`, each with file and line, evidence and a suggested fix |
+
+Start with the findings' *Strategies* section; *Not verified* and *Next steps* close it. Scripts,
 trained models and result pages of the experiments are kept outside the repository in
 `~/flod_experiments/`.
 

@@ -1,0 +1,19 @@
+// Trigger, queue and bed-marker reset on main (auto_trigger/controller.py, bed_markers.py).
+digraph G {
+  graph [fontname="Liberation Sans", fontsize=11, bgcolor="white", nodesep=0.28, ranksep=0.38, pad=0.1];
+  node  [fontname="Liberation Sans", fontsize=10.5, shape=box, style="rounded,filled", fillcolor="white", color="#5a6577", penwidth=0.9, margin="0.12,0.07"];
+  edge  [fontname="Liberation Sans", fontsize=9, color="#5a6577", arrowsize=0.7, penwidth=0.9];
+  rankdir=TB;
+  f [label="Latest camera frame", shape=note, style=filled, fillcolor="#EEEEEE"];
+  res [label="Results shown\nor work in hand?", shape=diamond, style=filled, fillcolor="#FFF3BF", margin="0.02,0.02"];
+  mk [label="Two ID-0 bed markers visible\nfor marker_confirm_seconds (0.5 s)?", shape=diamond, style=filled, fillcolor="#FFF3BF", margin="0.02,0.02"];
+  reset [label="Reset requested: wait for running inspections,\nshow the last result 2 s, then clear\n\"lines already inspected\"", fillcolor="#E8DDF5"];
+  hand [label="Hand cycle (as before): hands appear,\nthen stay away", fillcolor="#E8DDF5"];
+  cap [label="Snapshot -> capture queue", fillcolor="#E8DDF5"];
+  prep [label="Capture worker thread: fabric gate\n(full_fabric / no_fabric), undistort", fillcolor="#E8DDF5"];
+  q [label="FIFO of prepared captures\n\"Queue: n checking | n waiting | n inspecting\"", shape=note, style=filled, fillcolor="#EEEEEE"];
+  job [label="Inspection thread: run_batch\nmeasures the lines this capture still owes,\nleftmost first; leaves one per queued capture", fillcolor="#E8DDF5"];
+  out [label="One result per line: line_N folder,\ntab on screen, position added to\n\"lines already inspected\"", fillcolor="#E8DDF5"];
+  f -> res; res -> mk [label="yes"]; res -> hand [label="no"]; mk -> reset [label="yes"]; mk -> hand [label="no"];
+  hand -> cap -> prep -> q -> job -> out; out -> f [style=dashed, label="next frame", constraint=false];
+}

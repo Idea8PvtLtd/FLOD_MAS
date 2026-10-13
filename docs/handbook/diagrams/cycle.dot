@@ -1,0 +1,26 @@
+// One inspection cycle, from a camera frame to the result tabs.
+digraph G {
+  graph [fontname="Liberation Sans", fontsize=11, bgcolor="white", nodesep=0.28, ranksep=0.38, pad=0.1];
+  node  [fontname="Liberation Sans", fontsize=10.5, shape=box, style="rounded,filled", fillcolor="white", color="#5a6577", penwidth=0.9, margin="0.12,0.07"];
+  edge  [fontname="Liberation Sans", fontsize=9, color="#5a6577", arrowsize=0.7, penwidth=0.9];
+  rankdir=TB;
+  f [label="Camera frame (latest only)", fillcolor="#EEEEEE", shape=note, style=filled];
+  hand [label="Hand detector\n(MediaPipe, reduced frame)", fillcolor="#DCE8F7"];
+  deb [label="Debounce\n(debounce_frames)", fillcolor="#DCE8F7"];
+  cp [label="Hands appeared, then stayed away\nfor hand_absence_seconds?", shape=diamond, style=filled, fillcolor="#FFF3BF", margin="0.02,0.02"];
+  snap [label="Snapshot: copy this exact frame", fillcolor="#DCE8F7"];
+  gate [label="Fabric classifier\naccepted?", shape=diamond, style=filled, fillcolor="#FFF3BF", margin="0.02,0.02"];
+  und [label="Undistort with the lens calibration", fillcolor="#DCE8F7"];
+  seg [label="Segmenter.segment(frame)\npolygons in frame pixels", fillcolor="#DCE8F7"];
+  val [label="validate_result, fragment policy,\nat most max_fabrics", fillcolor="#DCE8F7"];
+  meas [label="Per fabric: centreline, widths,\nsegments, millimetres, grade", fillcolor="#DCE8F7"];
+  save [label="Save the capture set\n(images + result.json)", fillcolor="#DCE8F7"];
+  show [label="Result tabs, one per fabric,\ncycled until the fabric is removed", fillcolor="#DCE8F7"];
+  rej [label="Status only\n(saved if save_rejected_triggers)", fillcolor="#EEEEEE"];
+  f -> hand -> deb -> cp;
+  cp -> f [label="no", constraint=false];
+  cp -> snap [label="yes"];
+  snap -> gate; gate -> rej [label="no"]; gate -> und [label="yes"];
+  und -> seg -> val -> meas -> save -> show;
+  show -> f [label="next hand cycle", style=dashed, constraint=false];
+}

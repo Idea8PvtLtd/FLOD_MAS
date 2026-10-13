@@ -1,0 +1,79 @@
+/* Print layout of the handbook. Sizes are for A4. */
+@page {
+  size: A4;
+  margin: 20mm 18mm 20mm 18mm;
+  @bottom-center { content: counter(page); font: 9pt "Liberation Sans", Arial, sans-serif; color: #667; }
+  @top-right { content: "FLOD_MAS Handbook"; font: 8pt "Liberation Sans", Arial, sans-serif; color: #99a; }
+}
+@page :first { @bottom-center { content: none; } @top-right { content: none; } }
+
+:root { --ink: #1c2330; --soft: #5a6577; --line: #cfd6e0; --tint: #f3f6fa; --mark: #1f4e8c; }
+* { box-sizing: border-box; }
+html { font: 10.2pt/1.5 "Liberation Sans", Arial, Helvetica, sans-serif; color: var(--ink); }
+body { margin: 0; }
+p, li { orphans: 3; widows: 3; }
+p { margin: 0 0 7pt; }
+ul, ol { margin: 0 0 7pt; padding-left: 16pt; }
+li { margin-bottom: 2.5pt; }
+a { color: inherit; text-decoration: none; }
+code { font: 8.8pt "DejaVu Sans Mono", "Liberation Mono", monospace; background: var(--tint);
+       padding: 0 2pt; border-radius: 2pt; overflow-wrap: anywhere; }
+pre { background: var(--tint); border: 0.5pt solid var(--line); border-radius: 3pt; padding: 6pt 8pt;
+      margin: 0 0 8pt; break-inside: avoid; white-space: pre-wrap; }
+pre code { background: none; padding: 0; font-size: 8.4pt; }
+strong { color: #10151e; }
+
+/* Cover */
+.cover { height: 250mm; display: flex; flex-direction: column; justify-content: center; break-after: page; }
+.cover .kind { font-size: 11pt; letter-spacing: 2pt; text-transform: uppercase; color: var(--mark); margin-bottom: 10pt; }
+.cover h1 { font-size: 38pt; line-height: 1.1; margin: 0 0 10pt; border: 0; padding: 0; }
+.cover .subtitle { font-size: 15pt; color: var(--soft); margin-bottom: 40pt; max-width: 130mm; }
+.cover table { width: auto; font-size: 10pt; }
+.cover th { background: none; border: 0; padding: 3pt 14pt 3pt 0; color: var(--soft); font-weight: normal; vertical-align: top; }
+.cover td { border: 0; padding: 3pt 0; max-width: 120mm; }
+
+/* Contents */
+.contents { break-after: page; }
+.contents h1 { border: 0; }
+.contents ul { list-style: none; padding: 0; columns: 2; column-gap: 12mm; font-size: 9.2pt; }
+.contents li { margin: 0; break-inside: avoid; }
+.contents li.part { font-weight: bold; color: var(--mark); margin-top: 9pt; text-transform: uppercase;
+                    font-size: 8.4pt; letter-spacing: 0.6pt; }
+.contents li.chapter { font-weight: bold; margin-top: 4pt; }
+.contents li.section { color: var(--soft); padding-left: 16pt; }
+.contents span { display: inline-block; min-width: 20pt; color: var(--mark); }
+.contents li.section span { min-width: 24pt; color: var(--soft); }
+
+/* Parts and chapters */
+.part-page { height: 250mm; display: flex; flex-direction: column; justify-content: center;
+             break-before: page; break-after: page; }
+.part-page p { font-size: 13pt; letter-spacing: 2pt; text-transform: uppercase; color: var(--mark); }
+.part-page h1 { font-size: 30pt; border: 0; margin: 0; }
+.chapter { break-before: page; }
+h1 { font-size: 20pt; line-height: 1.2; margin: 0 0 12pt; padding-bottom: 6pt; border-bottom: 1.5pt solid var(--mark); }
+h1 .number { color: var(--mark); margin-right: 9pt; }
+h2 { font-size: 13pt; margin: 14pt 0 6pt; break-after: avoid; }
+h2 .number { color: var(--mark); margin-right: 6pt; }
+h3 { font-size: 10.8pt; margin: 10pt 0 4pt; break-after: avoid; }
+h1, h2, h3 { break-after: avoid; }
+
+/* Tables */
+table { border-collapse: collapse; width: 100%; margin: 4pt 0 10pt; font-size: 8.8pt; line-height: 1.35; }
+th, td { border: 0.5pt solid var(--line); padding: 3pt 5pt; text-align: left; vertical-align: top; }
+th { background: #e6ecf4; font-weight: bold; }
+tr { break-inside: avoid; }
+table.keep { break-inside: avoid; }
+thead { display: table-header-group; }
+tbody tr:nth-child(even) td { background: #fafbfd; }
+
+/* Figures */
+figure { margin: 8pt 0 11pt; text-align: center; break-inside: avoid; }
+figure img { max-width: 100%; max-height: 205mm; }
+figure.photo img { border: 0.5pt solid var(--line); }
+figcaption { font-size: 8.6pt; color: var(--soft); margin-top: 4pt; text-align: left; }
+figcaption b { color: var(--mark); margin-right: 4pt; }
+
+/* Notes: a paragraph that starts with a bold word and a colon inside a blockquote */
+blockquote { margin: 6pt 0 9pt; padding: 5pt 9pt; border-left: 3pt solid var(--mark); background: var(--tint);
+             break-inside: avoid; }
+blockquote p:last-child { margin-bottom: 0; }

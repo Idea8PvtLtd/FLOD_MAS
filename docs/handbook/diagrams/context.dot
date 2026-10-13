@@ -1,0 +1,25 @@
+// System context: who and what the software talks to.
+digraph G {
+  graph [fontname="Liberation Sans", fontsize=11, bgcolor="white", nodesep=0.28, ranksep=0.38, pad=0.1];
+  node  [fontname="Liberation Sans", fontsize=10.5, shape=box, style="rounded,filled", fillcolor="white", color="#5a6577", penwidth=0.9, margin="0.12,0.07"];
+  edge  [fontname="Liberation Sans", fontsize=9, color="#5a6577", arrowsize=0.7, penwidth=0.9];
+  rankdir=TB; nodesep=0.45;
+  operator [label="Operator\nlays fabric panels,\ntakes hands away", fillcolor="#FFFFFF"];
+  camera [label="Camera\n4608 x 3456", fillcolor="#FFFFFF"];
+  subgraph cluster_pc { label="Inspection PC (Windows) or development PC (Linux)"; style="rounded"; color="#9aa5b5"; fontcolor="#5a6577";
+    app [label="Inspection application\nmain_1366.py (Tkinter)", fillcolor="#DCE8F7"];
+    disk [label="Files on disk\nconfig.json, calibration,\ncapture sets, sample frames", shape=note, style=filled, fillcolor="#EEEEEE"];
+    lab [label="Pipeline Lab and\nresearch tools\ntools/*.py", fillcolor="#DDF0DD"];
+    gpu [label="GPU (CUDA)\nlocal SAM 2.1,\nregion model", fillcolor="#DDF0DD"];
+    { rank=same; app; lab; }
+    { rank=same; disk; gpu; }
+  }
+  cloud [label="Roboflow cloud\nworkflow and SAM 3\n(image tiles uploaded)", fillcolor="#FBE3C8"];
+  operator -> camera [label=" scene"];
+  camera -> app [label=" frames"];
+  app -> operator [label=" PASS / FAIL\n per fabric", constraint=false];
+  app -> disk [label=" saves"]; disk -> lab [label=" reads"];
+  lab -> gpu [label=" offline flow"];
+  app -> cloud [label=" default provider", style=dashed];
+  lab -> cloud [label=" cloud flow", style=dashed];
+}

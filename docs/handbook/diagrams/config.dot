@@ -1,0 +1,24 @@
+// Which module reads which section of config.json.
+digraph G {
+  graph [fontname="Liberation Sans", fontsize=11, bgcolor="white", nodesep=0.28, ranksep=0.38, pad=0.1];
+  node  [fontname="Liberation Sans", fontsize=10.5, shape=box, style="rounded,filled", fillcolor="white", color="#5a6577", penwidth=0.9, margin="0.12,0.07"];
+  edge  [fontname="Liberation Sans", fontsize=9, color="#5a6577", arrowsize=0.7, penwidth=0.9];
+  rankdir=LR; ranksep=0.9; nodesep=0.12;
+  node [height=0.3];
+  subgraph s { node [shape=note, style=filled, fillcolor="#EEEEEE"];
+    c1 [label="cameras, camera_count"]; c2 [label="capture"]; c3 [label="performance, preview"];
+    c4 [label="auto_trigger"]; c5 [label="segmentation\n(+ segmentation.glue_line)"]; c6 [label="sam_detection"];
+    c7 [label="inspection"]; c8 [label="capture_storage"]; c9 [label="result_view"];
+    c10 [label="board, two_board, calibration,\nmeasurement_surface, region_homography,\ncrop_setup"];
+    c11 [label="serial, color_mask (legacy)"]; }
+  node [fillcolor="#DCE8F7"];
+  m1 [label="app_config.py, camera_handler.py"]; m3 [label="main_1366.py"];
+  m4 [label="auto_trigger/controller.py, models.py"];
+  m5 [label="segmentation/ (provider chosen here)\ninspection/pipeline.py"];
+  m6 [label="inspection/measurement.py,\nsam_detection.py"];
+  m8 [label="inspection/storage.py"]; m9 [label="inspection/dashboard.py"];
+  m10 [label="CalibrateAPP/, measure/,\nplane_scale.py, region_calibration.py"];
+  m11 [label="not used by the automatic inspection", fillcolor="#EEEEEE"];
+  val [label="config_validation.py\n(checks every section at start)"];
+  c1 -> m1; c2 -> m1; c3 -> m3; c4 -> m4; c5 -> m5; c6 -> m6; c7 -> m3; c8 -> m8; c9 -> m9; c10 -> m10; c11 -> m11;
+}

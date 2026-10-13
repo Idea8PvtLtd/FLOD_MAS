@@ -1,10 +1,10 @@
 # Glue-line detection: findings and methodology
 
 What has been measured about finding and outlining the glue line on dark, pink and white
-fabric, how each experiment was run, and what is still unverified. State as of 2026-10-09,
-branch `tooling/pipeline-lab` (never `main`). Committed there: everything up to and including
-*SegFormer and CLAHE*. Not yet committed: the move of the documents into `docs/`, *The main
-branch's local model* and *Width statistics* with their code. Start with *Strategies*; the sections after
+fabric, how each experiment was run, and what is still unverified. State as of 2026-10-12,
+branch `tooling/pipeline-lab` (never `main`), all of it committed there. `main` has not been
+merged into this branch: its local model was examined at commit `4a0680f` and its model code
+has not changed since (checked against `485c4b6`). Start with *Strategies*; the sections after
 it hold the measurements behind each statement, in the order the work was done.
 
 How to use the tool is in `../inspection/AUTOMATIC_INSPECTION.md` (section *Pipeline Lab*). This file
@@ -123,7 +123,8 @@ only, and the user has not judged it. Details in *SegFormer and CLAHE*.
 
 ### The glue model on `main` (see *The main branch's local model*)
 
-- It is usable: all 257 lines, widths equal on the three colours, 3 s per frame on the CPU.
+- It is usable: all 257 lines, widths equal on the three colours, 3 s per frame on the CPU
+  (1.75 s for one capture measuring one line, which is how the app runs it).
 - Best update found: keep its network, add the trees and smooth ribbon after it.
 - Version 5 reads pink 2.6 px narrower than it does; one of them is wrong there.
 
@@ -1143,7 +1144,9 @@ working branch was not merged or altered. Scripts: `run_main.py`, `compare.py`,
 2. Each curved side of the mask becomes a line; a second line is drawn 100 px inside it. The
    band between the two is where glue is looked for.
 3. The whole photo is contrast-enhanced with **CLAHE** (clip 2, 16x16) and the band is
-   **unfolded** (straightened) to its real size, about 2000 x 100 px.
+   **unfolded** (straightened) along its middle line. Measured 2026-10-12: the strip is
+   4500-6000 x 100 px for a line 2200-2900 px long, because the inner edge of the band
+   zigzags (an earlier version of this text said "about 2000 x 100").
 4. The band is squeezed to **1024 x 64** and given to a two-class **SegFormer-B0**
    (`segformer_b0.onnx`, 15 MB, runs on the CPU). Glue = class 1.
 5. The mask is cleaned, folded back into the photo, and its width is read on perpendicular
@@ -1181,6 +1184,69 @@ the strip. It also is "SegFormer with CLAHE", the subject of the previous sectio
 Frames from the other sets (soft white): it finds the lines, mostly at 28-32 px, but with
 width spread 5-34 px inside a line, some readings far off (14, 20, 21, 23 px), lines in two
 or three pieces, and on `0049` six lines where there are four.
+
+### Time, stage by stage, and against version 5 on the same frames
+
+Measured 2026-10-12 at the user's request. `main` was at `485c4b6`; `inspection/local/` there
+is unchanged since `4a0680f` and identical to the extracted copy that was run. Nine M1 frames
+(every tenth or so of the 74: 4 dark, 5 pink, no white), 32 lines, this PC (i5-13420H, 12
+threads; RTX GPU used by version 5 only). Each engine was warmed with one frame first. Both
+found the same number of lines on every frame.
+
+| | Model on `main` (CPU) | Version 5 (local SAM 2.1 large, GPU) |
+|---|---|---|
+| One frame, all its lines (2-4), mean (range) | **3.4 s** (2.4-4.1) | **4.3 s** (2.4-5.4) |
+| Per line, all lines of a frame | 0.96 s | 1.21 s |
+| One capture measuring one line (how the app on `main` runs it) | **1.75 s** (1.6-1.9) | not built that way: the tool does every line of the frame |
+| Loading the models, once | 0.65 s | 16 s (first run of the session) |
+| GPU memory | none | 983 MB peak |
+
+Where the time goes on `main`, seconds:
+
+| Stage | Per frame | Per line | Note |
+|---|---|---|---|
+| Strip U-Net (source mask) | 0.91 | | once per frame |
+| Source lines: extract, wave filter, offset | 0.32 | | once per frame |
+| CLAHE on the whole photo | 1.08 | 0.31 | **computed again for every line** |
+| Unfold maps, crop, refold | 0.10 | 0.03 | |
+| SegFormer-B0 | 0.09 | 0.026 | |
+| Clean mask | 0.31 | 0.09 | |
+| Width on rays | 0.31 | 0.09 | |
+| Not timed singly (remaps, components, overlay) | 0.30 | | |
+
+Where it goes in version 5 on the same frames, seconds per frame: ROI model 0.19, cardboard
+mask 0.07, rough line 0.56, SAM 3.13, leak repair 0.06, states and band edges 0.09, ribbon
+0.03, width and length 0.04, other 0.12.
+
+- The glue model itself takes 26 ms per line. A third of the frame's time is CLAHE, because
+  `_inspect_line` calls `enhance_image(photo, ...)` on the full 16-megapixel photo for each
+  line. Computing it once per frame would save about 0.3 s for each line after the first
+  (about 0.8 s on a four-line frame). The result would be the same picture. Not changed
+  here: it is the colleague's code.
+- Another quarter is the strip U-Net on the CPU (0.91 s); the same model as a PyTorch
+  checkpoint on the GPU takes 0.19 s here.
+- In version 5, SAM is 73 % of the time. Everything this research added after SAM (repair,
+  states, trees, ribbon, widths) is 0.2 s per frame.
+- So the measured cost of "the model on `main` with the trees and the ribbon after it" (the
+  recommended update below) is its 3.4 s plus about 0.2 s, without a GPU. Estimated from
+  the two tables; that combination was not timed as one program.
+- Not timed: the app around either engine. On `main` a capture is taken after hands have
+  been absent for 1.0 s (`hand_absence_seconds`), then the fabric check and the
+  undistortion run before the engine; the Windows inspection PC was not timed at all.
+
+### Review of the implementation (2026-10-12)
+
+A review of the code on `main` at `485c4b6` (measurement, bugs, the updater) is in
+`docs/glue-line/MAIN_BRANCH_REVIEW.md`. Its main measured points:
+
+- Grading compares the average of each 25 mm segment with target +- 1.0 mm. A 2 mm blob
+  must be 4.2 mm wider than the strip before a line fails; 5 mm long, 2.9 mm wider.
+- A line in two in-tolerance pieces passes; a line with no glue found is a WARNING.
+- The band's inner edge zigzags (18-20 % of its steps go backwards). A smoothed normal does
+  not make segments more even (worst segment 5.35 against 5.21 px) but improves
+  repeatability under a one-pixel shift (worst segment change 4.0 against 1.1 px).
+- The updater records a failed package install as done, resets `config.json` on every
+  update, and delivers every push to `main`; 2 of the 365 tests on `main` fail.
 
 ### Updates from the findings, each tested
 

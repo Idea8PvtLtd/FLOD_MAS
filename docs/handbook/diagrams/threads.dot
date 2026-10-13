@@ -1,0 +1,22 @@
+// Threads and the data passed between them.
+digraph G {
+  graph [fontname="Liberation Sans", fontsize=11, bgcolor="white", nodesep=0.28, ranksep=0.38, pad=0.1];
+  node  [fontname="Liberation Sans", fontsize=10.5, shape=box, style="rounded,filled", fillcolor="white", color="#5a6577", penwidth=0.9, margin="0.12,0.07"];
+  edge  [fontname="Liberation Sans", fontsize=9, color="#5a6577", arrowsize=0.7, penwidth=0.9];
+  rankdir=TB;
+  subgraph cluster_cam { label="capture thread"; style=rounded; color="#9aa5b5";
+    cap [label="CameraStream._capture\nkeeps the newest frame", fillcolor="#DCE8F7"]; }
+  subgraph cluster_tk { label="Tk main thread (owns every widget)"; style=rounded; color="#9aa5b5";
+    feed [label="update_video_feed\nsubmit(frame, sequence)", fillcolor="#DCE8F7"];
+    poll [label="_poll_automatic\nevery 100 ms", fillcolor="#DCE8F7"];
+    ui [label="status bar, PASS / FAIL,\nresult tabs", fillcolor="#DCE8F7"]; }
+  subgraph cluster_mon { label="thread: automatic-hand-monitor"; style=rounded; color="#9aa5b5";
+    latest [label="latest\n(one slot, overwritten)", shape=note, style=filled, fillcolor="#EEEEEE"];
+    loop [label="AutoController.run\nhand, debounce, checkpoint,\nfabric gate", fillcolor="#DCE8F7"]; }
+  subgraph cluster_job { label="thread: automatic-inspection (one per capture)"; style=rounded; color="#9aa5b5";
+    job [label="InspectionPipeline.run", fillcolor="#DCE8F7"]; }
+  events [label="events queue\nstatus | result | clear | error\neach with a generation number", shape=note, style=filled, fillcolor="#EEEEEE"];
+  cap -> feed [label="read"]; feed -> latest; latest -> loop;
+  loop -> job [label="start, or keep one\npending job"]; job -> loop [label="Future done", style=dashed];
+  loop -> events; events -> poll; poll -> ui;
+}

@@ -1,0 +1,23 @@
+// From a strip polygon to a graded width (strip_analysis.py, sam_detection.py, inspection/measurement.py).
+digraph G {
+  graph [fontname="Liberation Sans", fontsize=11, bgcolor="white", nodesep=0.28, ranksep=0.38, pad=0.1];
+  node  [fontname="Liberation Sans", fontsize=10.5, shape=box, style="rounded,filled", fillcolor="white", color="#5a6577", penwidth=0.9, margin="0.12,0.07"];
+  edge  [fontname="Liberation Sans", fontsize=9, color="#5a6577", arrowsize=0.7, penwidth=0.9];
+  rankdir=TB;
+  ring [label="Strip polygon (one ring around both edges)", shape=note, style=filled, fillcolor="#EEEEEE"];
+  crop [label="Crop around the strip and its panel\n(original pixels, no warp)", fillcolor="#DCE8F7"];
+  mask [label="Rasterise the ring to a mask", fillcolor="#DCE8F7"];
+  skel [label="Skeletonise to the medial axis;\nlongest path = centreline", fillcolor="#DCE8F7"];
+  res [label="Resample evenly (up to 500 samples),\nsmooth, trim half a width at each end", fillcolor="#DCE8F7"];
+  wid [label="Width at each sample: rays along the normal\n(0.5 px steps, three angles, middle value kept)", fillcolor="#DCE8F7"];
+  ref [label="refine_edges on?", shape=diamond, style=filled, fillcolor="#FFF3BF", margin="0.02,0.02"];
+  refine [label="Move each edge onto the dark edge line\nwithin refine_search_px", fillcolor="#DCE8F7"];
+  segs [label="Cut into strip_segments (10) equal lengths:\naverage, minimum, maximum width", fillcolor="#DCE8F7"];
+  mm [label="Calibrated?", shape=diamond, style=filled, fillcolor="#FFF3BF", margin="0.02,0.02"];
+  metric [label="Map sample end points through the\nmeasurement plane: widths in mm", fillcolor="#DCE8F7"];
+  grade [label="Each segment: target - tolerance <= average <= target + tolerance\nPASS if every segment is inside, else FAIL", fillcolor="#DCE8F7"];
+  un [label="UNMEASURED\n(pixels only, warning)", fillcolor="#EEEEEE"];
+  ring -> crop -> mask -> skel -> res -> wid -> ref;
+  ref -> refine [label="yes"]; ref -> segs [label="no"]; refine -> segs;
+  segs -> mm; mm -> metric [label="yes"]; mm -> un [label="no"]; metric -> grade;
+}

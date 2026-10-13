@@ -22,6 +22,9 @@ inspection PC (Python 3.12); this Linux machine is used for development and expe
   `AUTOMATIC_INSPECTION.md`, `CONFIGURATION.md`, `PERFORMANCE.md`, `UI_DESIGN.md`;
   `docs/calibration/CALIBRATION_PIPELINE.md`; `docs/glue-line/GLUE_LINE_FINDINGS.md` records
   what was measured for glue-line detection and how. New documents go there, not in the root.
+  `docs/handbook/` is the architecture and pipeline book with diagrams (PDF plus sources;
+  rebuild with `python docs/handbook/build.py`). Its numbers are copied from the findings:
+  change them there first.
 
 ## Commands
 

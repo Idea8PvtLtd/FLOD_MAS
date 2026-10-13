@@ -1,0 +1,32 @@
+// Research tools, the modules they drive and what they write.
+digraph G {
+  graph [fontname="Liberation Sans", fontsize=11, bgcolor="white", nodesep=0.28, ranksep=0.38, pad=0.1];
+  node  [fontname="Liberation Sans", fontsize=10.5, shape=box, style="rounded,filled", fillcolor="white", color="#5a6577", penwidth=0.9, margin="0.12,0.07"];
+  edge  [fontname="Liberation Sans", fontsize=9, color="#5a6577", arrowsize=0.7, penwidth=0.9];
+  rankdir=LR; ranksep=0.7; nodesep=0.14;
+  node [height=0.3];
+  subgraph cluster_t { label="tools/"; style=rounded; color="#6b9a6b";
+  t1 [label="pipeline_lab.py\n(window)", fillcolor="#DDF0DD"]; t2 [label="pipeline_steps.py", fillcolor="#DDF0DD"];
+  t3 [label="benchmark_flow.py", fillcolor="#DDF0DD"]; t4 [label="accuracy_bench.py", fillcolor="#DDF0DD"];
+  t5 [label="train_bead_ml.py", fillcolor="#DDF0DD"]; t6 [label="learn_bead_reference.py", fillcolor="#DDF0DD"];
+  t7 [label="width_report.py", fillcolor="#DDF0DD"]; t8 [label="learn_glue_shape.py", fillcolor="#DDF0DD"];
+  t9 [label="pipeline_sweep.py,\nroi_sweep.py", fillcolor="#DDF0DD"]; t10 [label="replay_capture.py", fillcolor="#DCE8F7"];
+  }
+  subgraph cluster_m { label="segmentation/"; style=rounded; color="#6b9a6b";
+  m1 [label="glue_line.py", fillcolor="#DCE8F7"]; m2 [label="sam_refine.py", fillcolor="#DDF0DD"];
+  m3 [label="sam_local.py", fillcolor="#DDF0DD"]; m4 [label="bead_edges.py", fillcolor="#DDF0DD"];
+  m5 [label="ribbon.py", fillcolor="#DDF0DD"]; m6 [label="bead_ml.py,\nedge_methods.py", fillcolor="#DDF0DD"];
+  m7 [label="synthetic_bead.py", fillcolor="#DDF0DD"]; m8 [label="width_stats.py,\nsegformer_local.py", fillcolor="#DDF0DD"];
+  m9 [label="glue_shape.py", fillcolor="#DCE8F7"]; }
+  m10 [label="inspection/pipeline.py", fillcolor="#DCE8F7"];
+  o1 [label="overlay, numbers,\nrecipe JSON", shape=note, style=filled, fillcolor="#EEEEEE"];
+  o3 [label="seconds per stage", shape=note, style=filled, fillcolor="#EEEEEE"];
+  o4 [label="error tables", shape=note, style=filled, fillcolor="#EEEEEE"];
+  o5 [label="~/.cache/flod_sam/\nbead_edge_trees.txt", shape=note, style=filled, fillcolor="#EEEEEE"];
+  o6 [label="bead_reference.json", shape=note, style=filled, fillcolor="#EEEEEE"];
+  o7 [label="HTML width report", shape=note, style=filled, fillcolor="#EEEEEE"];
+  o8 [label="glue_shapes.json", shape=note, style=filled, fillcolor="#EEEEEE"];
+  t1 -> t2; t2 -> m1; t2 -> m2; t2 -> m3; t2 -> m4; t2 -> m5; t2 -> m6; t1 -> o1;
+  t3 -> t1; t3 -> o3; t4 -> m7; t4 -> m6; t4 -> m4; t4 -> o4; t5 -> m7; t5 -> m6; t5 -> o5;
+  t6 -> m4; t6 -> o6; t7 -> m8; t7 -> m4; t7 -> o7; t8 -> m9; t8 -> o8; t9 -> m1; t10 -> m10;
+}

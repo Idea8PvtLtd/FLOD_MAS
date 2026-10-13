@@ -1,0 +1,17 @@
+// Leak repair of a SAM outline (segmentation/sam_refine.py, trim_ring).
+digraph G {
+  graph [fontname="Liberation Sans", fontsize=11, bgcolor="white", nodesep=0.28, ranksep=0.38, pad=0.1];
+  node  [fontname="Liberation Sans", fontsize=10.5, shape=box, style="rounded,filled", fillcolor="white", color="#5a6577", penwidth=0.9, margin="0.12,0.07"];
+  edge  [fontname="Liberation Sans", fontsize=9, color="#5a6577", arrowsize=0.7, penwidth=0.9];
+  rankdir=TB;
+  m [label="SAM mask of one line", shape=note, style=filled, fillcolor="#EEEEEE"];
+  a [label="Cut the mask to the line's own ROI region", fillcolor="#DDF0DD"];
+  b [label="Read it as a ribbon: every 4 px along the rough line,\nhow far the mask reaches to each side", fillcolor="#DDF0DD"];
+  c [label="Steady course of each edge:\nrunning median over 31 samples of normal width", fillcolor="#DDF0DD"];
+  d [label="Edge within 5 px\nof its course?", shape=diamond, style=filled, fillcolor="#FFF3BF", margin="0.02,0.02"];
+  keep [label="Keep SAM's edge\n(counted in \"SAM outlined N %\")", fillcolor="#DDF0DD"];
+  rep [label="Replace by the course\n(a spill moves one edge, not both)", fillcolor="#DDF0DD"];
+  e [label="Too wide over most of the line?\nRe-read against the width SAM gave the\nframe's evenly outlined lines", fillcolor="#DDF0DD"];
+  o [label="Repaired outline + share that is SAM's own", shape=note, style=filled, fillcolor="#EEEEEE"];
+  m -> a -> b -> c -> d; d -> keep [label="yes"]; d -> rep [label="no"]; keep -> e; rep -> e; e -> o;
+}

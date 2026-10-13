@@ -1,0 +1,23 @@
+// The detection flow in use (versions 4 and 5), stage by stage.
+digraph G {
+  graph [fontname="Liberation Sans", fontsize=11, bgcolor="white", nodesep=0.28, ranksep=0.38, pad=0.1];
+  node  [fontname="Liberation Sans", fontsize=10.5, shape=box, style="rounded,filled", fillcolor="white", color="#5a6577", penwidth=0.9, margin="0.12,0.07"];
+  edge  [fontname="Liberation Sans", fontsize=9, color="#5a6577", arrowsize=0.7, penwidth=0.9];
+  rankdir=TB;
+  img [label="Frame, full resolution (4608 x 3456)", shape=note, style=filled, fillcolor="#EEEEEE"];
+  roi [label="1  Panel ROI model (U-Net)\nwhere glue can be: one region per panel strip\nglue_line.glue_region", fillcolor="#DDF0DD"];
+  rough [label="2  Rough line (local detector, region-guided)\nwhere each line runs, to about 20 px\npipeline_steps.segment_local", fillcolor="#DDF0DD"];
+  sam [label="3  SAM with point prompts on 1024 px tiles of original pixels\nwhich object the line is\nsam_refine (cloud SAM 3)  |  sam_local (SAM 2.1 on the GPU)", fillcolor="#DDF0DD"];
+  leak [label="4  Leak repair\nkeep SAM's steady edges, each edge judged alone\nsam_refine.trim_ring", fillcolor="#DDF0DD"];
+  again [label="Outlined on less\nthan 95 % of edges?", shape=diamond, style=filled, fillcolor="#FFF3BF", margin="0.02,0.02"];
+  strip [label="5  Straighten the strip along the line, average along it;\nname each place: shiny, matte, one-sided, weak, none\nbead_edges.measure", fillcolor="#DDF0DD"];
+  edges [label="6  Band edges on the strip\nsteepest slope (version 4)  |  trained trees (version 5)\nbead_edges, bead_ml", fillcolor="#DDF0DD"];
+  ribbon [label="7  Smooth even-width ribbon fitted to both kinds of\nevidence, weighted by the state at each place\nribbon.fit_ribbon", fillcolor="#DDF0DD"];
+  ends [label="8  Ends where the band ends; width deviations where\nboth sources leave the ribbon\nribbon (deviation rule)", fillcolor="#DDF0DD"];
+  out [label="Per line: outline, width, length, fabric colour,\n\"backed by evidence N %\", misfit, CHECK BY EYE", shape=note, style=filled, fillcolor="#EEEEEE"];
+  img -> roi -> rough -> sam -> leak -> again;
+  again -> sam [label="cloud flow: ask again,\nother tiles (up to twice)", constraint=false];
+  again -> strip [label="no, or asked once"];
+  strip -> edges -> ribbon -> ends -> out;
+  leak -> ribbon [label="SAM's outline\nas evidence", style=dashed, constraint=false];
+}

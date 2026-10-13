@@ -1,0 +1,13 @@
+// The hand-cycle checkpoint (auto_trigger/checkpoint.py).
+digraph G {
+  graph [fontname="Liberation Sans", fontsize=11, bgcolor="white", nodesep=0.28, ranksep=0.38, pad=0.1];
+  node  [fontname="Liberation Sans", fontsize=10.5, shape=box, style="rounded,filled", fillcolor="white", color="#5a6577", penwidth=0.9, margin="0.12,0.07"];
+  edge  [fontname="Liberation Sans", fontsize=9, color="#5a6577", arrowsize=0.7, penwidth=0.9];
+  rankdir=LR; node [shape=ellipse, style=filled, fillcolor="#DCE8F7"];
+  IDLE; ARMED; WAITING; TRIGGERED [fillcolor="#FFF3BF"];
+  IDLE -> ARMED [label="hand seen"];
+  ARMED -> WAITING [label="hand gone\n(after min_hand_present_seconds)"];
+  WAITING -> ARMED [label="hand back:\ncancelled"];
+  WAITING -> TRIGGERED [label="still gone after\nhand_absence_seconds"];
+  TRIGGERED -> IDLE [label="capture taken"];
+}

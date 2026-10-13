@@ -1,0 +1,22 @@
+// The trained segmenter: how it was trained and where it is used.
+digraph G {
+  graph [fontname="Liberation Sans", fontsize=11, bgcolor="white", nodesep=0.28, ranksep=0.38, pad=0.1];
+  node  [fontname="Liberation Sans", fontsize=10.5, shape=box, style="rounded,filled", fillcolor="white", color="#5a6577", penwidth=0.9, margin="0.12,0.07"];
+  edge  [fontname="Liberation Sans", fontsize=9, color="#5a6577", arrowsize=0.7, penwidth=0.9];
+  rankdir=TB;
+  subgraph cluster_t { label="Training (once per product)"; style=rounded; color="#6b9a6b";
+    lab [label="Version 5 ribbons of 74 M1 frames\nas labels (no hand labelling)", shape=note, style=filled, fillcolor="#EEEEEE"];
+    split [label="Split by capture time within each colour:\n52 frames train, 22 held out", fillcolor="#DDF0DD"];
+    tiles [label="Native 512 px tiles, no resizing", fillcolor="#DDF0DD"];
+    train [label="Fine-tune SegFormer (MiT-B0 / B2)\nplain, and with CLAHE", fillcolor="#DDF0DD"];
+    lab -> split -> tiles -> train; }
+  subgraph cluster_u { label="Use"; style=rounded; color="#6b9a6b";
+    img [label="Frame + ROI", shape=note, style=filled, fillcolor="#EEEEEE"];
+    pred [label="GlueMask.probability\n512 px tiles, stride 384, half precision\nsegformer_local.py", fillcolor="#DDF0DD"];
+    ev [label="Mask = outline evidence for the\ntrees and the ribbon (in place of SAM)", fillcolor="#DDF0DD"];
+    ws [label="Mask width = signal of the width report", fillcolor="#DDF0DD"];
+    img -> pred -> ev; pred -> ws; }
+  train -> pred [label="model folder\n(outside the repository)"];
+  note [label="CLAHE: no gain, worse on soft frames.\nLicence of the weights: non-commercial.", shape=note, style=filled, fillcolor="#FFF3BF"];
+  train -> note [style=dotted, arrowhead=none];
+}

@@ -1,0 +1,19 @@
+// The accuracy bench: painted truth and the rule for keeping a method.
+digraph G {
+  graph [fontname="Liberation Sans", fontsize=11, bgcolor="white", nodesep=0.28, ranksep=0.38, pad=0.1];
+  node  [fontname="Liberation Sans", fontsize=10.5, shape=box, style="rounded,filled", fillcolor="white", color="#5a6577", penwidth=0.9, margin="0.12,0.07"];
+  edge  [fontname="Liberation Sans", fontsize=9, color="#5a6577", arrowsize=0.7, penwidth=0.9];
+  rankdir=TB;
+  real [label="Real frame with a real glue line", shape=note, style=filled, fillcolor="#EEEEEE"];
+  cut [label="Cut a strip of plain fabric beside the line\n(same frame, same weave and light)", fillcolor="#DDF0DD"];
+  paint [label="Paint a bead of chosen course and width:\nmeasured depth, edge blur, core, side lines, texture loss\nsynthetic_bead.py", fillcolor="#DDF0DD"];
+  cond [label="Conditions: standard | rough line 12 px off | core along one edge |\nhalf contrast | blurred 2.5 and 4 px | no shine | width defects", shape=note, style=filled, fillcolor="#EEEEEE"];
+  run [label="Run an edge method on the painted strip\nedge_methods.py, bead_ml.py", fillcolor="#DDF0DD"];
+  score [label="Score against the known edges:\nbias and RMS of each edge, width bias, defects found\naccuracy_bench.py", fillcolor="#DDF0DD"];
+  rep [label="Repeat shots of the same piece (14 bursts):\nthe same line must read the same", fillcolor="#DDF0DD"];
+  keep [label="Lower error on painted truth AND\nno worse on repeat shots?", shape=diamond, style=filled, fillcolor="#FFF3BF", margin="0.02,0.02"];
+  yes [label="Kept\n(trees, profile fit)", fillcolor="#BFE3C0"];
+  no [label="Dropped and recorded\n(sub-pixel peak, phase congruency,\ntexture alone, fusion)", fillcolor="#F6D5D0"];
+  real -> cut -> paint -> run -> score -> keep; cond -> paint; rep -> keep;
+  keep -> yes [label="yes"]; keep -> no [label="no"];
+}

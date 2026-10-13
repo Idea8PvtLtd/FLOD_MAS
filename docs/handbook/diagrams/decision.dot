@@ -1,0 +1,22 @@
+// Which method for which need. A summary of the findings, not a tested selector.
+digraph G {
+  graph [fontname="Liberation Sans", fontsize=11, bgcolor="white", nodesep=0.12, ranksep=0.32, pad=0.1];
+  node  [fontname="Liberation Sans", fontsize=10.5, shape=box, style="rounded,filled", fillcolor="white", color="#5a6577", penwidth=0.9, margin="0.12,0.07"];
+  edge  [fontname="Liberation Sans", fontsize=9, color="#5a6577", arrowsize=0.7, penwidth=0.9];
+  rankdir=TB;
+  q0 [label="What is needed?", shape=diamond, style=filled, fillcolor="#FFF3BF", margin="0.02,0.02"];
+  q1 [label="May image tiles\nleave the PC?", shape=diamond, style=filled, fillcolor="#FFF3BF", margin="0.02,0.02"];
+  q2 [label="CUDA GPU\navailable?", shape=diamond, style=filled, fillcolor="#FFF3BF", margin="0.02,0.02"];
+  q3 [label="Frame soft\n(pale fabric,\nlow sharpness)?", shape=diamond, style=filled, fillcolor="#FFF3BF", margin="0.02,0.02"];
+  app [label="Grade fabrics in production:\nthe inspection app\n(cloud workflow here;\nlocal ONNX models on main)", fillcolor="#DCE8F7"];
+  v4 [label="Cloud version 4\n22-45 s, tiles uploaded", fillcolor="#FBE3C8"];
+  v5 [label="Local version 5\nSAM 2.1 large + trees\n+ ribbon, about 5 s", fillcolor="#BFE3C0"];
+  nosam [label="No SAM: rough line +\nband edges + ribbon\nabout 1 s; check pink\nlines by eye", fillcolor="#DDF0DD"];
+  cpu [label="No GPU, offline:\nthe glue model on main\n(3 s, CPU), best with\ntrees + ribbon after it", fillcolor="#E8DDF5"];
+  v6 [label="Trained SegFormer\n(version 6 candidate):\nthe only method that read\nsoft white frames;\nlicence non-commercial,\ntrain per product", fillcolor="#EEEEEE"];
+  ws [label="Where a line widens or\nnarrows, in mm:\nwidth report on the mask\nwidth; limits 0.14-0.76 mm\nby colour and length", fillcolor="#DDF0DD"];
+  q0 -> app [label="a verdict\nper fabric"]; q0 -> q1 [label="the best\noutline"]; q0 -> ws [label="width changes\nalong a line"];
+  q1 -> v4 [label="yes, and\nno GPU"]; q1 -> q2 [label="no"];
+  q2 -> q3 [label="yes"]; q2 -> cpu [label="no"]; q2 -> nosam [label="yes, speed first", style=dashed];
+  q3 -> v5 [label="no"]; q3 -> v6 [label="yes"];
+}

@@ -1,0 +1,17 @@
+// One capture set on disk (inspection/storage.py).
+digraph G {
+  graph [fontname="Liberation Sans", fontsize=11, bgcolor="white", nodesep=0.28, ranksep=0.38, pad=0.1];
+  node  [fontname="Liberation Sans", fontsize=10.5, shape=box, style="rounded,filled", fillcolor="white", color="#5a6577", penwidth=0.9, margin="0.12,0.07"];
+  edge  [fontname="Liberation Sans", fontsize=9, color="#5a6577", arrowsize=0.7, penwidth=0.9];
+  rankdir=LR; node [shape=note, style=filled, fillcolor="#EEEEEE"];
+  root [label="Documents / data files /\nDataset_capture / Automatic /", shape=folder];
+  set [label="YYYYMMDD_HHMMSS_micro_id /", shape=folder];
+  a [label=".inspection-set\n(marker: this folder is ours)"];
+  b [label="capture.json\ntime, frame number, gate scores, target"];
+  c [label="original.png\nfull-resolution snapshot"];
+  d [label="undistorted.png\nlens-corrected, what is measured"];
+  e [label="overview.jpg, fabric_01..04.jpg\nannotated previews"];
+  f [label="result.json\npolygons, per-segment widths,\nwarnings, errors"];
+  g [label="segmentation_input.jpg\n(only with segmentation.save_input)"];
+  root -> set; set -> a; set -> b; set -> c; set -> d; set -> e; set -> f; set -> g;
+}

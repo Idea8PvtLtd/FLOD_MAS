@@ -1,0 +1,20 @@
+// The segmentation boundary: one contract, replaceable providers.
+digraph G {
+  graph [fontname="Liberation Sans", fontsize=11, bgcolor="white", nodesep=0.28, ranksep=0.38, pad=0.1];
+  node  [fontname="Liberation Sans", fontsize=10.5, shape=box, style="rounded,filled", fillcolor="white", color="#5a6577", penwidth=0.9, margin="0.12,0.07"];
+  edge  [fontname="Liberation Sans", fontsize=9, color="#5a6577", arrowsize=0.7, penwidth=0.9];
+  rankdir=TB;
+  cfg [label="config.json\nsegmentation.provider", shape=note, style=filled, fillcolor="#EEEEEE"];
+  fac [label="segmentation.create_segmenter(settings)", fillcolor="#DCE8F7"];
+  con [label="Contract\nFactory(settings).segment(frame_bgr)\n-> SegmentationResult(instances, (width, height))\nInstance: polygon N x 2 in input-frame pixels,\nconfidence, label, panel_box, note", shape=box, style="filled", fillcolor="#EEEEEE"];
+  w1 [label="\"workflow\" (default)\nWorkflowSegmenter\ncrop to roi, resize to\n1024 x 768, optional CLAHE", fillcolor="#DCE8F7"];
+  cloud [label="Roboflow workflow\n(panels + strips, SAM 3)", fillcolor="#FBE3C8"];
+  g1 [label="\"segmentation.glue_line:\nGlueLineSegmenter\"\nlocal detector, pale fabric,\nno model, no network", fillcolor="#DCE8F7"];
+  g2 [label="same class with\nroi_model + roi_guided\nsearch along each panel's\ncurved side; optional\nsam_refine (cloud SAM 3)", fillcolor="#DCE8F7"];
+  any [label="\"package.module:\nFactory\"\nany future local model", fillcolor="#EEEEEE"];
+  chk [label="validate_result:\ncoordinates inside the frame,\nframe size matches", fillcolor="#DCE8F7"];
+  cfg -> fac; fac -> w1; fac -> g1; fac -> g2; fac -> any [style=dashed];
+  w1 -> cloud [style=dashed, label="upload"];
+  w1 -> chk; g1 -> chk; g2 -> chk; any -> chk [style=dashed];
+  chk -> con [style=dotted, arrowhead=none];
+}
