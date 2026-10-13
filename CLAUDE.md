@@ -34,6 +34,9 @@ inspection PC (Python 3.12); this Linux machine is used for development and expe
 - Experiment scripts, trained models and result pages that are not part of the app live in
   `~/flod_experiments/` (for example `segformer/`, `out/`);
   `docs/glue-line/GLUE_LINE_FINDINGS.md` says which.
+- Model weights in `segmentation/models/`, `trained_models/` and
+  `model_for_segment_bra_roi places/.../models/` are stored with Git LFS (`.gitattributes`):
+  `git lfs pull` after cloning. `trained_models/README.md` lists the trained models.
 
 ## Rules for changes
 

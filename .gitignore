@@ -44,10 +44,15 @@ build/
 dist/
 *.egg-info/
 
-# Trained model weights (large; distributed separately)
-segmentation/models/*.onnx
+# Trained model weights. The folders below are kept in the repository with Git LFS
+# (see .gitattributes); weights anywhere else stay out.
 *.onnx
 *.pt
+!segmentation/models/*.onnx
+!trained_models/**/*.onnx
+!trained_models/**/*.pt
+!model_for_segment_bra_roi places/model_test_and_running_scripts/models/
+!model_for_segment_bra_roi places/model_test_and_running_scripts/models/*
 
 # Sample images and captures used for experiments (large; kept outside the repository)
 enhancement_images/

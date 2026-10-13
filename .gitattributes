@@ -1,0 +1,7 @@
+# Model weights are stored with Git LFS. The rules name folders, not "*.onnx" everywhere,
+# so the model files that `main` keeps as ordinary git files are not affected by a merge.
+segmentation/models/*.onnx filter=lfs diff=lfs merge=lfs -text
+trained_models/**/*.safetensors filter=lfs diff=lfs merge=lfs -text
+trained_models/**/*.pt filter=lfs diff=lfs merge=lfs -text
+trained_models/**/*.onnx filter=lfs diff=lfs merge=lfs -text
+model_for_segment_bra_roi[[:space:]]places/model_test_and_running_scripts/models/* filter=lfs diff=lfs merge=lfs -text

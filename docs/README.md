@@ -37,8 +37,9 @@ summarises.
 
 | [Review of the implementation on `main`](glue-line/MAIN_BRANCH_REVIEW.md) | Measurement issues, bugs and updater issues found in the colleague's code at `485c4b6`, each with file and line, evidence and a suggested fix |
 
-Start with the findings' *Strategies* section; *Not verified* and *Next steps* close it. Scripts,
-trained models and result pages of the experiments are kept outside the repository in
+Start with the findings' *Strategies* section; *Not verified* and *Next steps* close it. The
+trained models and their training scripts are in `trained_models/` (Git LFS, see its README).
+Other experiment scripts and the result pages are kept outside the repository in
 `~/flod_experiments/`.
 
 | Section of the findings | Code in the repository |
