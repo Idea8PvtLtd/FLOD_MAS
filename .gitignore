@@ -51,3 +51,10 @@ tests/*.png
 
 # Separate clone of the repository used for test-PC runs
 test_pc_codebase/
+
+# Crop-part model training: images, prepared data and checkpoints (GBs); scripts stay tracked
+train_segemnt_crop_part/dataset/
+train_segemnt_crop_part/red_ones/
+train_segemnt_crop_part/data/
+train_segemnt_crop_part/runs/
+train_segemnt_crop_part/review/
