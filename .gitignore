@@ -46,3 +46,33 @@ dist/
 *.egg-info/
 
 tests/end_exclusion_profile.png
+
+# data folders
+data/
+
+# Generated experiment reports (copied from the lab; large)
+docs/reports/
+
+# Recordings
+*.mp4
+*.avi
+*.mkv
+
+# Runtime logs folder and machine-local starter settings
+logs/
+updater.json
+updater/updater.json
+
+# Generated test previews
+tests/*_preview.png
+tests/*_preview.jpg
+
+# Packaging work folders and release staging
+packaging/build/
+packaging/dist/
+release-assets/
+
+# Tool caches and scan output
+.bandit-report.*
+*.sarif
+sbom*.json
