@@ -159,7 +159,9 @@
     "strip_width_mm": 4.0,
     "strip_width_tolerance_mm": 1.0,
     "result_display_seconds": 5.0,
-    "end_exclusion_percent": 5.0
+    "end_exclusion_percent": 5.0,
+    "end_exclusion_px": 100,
+    "segment_count": 20
   },
   "sam_detection": {
     "enabled": true,

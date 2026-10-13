@@ -8,7 +8,9 @@ from .width_measurement import measure_component
 
 
 class LiveInspection:
-    def __init__(self, source_path, glue_path, offset=100., source_width=1152):
+    segments = 10  # instances built without __init__ (the tests) keep the reference ten
+
+    def __init__(self, source_path, glue_path, offset=100., source_width=1152, segments=10):
         from .source_model import SourceMaskOnnx
         from .glue_model import SegformerOnnx
         self.source = SourceMaskOnnx(source_path, width=source_width, flip=False)
@@ -16,6 +18,7 @@ class LiveInspection:
         self.offset = float(offset)
         if not np.isfinite(self.offset) or self.offset <= 0:
             raise ValueError('Inspection offset must be positive and finite')
+        self.segments = int(segments)
 
     def run(self, photo, progress=lambda text: None):
         """Single-line callers want the rightmost line and nothing else."""
@@ -100,7 +103,7 @@ class LiveInspection:
             component = np.uint8(labels[cy:cy+ch, cx:cx+cw] == i)*255
             component = np.pad(component, 2)
             try:
-                result = measure_component(component)
+                result = measure_component(component, segments=self.segments)
             except ValueError:
                 continue
             shift = np.array([cx-2, cy-2])

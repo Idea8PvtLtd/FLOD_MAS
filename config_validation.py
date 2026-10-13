@@ -27,6 +27,10 @@ def validate_automatic_config(config):
     trim = config.get('inspection', {}).get('end_exclusion_percent', 5.0)
     if isinstance(trim, bool) or not isinstance(trim, (int, float)) or not math.isfinite(trim) or not 0 <= trim < 50:
         raise ValueError('inspection.end_exclusion_percent must be at least 0 and less than 50')
+    if 'end_exclusion_px' in config.get('inspection', {}):
+        number('inspection', 'end_exclusion_px', 0)
+    if 'segment_count' in config.get('inspection', {}):
+        number('inspection', 'segment_count', 1, integer=True)
     if 'local_inspection' in config:
         number('local_inspection', 'source_width', 32, integer=True)
         number('local_inspection', 'offset_pixels', 0.5)

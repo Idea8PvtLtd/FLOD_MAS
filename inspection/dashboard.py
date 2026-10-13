@@ -28,7 +28,8 @@ class AutomaticDashboard:
             settings = CONFIG['local_inspection']
             root = Path(__file__).resolve().parents[1]
             inspector = LiveInspection(root / settings['source_model'], root / settings['glue_model'],
-                                       settings['offset_pixels'], settings['source_width'])
+                                       settings['offset_pixels'], settings['source_width'],
+                                       CONFIG['inspection'].get('segment_count', 10))
             return InspectionPipeline(inspector, store, CONFIG)
         self.auto_controller = AutoController(CONFIG, factory)
         self._reset_due = None

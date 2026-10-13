@@ -22,7 +22,8 @@ class InspectionPipeline:
                 scale = None
                 warnings.append(f'Millimetre calibration unavailable: {error}')
             measurement = measurement_record(result, scale, target_width, tolerance,
-                    metadata.get('end_exclusion_percent', self.config['inspection'].get('end_exclusion_percent', 5.0)))
+                    metadata.get('end_exclusion_percent', self.config['inspection'].get('end_exclusion_percent', 5.0)),
+                    self.config['inspection'].get('end_exclusion_px'))
             if measurement['status'] == 'WARNING':
                 warnings.append('Pixel measurements available; calibrated widths incomplete or unavailable')
             self.store.save_mask(path, result['mask'])
@@ -62,7 +63,8 @@ class InspectionPipeline:
                     undistorted, inspected=metadata.get('inspected_lines', ()),
                     reserved=metadata.get('queued_captures', 0), on_error=failed_line):
                 measurement = measurement_record(result, scale, target_width, tolerance,
-                    metadata.get('end_exclusion_percent', self.config['inspection'].get('end_exclusion_percent', 5.0)))
+                    metadata.get('end_exclusion_percent', self.config['inspection'].get('end_exclusion_percent', 5.0)),
+                    self.config['inspection'].get('end_exclusion_px'))
                 # The mask is what the operator sees as the strip, so it is
                 # drawn under the graded centrelines rather than instead of them.
                 overlay = annotated_overlay(undistorted, measurement, result['mask'])

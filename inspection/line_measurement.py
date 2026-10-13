@@ -35,30 +35,41 @@ def with_distance_ratio(measurement, ratio):
     return result
 
 
-def measurement_record(result, scale, target_width, tolerance, end_exclusion_percent=0.0):
+def measurement_record(result, scale, target_width, tolerance, end_exclusion_percent=0.0,
+                       end_exclusion_px=None):
     """Keep reference pixel measurements; map points, never use a global px scale."""
     if (isinstance(end_exclusion_percent, bool) or not np.isfinite(end_exclusion_percent)
             or not 0 <= end_exclusion_percent < 50):
         raise ValueError('End exclusion must be at least 0 and less than 50 percent')
+    if end_exclusion_px is not None and (isinstance(end_exclusion_px, bool)
+            or not np.isfinite(end_exclusion_px) or end_exclusion_px < 0):
+        raise ValueError('End exclusion must be at least 0 pixels')
     ratio = current_ratio()
     components = copy.deepcopy(result['components'])
     for component in components:
         samples = component['samples']
-        low = component['length_px'] * end_exclusion_percent / 100.0
+        # A fixed pixel distance along the centreline, when set, replaces the percentage.
+        if end_exclusion_px is not None:
+            low = float(end_exclusion_px)
+        else:
+            low = component['length_px'] * end_exclusion_percent / 100.0
         high = component['length_px'] - low
+        # Shorter than both ends together: nothing is left to grade, so WARNING.
+        empty = high <= low
         component['excluded_each_end_px'] = low
-        component['inspected_length_px'] = high-low
+        component['inspected_length_px'] = max(0.0, high-low)
         count = len(component['segments'])
         for sample in samples:
-            excluded = not low <= sample['arc_px'] <= high
+            excluded = empty or not low <= sample['arc_px'] <= high
             sample['excluded_end'] = excluded
             if excluded:
                 sample.update(segment=0, valid=False, width_px=None)
-            elif end_exclusion_percent:
+            elif low:
                 sample['segment'] = min(count, int((sample['arc_px']-low)/(high-low)*count)+1)
         for segment in component['segments']:
-            segment['start_arc_px'] = low+(segment['segment']-1)*(high-low)/count
-            segment['end_arc_px'] = low+segment['segment']*(high-low)/count
+            span = max(0.0, high-low)
+            segment['start_arc_px'] = low+(segment['segment']-1)*span/count
+            segment['end_arc_px'] = low+segment['segment']*span/count
             pixels = [s['width_px'] for s in samples if s['segment'] == segment['segment'] and s['valid']]
             segment['sample_count'] = len(pixels)
             for name, operation in [('average', np.mean), ('minimum', np.min), ('maximum', np.max)]:
@@ -100,6 +111,7 @@ def measurement_record(result, scale, target_width, tolerance, end_exclusion_per
                 longest_length_px=result['longest_length_px'],
                 mean_width_px=float(np.mean(pixel_widths)) if pixel_widths else None,
                 end_exclusion_percent=float(end_exclusion_percent),
+                end_exclusion_px=None if end_exclusion_px is None else float(end_exclusion_px),
                 length_mm=sum(c['length_mm'] for c in components) if scale is not None else None,
                 longest_length_mm=main['length_mm'],
                 mean_width_mm=float(np.mean(widths)) if widths else None,
