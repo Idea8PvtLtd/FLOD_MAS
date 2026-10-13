@@ -29,6 +29,8 @@ def validate_automatic_config(config):
         raise ValueError('inspection.end_exclusion_percent must be at least 0 and less than 50')
     if 'end_exclusion_px' in config.get('inspection', {}):
         number('inspection', 'end_exclusion_px', 0)
+    if 'end_trim_px' in config.get('inspection', {}):
+        number('inspection', 'end_trim_px', 0)
     if 'segment_count' in config.get('inspection', {}):
         number('inspection', 'segment_count', 1, integer=True)
     if 'local_inspection' in config:

@@ -110,6 +110,8 @@ class IndustrialDashboard(AutomaticDashboard):
             value=f"{float(CONFIG['inspection'].get('end_exclusion_px', 0)):g}")
         self.segment_count_var = tk.StringVar(
             value=str(int(CONFIG['inspection'].get('segment_count', 10))))
+        self.end_trim_var = tk.StringVar(
+            value=f"{float(CONFIG['inspection'].get('end_trim_px', 0)):g}")
         self.result_display_seconds_var = tk.StringVar(
             value=f"{float(CONFIG['inspection'].get('result_display_seconds', 5.0)):g}")
 
@@ -572,10 +574,18 @@ class IndustrialDashboard(AutomaticDashboard):
             fg=C["text"], insertbackground=C["text"], font=(FONT, 12),
             relief=tk.FLAT, highlightthickness=1, highlightbackground=C["border"], justify=tk.CENTER)
         self.segment_count_entry.grid(row=4, column=1, padx=20, pady=(7, 8), sticky="ew", ipady=8)
-        tk.Label(settings, text="Each end zone is measured and graded on its own; the strip between them\n"
-                                "is split into equal segments. 0 px means no end zones.",
+        tk.Label(settings, text="End bar distance from tip (px)", **label_options).grid(
+            row=5, column=0, sticky="w", padx=20, pady=(8, 0))
+        self.end_trim_entry = tk.Entry(
+            settings, textvariable=self.end_trim_var, bg=C["surface_2"],
+            fg=C["text"], insertbackground=C["text"], font=(FONT, 12),
+            relief=tk.FLAT, highlightthickness=1, highlightbackground=C["border"], justify=tk.CENTER)
+        self.end_trim_entry.grid(row=6, column=0, padx=20, pady=(7, 16), sticky="ew", ipady=8)
+        tk.Label(settings, text="Glue closer to the tip than the end bar is ignored.\n"
+                                "End zones run from the end bar to the end-zone distance and are\n"
+                                "graded on their own; the rest is split into equal segments.",
                  fg=C["muted"], bg=C["card"], font=(FONT, 10), justify=tk.LEFT).grid(
-            row=5, column=0, columnspan=2, sticky="w", padx=20, pady=(0, 16))
+            row=6, column=1, sticky="w", padx=20, pady=(0, 16))
 
         footer = tk.Frame(content, bg=C["bg"])
         footer.pack(fill=tk.X, pady=(4, 0))
@@ -601,9 +611,16 @@ class IndustrialDashboard(AutomaticDashboard):
                 raise ValueError('Number of segments must be a whole number, 1 or more.') from None
             if segments < 1:
                 raise ValueError('Number of segments must be a whole number, 1 or more.')
+            tip = float(self.end_trim_var.get())
+            if not math.isfinite(tip) or tip < 0:
+                raise ValueError('End bar distance must be a number of pixels, 0 or more.')
+            if trim > 0 and tip >= trim:
+                raise ValueError('End bar distance must be smaller than the end zone, '
+                                 'or the end zones would be empty.')
             from startup_settings import save_config
             candidate = copy.deepcopy(CONFIG)
             candidate['inspection']['end_exclusion_px'] = trim
+            candidate['inspection']['end_trim_px'] = tip
             candidate['inspection']['segment_count'] = segments
             save_config(candidate)
         except (ValueError, OSError) as error:
@@ -612,7 +629,9 @@ class IndustrialDashboard(AutomaticDashboard):
         # The pipeline reads CONFIG at each measurement, so the end zone applies
         # to the next capture. The segment count lives on the loaded inspector.
         CONFIG['inspection']['end_exclusion_px'] = trim
+        CONFIG['inspection']['end_trim_px'] = tip
         CONFIG['inspection']['segment_count'] = segments
+        self.end_trim_var.set(f'{tip:g}')
         pipeline = getattr(getattr(self, 'auto_controller', None), 'pipeline', None)
         if pipeline is not None:
             pipeline.inspector.segments = segments
