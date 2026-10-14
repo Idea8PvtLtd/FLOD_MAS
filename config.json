@@ -239,6 +239,7 @@
     "offset_pixels": 100.0,
     "smooth_normal_rows": 0,
     "smooth_logits": false,
-    "min_line_length_ratio": 0.0
+    "min_line_length_ratio": 0.0,
+    "execution_provider": "cpu"
   }
 }

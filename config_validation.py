@@ -39,6 +39,10 @@ def validate_automatic_config(config):
             number('local_inspection', 'min_line_length_ratio', 0, 0.99)
         if 'smooth_normal_rows' in config['local_inspection']:
             number('local_inspection', 'smooth_normal_rows', 0, 1001, integer=True)
+        provider = config['local_inspection'].get('execution_provider', 'cpu')
+        from inspection.local.ort_providers import KINDS
+        if provider not in KINDS:
+            raise ValueError(f'local_inspection.execution_provider must be one of {", ".join(KINDS)}')
         for key in ('source_model', 'glue_model'):
             value = config['local_inspection'][key]
             if not isinstance(value, str) or not value.strip() or not value.lower().endswith('.onnx'):

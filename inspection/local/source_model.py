@@ -17,7 +17,7 @@ def load_reference():
 
 
 class SourceMaskOnnx:
-    def __init__(self,path=DEFAULT_MODEL,width=1152,threshold=.5,min_region=.002,flip=False):
+    def __init__(self,path=DEFAULT_MODEL,width=1152,threshold=.5,min_region=.002,flip=False,provider='cpu'):
         self.path=Path(path).resolve();self.width=int(width);self.threshold=float(threshold)
         self.min_region=float(min_region);self.flip=bool(flip)
         if self.width<32 or not np.isfinite(self.threshold) or not 0<self.threshold<1:
@@ -26,7 +26,10 @@ class SourceMaskOnnx:
         self.reference=load_reference()
         self.reference.MODEL=self.path;self.reference.TRAIN_WIDTH=self.width
         self.reference.THRESHOLD=self.threshold;self.reference.MIN_REGION=self.min_region
-        self.session=self.reference.load_session('cpu')
+        if provider=='cpu':self.session=self.reference.load_session('cpu')
+        else:
+            from .ort_providers import create_session
+            self.session=create_session(self.path,provider)
 
     def predict(self,image):
         if image.ndim!=3 or image.shape[2]!=3:raise ValueError('Source model needs a BGR photo.')
@@ -40,4 +43,4 @@ class SourceMaskOnnx:
                     minimum_region_fraction=self.min_region,mirrored_pass=self.flip,
                     preprocessing='aspect-preserving resize; reflected padding to multiple of 32; RGB ImageNet normalization',
                     postprocessing='sigmoid; optional mirrored probability average; full-size resize; area filter; hole fill',
-                    inference_script=str(ROOT/'source_reference.py'),provider='CPUExecutionProvider')
+                    inference_script=str(ROOT/'source_reference.py'),provider=self.session.get_providers()[0])

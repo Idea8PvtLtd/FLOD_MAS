@@ -31,7 +31,8 @@ class AutomaticDashboard:
                                        settings['offset_pixels'], settings['source_width'],
                                        smooth_normal_rows=settings.get('smooth_normal_rows', 0),
                                        smooth_logits=settings.get('smooth_logits', False),
-                                       min_line_length_ratio=settings.get('min_line_length_ratio', 0.))
+                                       min_line_length_ratio=settings.get('min_line_length_ratio', 0.),
+                                       execution_provider=settings.get('execution_provider', 'cpu'))
             return InspectionPipeline(inspector, store, CONFIG)
         self.auto_controller = AutoController(CONFIG, factory)
         self._reset_due = None

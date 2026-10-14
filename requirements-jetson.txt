@@ -1,0 +1,32 @@
+# Runtime dependencies for the NVIDIA Jetson build (JetPack 6.2, CUDA 12.6,
+# TensorRT 10.3, system Python 3.10, aarch64). requirements.txt stays the
+# Windows / Python 3.12 set; this file only replaces what does not exist for
+# cp310-aarch64 or needs the GPU build.
+#
+# Install into a venv (never the system or ~/.local site-packages):
+#   python3 -m venv ~/.venvs/flod_mas
+#   ~/.venvs/flod_mas/bin/pip install -r requirements-jetson.txt
+#
+# tkinter comes from the system package python3-tk.
+
+# Same pins as requirements.txt.
+numpy==2.2.6
+Pillow==12.3.0
+pyserial==3.5
+mediapipe==1.0.1
+tensorflow==2.21.0
+tf-keras==2.21.0
+
+# One OpenCV distribution only (contrib is a superset; MediaPipe needs it).
+opencv-contrib-python==4.12.0.88
+
+# Newest releases that still support Python 3.10.
+scipy==1.15.3
+scikit-image==0.25.2
+
+# ONNX Runtime with CUDA and TensorRT execution providers, built by NVIDIA's
+# Jetson AI Lab for JetPack 6 / CUDA 12.6. Not on PyPI, so it is fetched by URL
+# with its hash.
+onnxruntime-gpu @ https://pypi.jetson-ai-lab.io/jp6/cu126/+f/d98/0b934b9a29c1a/onnxruntime_gpu-1.24.0-cp310-cp310-linux_aarch64.whl#sha256=d980b934b9a29c1a9d6f39751edd7662b69fadd75556a10ff363773a58ce0950
+
+# Left out: inference-sdk (legacy SAM utilities only; pins plain opencv-python).

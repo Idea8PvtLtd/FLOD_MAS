@@ -13,11 +13,13 @@ class NoAdhesiveError(ValueError):
 
 class LiveInspection:
     def __init__(self, source_path, glue_path, offset=100., source_width=1152, smooth_normal_rows=0,
-                 smooth_logits=False, min_line_length_ratio=0.):
+                 smooth_logits=False, min_line_length_ratio=0., execution_provider='cpu'):
         from .source_model import SourceMaskOnnx
         from .glue_model import SegformerOnnx
-        self.source = SourceMaskOnnx(source_path, width=source_width, flip=False)
-        self.glue = SegformerOnnx(glue_path, smooth_logits=smooth_logits)
+        self.source = SourceMaskOnnx(source_path, width=source_width, flip=False,
+                                     provider=execution_provider)
+        self.glue = SegformerOnnx(glue_path, smooth_logits=smooth_logits,
+                                  provider=execution_provider)
         self.offset = float(offset)
         if not np.isfinite(self.offset) or self.offset <= 0:
             raise ValueError('Inspection offset must be positive and finite')
