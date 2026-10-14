@@ -240,9 +240,7 @@ class IndustrialDashboard(AutomaticDashboard):
     def _toggle_defects_only(self):
         self.defects_only = not self.defects_only
         self._refresh_defects_button()
-        view = getattr(self, 'result_view', None)
-        if view is not None:
-            view.set_defects_only(self.defects_only)
+        self._sync_result_view()
         from startup_settings import save_config
         candidate = copy.deepcopy(CONFIG)
         candidate.setdefault('result_view', {})['defects_only'] = self.defects_only

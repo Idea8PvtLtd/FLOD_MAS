@@ -223,18 +223,6 @@ class LineResultView(FabricResultView):
             self._render()
             self._show_summary()
 
-    def _hidden_text(self):
-        count = len(self.records)
-        return f"No defects  ·  {count} passed line{'s' if count != 1 else ''} hidden"
-
-    def _render(self):
-        super()._render()
-        if self.records and self._active_tab() is None:
-            width, height = self._canvas_size()
-            self.canvas.create_text(width/2, height/2, fill=C['success'], justify='center',
-                                    font=('Segoe UI', 18, 'bold'),
-                                    text=self._hidden_text() + '\nSwitch to ALL RESULTS to view them')
-
     def set_paused(self, paused):
         self._paused = bool(paused)
         self.developer_controls.set_editing_allowed(paused)
@@ -282,7 +270,7 @@ class LineResultView(FabricResultView):
 
     def _show_summary(self):
         if self.records and self._active_tab() is None:
-            self.summary.configure(text=self._hidden_text(), font=('Segoe UI', 12, 'bold'))
+            self.summary.configure(text='')   # every line is a hidden pass
         elif self.records:
             item = self.records[self._active]
             text = f"Fabric {self._active+1} · {item['status']}"
