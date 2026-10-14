@@ -18,6 +18,10 @@ from config_validation import validate_config
 from auto_trigger.controller import AutoController
 
 CONFIG = json.loads((Path(__file__).resolve().parents[1] / 'config.json').read_text())
+# The shipped config.json carries the site's end zones, segment count and minimum
+# line length. These tests build on the plain measurement, so they start with those
+# stages off and switch on only what a test checks.
+CONFIG['inspection'].update(end_exclusion_px=0, end_trim_px=0, segment_count=10, min_line_length_mm=0)
 
 
 def synthetic_inspection(broken=False):
@@ -225,6 +229,48 @@ class LocalGeometryTests(unittest.TestCase):
         # Returned intersections must be in the full undistorted frame, not crop pixels.
         valid = [s for s in result['components'][0]['samples'] if s['valid']]
         self.assertTrue(all(s['center_x'] > 600 and s['left_x'] > 600 for s in valid))
+
+    def test_sideways_fabric_is_found_and_measured_in_the_camera_frame(self):
+        # The same fabric laid sideways: turn the photo and its source mask a
+        # quarter clockwise so both glue edges run left-to-right.
+        frame, inspector, _ = synthetic_inspection()
+        upright = list(inspector.run_lines(frame))
+        source = inspector.source.predict(frame)
+        sideways = np.ascontiguousarray(np.rot90(frame, -1))
+        inspector.source = SimpleNamespace(
+            predict=lambda photo: np.ascontiguousarray(np.rot90(source, -1)))
+        turned = list(inspector.run_lines(sideways))
+        self.assertEqual(len(turned), len(upright))
+        # Upright, the left line comes first; sideways, the top one does.
+        self.assertEqual([r['selected_line'] for r in turned], [1, 2])
+        height, width = sideways.shape[:2]
+        for before, after in zip(upright, turned):
+            # The mask is the upright mask turned with the photo. The sideways line is
+            # read in the camera frame, so its band edge is drawn there and a few edge
+            # pixels can differ (12 of about 22,500 on this fabric).
+            expected, got = np.rot90(before['mask'], -1) > 0, after['mask'] > 0
+            self.assertGreaterEqual((expected & got).sum() / (expected | got).sum(), .995)
+            self.assertEqual(after['overlay'].shape, sideways.shape)
+            self.assertEqual(len(after['segments']), len(before['segments']))
+            self.assertAlmostEqual(after['mean_width_px'], before['mean_width_px'], delta=1)
+            self.assertAlmostEqual(after['length_px'], before['length_px'], delta=3)
+            # Every measured point is in camera pixels, on the glue mask.
+            for sample in after['components'][0]['samples']:
+                if sample['valid']:
+                    x, y = int(round(sample['center_x'])), int(round(sample['center_y']))
+                    self.assertTrue(0 <= x < width and 0 <= y < height)
+                    self.assertTrue(after['mask'][y, x], (x, y))
+            boundary = np.asarray(after['selected_boundary']['original_xy'])
+            self.assertTrue(after['selected_boundary'].get('turned'))
+            self.assertTrue((boundary[:, 0] >= 0).all() and (boundary[:, 0] < width).all())
+            self.assertTrue((boundary[:, 1] >= 0).all() and (boundary[:, 1] < height).all())
+        # The top line is above the bottom one in the camera frame.
+        self.assertLess(np.mean(np.nonzero(turned[0]['mask'])[0]),
+                        np.mean(np.nonzero(turned[1]['mask'])[0]))
+
+    def test_upright_fabric_is_not_turned(self):
+        _, _, result = synthetic_inspection()
+        self.assertNotIn('turned', result['selected_boundary'])
 
     def test_disconnected_glue_keeps_long_gap_and_sums_real_lengths(self):
         _, _, result = synthetic_inspection(broken=True)

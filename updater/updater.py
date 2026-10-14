@@ -41,7 +41,7 @@ APP_TITLE    = "APP STARTER"
 APP_SUBTITLE = "Vision Inspection"
 APP_VERSION  = "v1.0.0"
 
-REPO_URL = "https://github.com/mmocbm/FLOD_MAS.git"   # never logged
+REPO_URL = "https://github.com/Idea8PvtLtd/FLOD_MAS.git"   # never logged
 BRANCH = "main"               # default; "branch" in updater.json replaces it
 ENTRYPOINT = "main_1366.py"
 REQUIREMENTS_FILE = "requirements.txt"

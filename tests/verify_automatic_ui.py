@@ -92,16 +92,26 @@ def main():
     root.update()
     assert app.end_exclusion_entry.winfo_ismapped()
     assert app.end_exclusion_entry.winfo_rooty()+app.end_exclusion_entry.winfo_height() <= app.size_win.winfo_rooty()+app.size_win.winfo_height()
-    app.end_exclusion_var.set('50')
-    with patch('main_1366.messagebox.showerror') as error, patch('startup_settings.save_config') as save:
-        app.save_settings()
-        error.assert_called_once()
-        save.assert_not_called()
+    assert app.segment_count_entry.winfo_ismapped()
+    assert app.end_trim_entry.winfo_ismapped()
+    assert app.end_trim_entry.winfo_rooty()+app.end_trim_entry.winfo_height() <= app.size_win.winfo_rooty()+app.size_win.winfo_height()
+    for px, count, tip in (('-1', '40', '10'), ('40', '0', '10'), ('40', '2.5', '10'),
+                           ('40', '40', '-1'), ('40', '40', '40')):
+        app.end_exclusion_var.set(px)
+        app.segment_count_var.set(count)
+        app.end_trim_var.set(tip)
+        with patch('main_1366.messagebox.showerror') as error, patch('startup_settings.save_config') as save:
+            app.save_settings()
+            error.assert_called_once()
+            save.assert_not_called()
     app.end_exclusion_var.set('7.5')
+    app.segment_count_var.set('30')
+    app.end_trim_var.set('5')
     with patch('startup_settings.save_config') as save, patch.object(app, '_show_success_popup'):
         app.save_settings()
-        assert save.call_args.args[0]['inspection']['end_exclusion_percent'] == 7.5
-        assert app.active_end_exclusion_percent == 7.5
+        assert save.call_args.args[0]['inspection']['end_exclusion_px'] == 7.5
+        assert save.call_args.args[0]['inspection']['end_trim_px'] == 5
+        assert save.call_args.args[0]['inspection']['segment_count'] == 30
     ImageGrab.grab(window=int(app.size_win.frame(), 16)).save(Path(__file__).parent/'end_exclusion_profile.png')
     app.size_win.destroy()
     assert not errors, errors

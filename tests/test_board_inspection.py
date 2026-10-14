@@ -418,10 +418,13 @@ class SidewaysTests(unittest.TestCase):
             inspector.find_lines(frame, sideways=True)
         self.assertEqual(geometry.call_count, 1)
 
-    def test_the_hand_path_does_not_look_for_sideways_pieces(self):
+    def test_the_hand_path_also_reads_sideways_pieces(self):
+        # Hand mode looks for sideways pieces too (as main did by turning the photo);
+        # find_lines without sideways still reads only upright lines.
         frame, inspector, _ = self.turned()
-        with self.assertRaises(ValueError):
-            list(inspector.run_lines(frame))
+        results = list(inspector.run_lines(frame))
+        self.assertEqual(len(results), 2)
+        self.assertTrue(all(r['selected_boundary'].get('turned') for r in results))
         with self.assertRaises(NoSourceLinesError):
             inspector.find_lines(frame)
 
