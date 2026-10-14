@@ -76,3 +76,4 @@ release-assets/
 .bandit-report.*
 *.sarif
 sbom*.json
+packaging/BUILD_INFO.json
