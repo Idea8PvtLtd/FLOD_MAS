@@ -230,7 +230,8 @@
     "save_rejected_triggers": false,
     "max_sets": 200,
     "jpeg_quality": 82,
-    "preview_max_edge": 1920
+    "preview_max_edge": 1920,
+    "background_save": false
   },
   "local_inspection": {
     "source_model": "inspection/local/models/strip_unet_resnet34.onnx",

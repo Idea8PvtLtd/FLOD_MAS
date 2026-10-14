@@ -1,7 +1,9 @@
 """One capture directory per detection; lossless sources and bounded retention."""
 from datetime import datetime
 from pathlib import Path
+import atexit
 import json
+import queue
 import re
 import shutil
 import threading
@@ -17,11 +19,58 @@ def _is_junction(path):
     return bool(check()) if check else False
 
 
+class BackgroundWriter:
+    """Writes files on one thread, in the order they were handed over.
+
+    Saving a 16-megapixel PNG takes over a second on the Jetson; with this the
+    inspection carries on while the files are written. Order is kept, so a set's
+    result.json (always its last write) appears only after all its images,
+    which is what retention relies on. Pending writes are finished at exit.
+    """
+
+    def __init__(self):
+        self.jobs = queue.Queue()
+        self.thread = threading.Thread(target=self._run, name='capture-writer', daemon=True)
+        self.thread.start()
+        atexit.register(self.flush)
+
+    def put(self, write, *args):
+        self.jobs.put((write, args))
+
+    def flush(self):
+        """Block until everything handed over so far is on disk."""
+        self.jobs.join()
+
+    def _run(self):
+        while True:
+            write, args = self.jobs.get()
+            try:
+                write(*args)
+            except Exception as error:
+                # Nobody is waiting on the result any more; the log is the record.
+                print(f'[storage] background save failed: {error}', flush=True)
+            finally:
+                self.jobs.task_done()
+
+
+def _write_text(path, text):
+    temporary = path.with_suffix('.tmp')
+    temporary.write_text(text, encoding='utf-8')
+    temporary.replace(path)
+
+
+def _write_image(path, image, options):
+    if not cv2.imwrite(str(path), image, options):
+        raise OSError(f'Could not save {path.name}')
+
+
 class CaptureStore:
     def __init__(self, root, settings):
         self.root = Path(root).resolve()
         self.settings = settings
         self.lock = threading.RLock()
+        # Off by default: saves finish before the caller continues, as always.
+        self.writer = BackgroundWriter() if settings.get('background_save', False) else None
         self.root.mkdir(parents=True, exist_ok=True)
         # Recover this application's interrupted sets after a restart.
         for path in self._sets():
@@ -76,16 +125,25 @@ class CaptureStore:
         with self.lock:
             self._json(path / 'capture.json', metadata)
 
-    @staticmethod
-    def _image(path, image, options):
-        if not cv2.imwrite(str(path), image, options):
-            raise OSError(f'Could not save {path.name}')
+    def _image(self, path, image, options):
+        if self.writer is None:
+            _write_image(path, image, options)
+        else:
+            # A private copy: the caller may reuse its array after this returns.
+            self.writer.put(_write_image, path, image.copy(), options)
 
-    @staticmethod
-    def _json(path, record):
-        temporary = path.with_suffix('.tmp')
-        temporary.write_text(json.dumps(record, indent=2, allow_nan=False), encoding='utf-8')
-        temporary.replace(path)
+    def _json(self, path, record):
+        # Serialised now, so later changes to ``record`` are not saved by mistake.
+        text = json.dumps(record, indent=2, allow_nan=False)
+        if self.writer is None:
+            _write_text(path, text)
+        else:
+            self.writer.put(_write_text, path, text)
+
+    def flush(self):
+        """Wait for background saves (no-op when saving is synchronous)."""
+        if self.writer is not None:
+            self.writer.flush()
 
     def prune(self, reserve=0):
         with self.lock:

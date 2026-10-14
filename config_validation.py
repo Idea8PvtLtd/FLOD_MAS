@@ -65,6 +65,8 @@ def validate_automatic_config(config):
     for section, key in bool_fields:
         if not isinstance(config[section][key], bool):
             raise ValueError(f'{section}.{key} must be true or false')
+    if not isinstance(config['capture_storage'].get('background_save', False), bool):
+        raise ValueError('capture_storage.background_save must be true or false')
     directory = config['capture_storage']['directory']
     from pathlib import PureWindowsPath
     if (not isinstance(directory, str) or not directory.strip() or
