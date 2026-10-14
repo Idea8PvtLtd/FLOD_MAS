@@ -187,7 +187,8 @@ class AutomaticDashboard:
             self.images_container.pack_forget()
             self.result_view = LineResultView(
                 self.image_panel,
-                show_live_preview=CONFIG.get('result_view', {}).get('show_live_preview', True))
+                show_live_preview=CONFIG.get('result_view', {}).get('show_live_preview', True),
+                defects_only=getattr(self, 'defects_only', False))
             self.result_view.pack(fill=tk.BOTH, expand=True, padx=10, pady=(58, 8))
             self.result_view.on_grade_changed = self.set_pass_fail
             self.result_view.set_paused(self.auto_controller.paused)

@@ -123,11 +123,16 @@ class FabricResultView(CropResultView):
 
 
 class LineResultView(FabricResultView):
-    """One persistent tab per inspected line, each retaining its zoom and pan."""
-    def __init__(self, parent, show_live_preview=True):
+    """One persistent tab per inspected line, each retaining its zoom and pan.
+
+    With ``defects_only`` the tabs of passed lines are hidden, never dropped: they
+    keep their records and images, so switching the filter off lists them again.
+    """
+    def __init__(self, parent, show_live_preview=True, defects_only=False):
         self._original_results = []
         self._paused = False
         self._ratio_job = None
+        self.defects_only = bool(defects_only)
         self.on_grade_changed = lambda status: None
         super().__init__(parent, show_live_preview, title='INSPECTION RESULTS')
 
@@ -180,18 +185,55 @@ class LineResultView(FabricResultView):
         button = themed_button(self.tab_header, self._tab_label(index),
                                lambda i=index: self.select_tab(i), role='secondary',
                                font_size=11, padx=14, pady=8)
-        button.pack(side=tk.LEFT, padx=(0, 5))
         self._tab_buttons.append(button)
-        self._active = index
-        self._refresh_tab_labels()
-        self.tab_header.update_idletasks()
-        self.tab_strip.configure(scrollregion=self.tab_strip.bbox('all'))
+        # A hidden line does not take the screen from the defect being looked at.
+        if self._shown(index):
+            self._active = index
+            self._fit_tab(self._tabs[index])
+        self._apply_filter()
         self.tab_strip.xview_moveto(1.0)
-        self._fit_tab(self._active_tab())
         self._render()
         self._show_summary()
         if self._paused:
             self._schedule_ratio_preview()
+
+    def _shown(self, index):
+        return not self.defects_only or self.records[index]['status'] != 'PASS'
+
+    def _apply_filter(self):
+        """List the shown tabs in capture order and keep a shown one active, or none."""
+        shown = [index for index in range(len(self._tab_buttons)) if self._shown(index)]
+        for button in self._tab_buttons:
+            button.pack_forget()
+        for index in shown:
+            self._tab_buttons[index].pack(side=tk.LEFT, padx=(0, 5))
+        if self._active not in shown:
+            self._active = shown[-1] if shown else -1
+        tab = self._active_tab()
+        if tab is not None and tab['fit'] <= 0:
+            self._fit_tab(tab)
+        self._refresh_tab_labels()
+        self.tab_header.update_idletasks()
+        self.tab_strip.configure(scrollregion=self.tab_strip.bbox('all'))
+
+    def set_defects_only(self, defects_only):
+        self.defects_only = bool(defects_only)
+        if self.records:
+            self._apply_filter()
+            self._render()
+            self._show_summary()
+
+    def _hidden_text(self):
+        count = len(self.records)
+        return f"No defects  ·  {count} passed line{'s' if count != 1 else ''} hidden"
+
+    def _render(self):
+        super()._render()
+        if self.records and self._active_tab() is None:
+            width, height = self._canvas_size()
+            self.canvas.create_text(width/2, height/2, fill=C['success'], justify='center',
+                                    font=('Segoe UI', 18, 'bold'),
+                                    text=self._hidden_text() + '\nSwitch to ALL RESULTS to view them')
 
     def set_paused(self, paused):
         self._paused = bool(paused)
@@ -228,7 +270,7 @@ class LineResultView(FabricResultView):
                             sample[key] -= origin[1]
             image = annotated_overlay(source, display, mask)
             self._tabs[index]['image'] = self._to_pil(image)
-        self._refresh_tab_labels()
+        self._apply_filter()   # a new ratio can turn a line from FAIL to PASS or back
         self._render()
         self._show_summary()
 
@@ -239,7 +281,9 @@ class LineResultView(FabricResultView):
         super().destroy()
 
     def _show_summary(self):
-        if self.records:
+        if self.records and self._active_tab() is None:
+            self.summary.configure(text=self._hidden_text(), font=('Segoe UI', 12, 'bold'))
+        elif self.records:
             item = self.records[self._active]
             text = f"Fabric {self._active+1} · {item['status']}"
             if item.get('metric'):

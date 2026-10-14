@@ -223,7 +223,8 @@
     "max_fabrics": 4
   },
   "result_view": {
-    "show_live_preview": true
+    "show_live_preview": true,
+    "defects_only": true
   },
   "capture_storage": {
     "directory": "Dataset_capture/Automatic",
