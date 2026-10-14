@@ -25,6 +25,10 @@ class ProviderListTests(unittest.TestCase):
     def test_cuda_falls_back_to_the_cpu(self):
         self.assertEqual(names(provider_list('cuda')), ['CUDAExecutionProvider', 'CPUExecutionProvider'])
 
+    def test_cuda_grows_its_memory_pool_only_as_needed(self):
+        cuda = provider_list('cuda')[0]
+        self.assertEqual(cuda[1]['arena_extend_strategy'], 'kSameAsRequested')
+
     def test_tensorrt_keeps_full_precision_and_caches_engines(self):
         providers = provider_list('tensorrt', '/cache')
         self.assertEqual(names(providers),

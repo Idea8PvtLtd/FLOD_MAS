@@ -1,4 +1,6 @@
 """In-memory source-line inspection with shared source detection per capture."""
+from collections import deque
+from concurrent.futures import ThreadPoolExecutor
 from time import perf_counter
 import numpy as np
 from .geometry import (cv2, extract_lines, filter_wave_lines, offset_lines,
@@ -13,7 +15,8 @@ class NoAdhesiveError(ValueError):
 
 class LiveInspection:
     def __init__(self, source_path, glue_path, offset=100., source_width=1152, smooth_normal_rows=0,
-                 smooth_logits=False, min_line_length_ratio=0., execution_provider='cpu'):
+                 smooth_logits=False, min_line_length_ratio=0., execution_provider='cpu',
+                 line_workers=1):
         from .source_model import SourceMaskOnnx
         from .glue_model import SegformerOnnx
         self.source = SourceMaskOnnx(source_path, width=source_width, flip=False,
@@ -30,6 +33,12 @@ class LiveInspection:
         self.min_line_length_ratio = float(min_line_length_ratio)
         if not np.isfinite(self.min_line_length_ratio) or not 0 <= self.min_line_length_ratio < 1:
             raise ValueError('Minimum line length ratio must be at least 0 and less than 1')
+        # 1 measures the lines of a capture one after another, as always. More
+        # measures that many at once; results are the same and still come out
+        # leftmost first.
+        self.line_workers = int(line_workers)
+        if self.line_workers < 1:
+            raise ValueError('Line workers must be at least 1')
         # 0 keeps the band as it always was; see geometry.offset_path.
         self.smooth_normal_rows = int(smooth_normal_rows)
         if self.smooth_normal_rows < 0:
@@ -78,7 +87,12 @@ class LiveInspection:
             # The rightmost of what is outstanding is what this capture owes once
             # the queued captures have taken their share of it.
             indices = [position - 1 for position in outstanding[max(0, int(reserved)):]]
+        workers = min(getattr(self, 'line_workers', 1), len(indices))
         try:
+            if workers > 1:
+                yield from self._parallel_lines(photo, source, lines, indices, workers, started,
+                                                progress, on_error)
+                return
             for index in indices:
                 progress(f'Inspecting line {index+1} of {len(lines)}')
                 try:
@@ -90,6 +104,42 @@ class LiveInspection:
         finally:
             # The enhanced photo is kept only while this capture's lines are measured.
             self._enhanced = None
+
+    def _parallel_lines(self, photo, source, lines, indices, workers, started, progress, on_error):
+        """The lines of one capture measured ``workers`` at a time, yielded in order.
+
+        Each line only reads the shared photo, source mask and enhanced photo;
+        OpenCV, NumPy and ONNX Runtime release the GIL, so lines run truly in
+        parallel. At most ``workers + 1`` lines are in flight, so finished
+        full-size masks and overlays never pile up while the caller is busy.
+        """
+        self._enhanced_photo(photo)        # once, before the threads share it
+        progress(f'Inspecting {len(indices)} of {len(lines)} lines, {workers} at a time')
+        pending = deque(indices)
+        running = deque()
+        with ThreadPoolExecutor(workers, thread_name_prefix='inspect-line') as pool:
+            def submit():
+                index = pending.popleft()
+                running.append((index, pool.submit(self._inspect_line, photo, source, lines[index],
+                                                   index+1, len(lines), started, progress)))
+            try:
+                while pending and len(running) <= workers:
+                    submit()
+                while running:
+                    index, future = running.popleft()
+                    try:
+                        result = future.result()
+                    except Exception as error:
+                        if on_error is None:
+                            raise
+                        on_error(index+1, error)
+                    else:
+                        yield result
+                    if pending:
+                        submit()
+            finally:
+                for _, future in running:
+                    future.cancel()
 
     def _enhanced_photo(self, photo):
         """The contrast-enhanced photo, computed once per capture.

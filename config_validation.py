@@ -39,6 +39,8 @@ def validate_automatic_config(config):
             number('local_inspection', 'min_line_length_ratio', 0, 0.99)
         if 'smooth_normal_rows' in config['local_inspection']:
             number('local_inspection', 'smooth_normal_rows', 0, 1001, integer=True)
+        if 'line_workers' in config['local_inspection']:
+            number('local_inspection', 'line_workers', 1, 8, integer=True)
         provider = config['local_inspection'].get('execution_provider', 'cpu')
         from inspection.local.ort_providers import KINDS
         if provider not in KINDS:

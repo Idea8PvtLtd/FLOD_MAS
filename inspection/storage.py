@@ -3,6 +3,7 @@ from datetime import datetime
 from pathlib import Path
 import atexit
 import json
+import os
 import queue
 import re
 import shutil
@@ -26,10 +27,14 @@ class BackgroundWriter:
     inspection carries on while the files are written. Order is kept, so a set's
     result.json (always its last write) appears only after all its images,
     which is what retention relies on. Pending writes are finished at exit.
+
+    The queue is bounded: each waiting image is a private full-size copy, so if
+    the disk falls behind, the inspection waits for it rather than filling RAM.
+    The writer runs at low OS priority so it never competes with inspection.
     """
 
-    def __init__(self):
-        self.jobs = queue.Queue()
+    def __init__(self, max_pending=8):
+        self.jobs = queue.Queue(maxsize=max_pending)
         self.thread = threading.Thread(target=self._run, name='capture-writer', daemon=True)
         self.thread.start()
         atexit.register(self.flush)
@@ -42,6 +47,12 @@ class BackgroundWriter:
         self.jobs.join()
 
     def _run(self):
+        if hasattr(os, 'setpriority'):
+            try:
+                # Linux applies nice per thread; raising it needs no privileges.
+                os.setpriority(os.PRIO_PROCESS, threading.get_native_id(), 10)
+            except OSError:
+                pass
         while True:
             write, args = self.jobs.get()
             try:
