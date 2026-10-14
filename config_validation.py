@@ -5,6 +5,8 @@ import math
 def validate_automatic_config(config):
     if not isinstance(config.get('result_view', {}).get('show_live_preview', True), bool):
         raise ValueError('result_view.show_live_preview must be true or false')
+    if not isinstance(config.get('result_view', {}).get('defects_only', True), bool):
+        raise ValueError('result_view.defects_only must be true or false')
     if config.get('camera_count') != 1:
         raise ValueError('Automatic inspection requires camera_count = 1')
 

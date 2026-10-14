@@ -87,6 +87,9 @@ class IndustrialDashboard(AutomaticDashboard):
         # Hand and bed-marker overlays on the live preview. Session-only: the
         # button below flips this, the config value is only the starting point.
         self.show_overlays = bool(CONFIG['preview'].get('show_overlay', True))
+        # Result tabs of passed lines are hidden while on. Unlike the overlays this
+        # is saved back to config.json, so the operator's choice survives a restart.
+        self.defects_only = bool(CONFIG.get('result_view', {}).get('defects_only', True))
 
         self.result_image_1 = None
         self.result_image_2 = None
@@ -205,6 +208,10 @@ class IndustrialDashboard(AutomaticDashboard):
             self.action_overlay, "", self._toggle_overlays, role="secondary", padx=16, pady=6)
         self.overlay_button.pack(side=tk.RIGHT, fill=tk.Y)
         self._refresh_overlay_button()
+        self.defects_button = themed_button(
+            self.action_overlay, "", self._toggle_defects_only, role="secondary", padx=16, pady=6)
+        self.defects_button.pack(side=tk.RIGHT, fill=tk.Y)
+        self._refresh_defects_button()
         self.inspection_queue_label = tk.Label(
             self.root, text="Queue: 0 checking | 0 waiting | 0 inspecting",
             bg=C["surface"], fg=C["text"], font=(FONT, 10), anchor="w", padx=16)
@@ -225,6 +232,25 @@ class IndustrialDashboard(AutomaticDashboard):
             view = getattr(self, 'result_view', None)
             if view is not None:
                 view.clear_live_overlay()
+
+    def _refresh_defects_button(self):
+        self.defects_button.configure(text="DEFECTS ONLY" if self.defects_only else "ALL RESULTS")
+        set_button_role(self.defects_button, "selected" if self.defects_only else "secondary")
+
+    def _toggle_defects_only(self):
+        self.defects_only = not self.defects_only
+        self._refresh_defects_button()
+        self._sync_result_view()
+        from startup_settings import save_config
+        candidate = copy.deepcopy(CONFIG)
+        candidate.setdefault('result_view', {})['defects_only'] = self.defects_only
+        try:
+            save_config(candidate)
+        except (ValueError, OSError) as error:
+            # The filter still applies for this session; only the saved default is stale.
+            self.update_progress(100, f'Result filter not saved: {error}')
+            return
+        CONFIG.setdefault('result_view', {})['defects_only'] = self.defects_only
 
     def _shutdown_session(self):
         """Stop every worker and hand the cameras back to the driver."""

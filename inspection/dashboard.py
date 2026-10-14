@@ -180,37 +180,69 @@ class AutomaticDashboard:
 
     def _show_automatic_results(self, result):
         measurement = result['measurement']
-        if measurement and getattr(self, 'result_view', None) is None:
-            # Fill the physical screen, retaining the existing application chrome.
-            self.root.geometry(f'{self.root.winfo_screenwidth()}x{self.root.winfo_screenheight()}+0+0')
-            self.bottom_panel.place_forget()
-            self.images_container.pack_forget()
-            self.result_view = LineResultView(
-                self.image_panel,
-                show_live_preview=CONFIG.get('result_view', {}).get('show_live_preview', True))
-            self.result_view.pack(fill=tk.BOTH, expand=True, padx=10, pady=(58, 8))
-            self.result_view.on_grade_changed = self.set_pass_fail
-            self.result_view.set_paused(self.auto_controller.paused)
-            self.action_overlay.place_configure(y=8)
-            if self.result_view.show_live_preview:
-                self.loading_container.place(in_=self.result_view.live_panel, x=0, rely=1,
-                                             y=-12, anchor='sw', width=240)
-                self.progress_label.configure(wraplength=212)
-                self.inspection_queue_label.configure(font=(FONT, 8), padx=4, wraplength=232)
-                self.inspection_queue_label.place_configure(height=38)
-                self.progress_label.pack_configure(pady=(40, 2))
-            self.action_overlay.lift()
-            self.loading_container.lift()
-            self.inspection_queue_label.lift()
         if measurement:
-            self.result_view.show_inspection(result)
+            # Every line of the cycle is kept, so the result screen can open or
+            # close when the defects-only filter is switched.
+            self._cycle_results = getattr(self, '_cycle_results', []) + [result]
+            if getattr(self, 'result_view', None) is not None:
+                self.result_view.show_inspection(result)
+            else:
+                self._sync_result_view()
         status = 'WARNING' if result['warnings'] else measurement['status']
         self.set_pass_fail(status)
         self.update_progress(100, ' | '.join(result['warnings']) or
                              f"Line #{measurement['selected_line']} of {measurement['line_count']} "
                              'measured — results saved — monitoring hands')
 
+    def _sync_result_view(self):
+        """Open the result screen when it has a tab to show, otherwise stay on the live camera.
+
+        With defects only on, a cycle of passed lines has none, so the camera stays
+        in view. Switching the filter opens or closes the screen to match.
+        """
+        results = getattr(self, '_cycle_results', [])
+        wanted = any(not getattr(self, 'defects_only', False) or r['measurement']['status'] != 'PASS'
+                     for r in results)
+        view = getattr(self, 'result_view', None)
+        if view is not None and not wanted:
+            self._close_result_view()
+        elif view is not None:
+            view.set_defects_only(self.defects_only)
+        elif wanted:
+            self._open_result_view()
+            for result in results:
+                self.result_view.show_inspection(result)
+
+    def _open_result_view(self):
+        # Fill the physical screen, retaining the existing application chrome.
+        self.root.geometry(f'{self.root.winfo_screenwidth()}x{self.root.winfo_screenheight()}+0+0')
+        self.bottom_panel.place_forget()
+        self.images_container.pack_forget()
+        self.result_view = LineResultView(
+            self.image_panel,
+            show_live_preview=CONFIG.get('result_view', {}).get('show_live_preview', True),
+            defects_only=getattr(self, 'defects_only', False))
+        self.result_view.pack(fill=tk.BOTH, expand=True, padx=10, pady=(58, 8))
+        self.result_view.on_grade_changed = self.set_pass_fail
+        self.result_view.set_paused(self.auto_controller.paused)
+        self.action_overlay.place_configure(y=8)
+        if self.result_view.show_live_preview:
+            self.loading_container.place(in_=self.result_view.live_panel, x=0, rely=1,
+                                         y=-12, anchor='sw', width=240)
+            self.progress_label.configure(wraplength=212)
+            self.inspection_queue_label.configure(font=(FONT, 8), padx=4, wraplength=232)
+            self.inspection_queue_label.place_configure(height=38)
+            self.progress_label.pack_configure(pady=(40, 2))
+        self.action_overlay.lift()
+        self.loading_container.lift()
+        self.inspection_queue_label.lift()
+
     def _dismiss_result_view(self):
+        """End of a cycle: the results are dropped and the live camera returns."""
+        self._cycle_results = []
+        self._close_result_view()
+
+    def _close_result_view(self):
         if getattr(self, 'result_view', None) is not None:
             self.result_view.destroy()
             self.result_view = None
