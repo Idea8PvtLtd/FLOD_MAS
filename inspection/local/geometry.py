@@ -342,7 +342,7 @@ def enhance_image(image, clip_limit=2., tiles_x=16, tiles_y=16):
     lab[:, :, 0] = clahe.apply(lab[:, :, 0])
     enhanced = cv2.cvtColor(lab, cv2.COLOR_LAB2BGR)
     # Keep geometric padding outside the original image black.
-    enhanced[np.all(image == 0, axis=2)] = 0
+    enhanced[cv2.inRange(image, (0, 0, 0), (0, 0, 0)) > 0] = 0
     return enhanced
 
 def mapped_mask(binary,map_x,map_y,bbox,crop_mask):

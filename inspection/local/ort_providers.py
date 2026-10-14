@@ -42,17 +42,24 @@ def default_cache_dir():
 
 def create_session(path, kind='cpu'):
     """An InferenceSession on the requested provider, falling back to the CPU."""
+    from pathlib import Path
     import onnxruntime as ort
     available = ort.get_available_providers()
     cache_dir = default_cache_dir() if kind == 'tensorrt' else None
-    providers = [p for p in provider_list(kind, cache_dir)
-                 if (p[0] if isinstance(p, tuple) else p) in available]
+    requested = provider_list(kind, cache_dir)
+    providers = [p for p in requested if (p[0] if isinstance(p, tuple) else p) in available]
     if kind != 'cpu':
         try:
             ort.preload_dlls()
         except Exception:
             pass
-    return ort.InferenceSession(str(path), providers=providers)
+    session = ort.InferenceSession(str(path), providers=providers)
+    wanted = requested[0][0] if isinstance(requested[0], tuple) else requested[0]
+    if active_provider(session) != wanted:
+        # ONNX Runtime falls back silently (e.g. GPU out of memory); say so in the log.
+        print(f'[models] {Path(path).name}: asked for {wanted}, running on {active_provider(session)}',
+              flush=True)
+    return session
 
 
 def active_provider(session):

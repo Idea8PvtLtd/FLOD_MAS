@@ -48,11 +48,15 @@ class ProviderListTests(unittest.TestCase):
             def preload_dlls():
                 pass
 
-            @staticmethod
-            def InferenceSession(path, providers):
-                return providers
+            class InferenceSession:
+                def __init__(self, path, providers):
+                    self.providers = providers
+
+                def get_providers(self):
+                    return self.providers
         with patch.dict('sys.modules', onnxruntime=Runtime):
-            self.assertEqual(ort_providers.create_session('model.onnx', 'cuda'), ['CPUExecutionProvider'])
+            session = ort_providers.create_session('model.onnx', 'cuda')
+        self.assertEqual(session.providers, ['CPUExecutionProvider'])
 
 
 class ValidationTests(unittest.TestCase):
