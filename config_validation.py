@@ -5,6 +5,8 @@ import math
 def validate_automatic_config(config):
     if not isinstance(config.get('result_view', {}).get('show_live_preview', True), bool):
         raise ValueError('result_view.show_live_preview must be true or false')
+    if not isinstance(config.get('result_view', {}).get('fill_screen', True), bool):
+        raise ValueError('result_view.fill_screen must be true or false')
     if config.get('camera_count') != 1:
         raise ValueError('Automatic inspection requires camera_count = 1')
 
@@ -24,9 +26,30 @@ def validate_automatic_config(config):
         number('auto_trigger', key, 1, integer=True)
     for key in ('hand_confidence',):
         number('auto_trigger', key, 0.01, 1)
+    # Scene mode (auto_trigger/scene_monitor.py); absent or 'hand' is the hand trigger as before.
+    if config['auto_trigger'].get('mode', 'hand') not in ('hand', 'scene'):
+        raise ValueError("auto_trigger.mode must be 'hand' or 'scene'")
+    scene = config['auto_trigger'].get('scene', {})
+    if not isinstance(scene, dict):
+        raise ValueError('auto_trigger.scene must be a group of settings')
+    for key, least, most, whole in (('still_motion_percent', 0.01, 100, False), ('still_seconds', 0.05, None, False),
+                                    ('change_percent', 0.01, 100, False), ('bare_bed_markers', 1, None, True),
+                                    ('veto_retry_seconds', 0.05, None, False), ('veto_retries', 0, None, True)):
+        if key in scene:
+            value = scene[key]
+            if (isinstance(value, bool) or not isinstance(value, int if whole else (int, float))
+                    or not math.isfinite(value) or value < least or (most is not None and value > most)):
+                raise ValueError(f'auto_trigger.scene.{key} has an invalid value')
+    if not isinstance(scene.get('hand_veto', True), bool):
+        raise ValueError('auto_trigger.scene.hand_veto must be true or false')
     trim = config.get('inspection', {}).get('end_exclusion_percent', 5.0)
     if isinstance(trim, bool) or not isinstance(trim, (int, float)) or not math.isfinite(trim) or not 0 <= trim < 50:
         raise ValueError('inspection.end_exclusion_percent must be at least 0 and less than 50')
+    # End zones graded as their own segments; absent or 0 means off (inspection/line_measurement.py).
+    for key, least, whole in (('end_exclusion_px', 0, False), ('end_trim_px', 0, False),
+                              ('segment_count', 1, True), ('min_line_length_mm', 0, False)):
+        if key in config.get('inspection', {}):
+            number('inspection', key, least, integer=whole)
     # Extra grading checks; absent or 0 means off (inspection/line_measurement.py).
     from inspection.line_measurement import grading_checks
     grading_checks(config.get('inspection', {}))
@@ -35,6 +58,12 @@ def validate_automatic_config(config):
         number('local_inspection', 'offset_pixels', 0.5)
         if not isinstance(config['local_inspection'].get('smooth_logits', False), bool):
             raise ValueError('local_inspection.smooth_logits must be true or false')
+        if not isinstance(config['local_inspection'].get('ribbon_finish', False), bool):
+            raise ValueError('local_inspection.ribbon_finish must be true or false')
+        if 'board_match_distance_px' in config['local_inspection']:
+            number('local_inspection', 'board_match_distance_px', 1)
+        if config['local_inspection'].get('board_quarter_turn', 'auto') not in ('auto', 'off'):
+            raise ValueError("local_inspection.board_quarter_turn must be 'auto' or 'off'")
         if 'min_line_length_ratio' in config['local_inspection']:
             number('local_inspection', 'min_line_length_ratio', 0, 0.99)
         if 'smooth_normal_rows' in config['local_inspection']:
@@ -76,9 +105,28 @@ def validate_automatic_config(config):
         raise ValueError('capture_storage.directory must be a relative data directory')
 
 
+def _validate_video_source(config):
+    section = config.get('video_source', {})
+    if not isinstance(section, dict):
+        raise ValueError('video_source must be a group of settings')
+    files = section.get('files', [])
+    if not isinstance(files, list) or not all(isinstance(name, str) and name.strip() for name in files):
+        raise ValueError('video_source.files must be a list of file or folder names')
+    if not isinstance(section.get('loop', True), bool):
+        raise ValueError('video_source.loop must be true or false')
+    rotation = section.get('rotation', 0)
+    if isinstance(rotation, bool) or rotation not in (0, 90, 180, 270):
+        raise ValueError('video_source.rotation must be 0, 90, 180 or 270')
+
+
 def validate_config(CONFIG):
     if 'auto_trigger' in CONFIG:
         validate_automatic_config(CONFIG)
+    # Both are optional and off by default; see app_logging.py and video_feed.py.
+    # Checked here without loading the camera module that video_feed builds on.
+    import app_logging
+    app_logging.settings(CONFIG)
+    _validate_video_source(CONFIG)
     # Avoid two camera/processing workers each recruiting all CPU cores. This
     # limits OpenCV's internal pool, not acquisition or inspection worker threads.
     opencv_threads = CONFIG.get('performance', {}).get('opencv_threads', 1)

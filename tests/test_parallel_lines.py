@@ -70,6 +70,15 @@ class ParallelLinesTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.run_lines(inspector(3, fail={3}))
 
+    def test_board_path_keeps_the_order_it_was_given(self):
+        engine = inspector(3, fail={7})
+        errors = []
+        picks = [({'original_xy': [[0, 0]]}, number) for number in (9, 7, 4, 6)]
+        results = list(engine.measure_found(np.zeros((10, 10, 3), np.uint8), None, picks, 9,
+                                            on_error=lambda number, error: errors.append(number)))
+        self.assertEqual([r['selected_line'] for r in results], [9, 4, 6])
+        self.assertEqual(errors, [7])
+
     def test_invalid_worker_count_is_refused(self):
         with patch('inspection.local.source_model.SourceMaskOnnx'), \
                 patch('inspection.local.glue_model.SegformerOnnx'), self.assertRaises(ValueError):

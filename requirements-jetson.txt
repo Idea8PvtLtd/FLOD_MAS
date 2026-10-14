@@ -17,6 +17,9 @@ mediapipe==1.0.1
 tensorflow==2.21.0
 tf-keras==2.21.0
 
+# Edge correction trees of the ribbon finish (same pin as requirements.txt).
+lightgbm==4.7.0
+
 # One OpenCV distribution only (contrib is a superset; MediaPipe needs it).
 opencv-contrib-python==4.12.0.88
 

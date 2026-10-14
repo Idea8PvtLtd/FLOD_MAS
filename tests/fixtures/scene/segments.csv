@@ -1,0 +1,57 @@
+source,start_frame,end_frame,stage,cloth_count,colour,orientation,reviewed,note
+data/procedure_videos/capture_20261007_223831.mp4,0,14,bare_bed,0,,,0,
+data/procedure_videos/capture_20261007_223831.mp4,15,26,moving,0,,,0,
+data/procedure_videos/capture_20261007_223831.mp4,27,32,board_cloth,1,pink,upright,0,"auto: lines 1, not cardboard 37%"
+data/procedure_videos/capture_20261007_223831.mp4,33,38,moving,1,,,0,
+data/procedure_videos/capture_20261007_223831.mp4,39,40,hand,1,,,0,
+data/procedure_videos/capture_20261007_223831.mp4,41,42,moving,1,,,0,
+data/procedure_videos/capture_20261007_223831.mp4,43,144,board_cloth,1,pink,upright,0,"auto: lines 1, not cardboard 34%"
+data/procedure_videos/capture_20261007_223831.mp4,145,176,hand,1,,,0,
+data/procedure_videos/capture_20261007_223831.mp4,177,177,moving,1,,,0,
+data/procedure_videos/capture_20261007_223831.mp4,178,274,board_cloth,2,pink,upright,0,"auto: lines 2, not cardboard 52%"
+data/procedure_videos/capture_20261007_223831.mp4,275,277,moving,2,,,0,
+data/procedure_videos/capture_20261007_223831.mp4,278,307,hand,2,,,0,
+data/procedure_videos/capture_20261007_223831.mp4,308,311,moving,2,,,0,
+data/procedure_videos/capture_20261007_223831.mp4,312,416,board_cloth,3,pink,upright,0,"auto: lines 3, not cardboard 77%"
+data/procedure_videos/capture_20261007_223831.mp4,417,423,moving,3,,,0,
+data/procedure_videos/capture_20261007_223831.mp4,424,433,hand,3,,,0,
+data/procedure_videos/capture_20261007_223831.mp4,434,438,moving,3,,,0,
+data/procedure_videos/capture_20261007_223831.mp4,439,461,board_cloth,4,grey,upright,0,"auto: lines 4, not cardboard 67%"
+data/procedure_videos/capture_20261007_223831.mp4,462,469,moving,4,,,0,
+data/procedure_videos/capture_20261007_223831.mp4,470,501,hand,4,,,0,
+data/procedure_videos/capture_20261007_223831.mp4,502,509,moving,4,,,0,
+data/procedure_videos/capture_20261007_223831.mp4,510,527,bare_bed,0,,,0,
+data/procedure_videos/capture_20261007_223948.mp4,0,2,bare_bed,0,,,0,
+data/procedure_videos/capture_20261007_223948.mp4,3,13,moving,0,,,0,
+data/procedure_videos/capture_20261007_223948.mp4,14,122,board_cloth,1,pink,upright,0,"auto: lines 1, not cardboard 35%"
+data/procedure_videos/capture_20261007_223948.mp4,123,144,hand,1,,,0,
+data/procedure_videos/capture_20261007_223948.mp4,145,147,moving,1,,,0,
+data/procedure_videos/capture_20261007_223948.mp4,148,249,board_cloth,2,pink,upright,0,"auto: lines 2, not cardboard 60%"
+data/procedure_videos/capture_20261007_223948.mp4,250,252,moving,2,,,0,
+data/procedure_videos/capture_20261007_223948.mp4,253,279,hand,2,,,0,
+data/procedure_videos/capture_20261007_223948.mp4,280,288,moving,2,,,0,
+data/procedure_videos/capture_20261007_223948.mp4,289,298,hand,2,,,0,
+data/procedure_videos/capture_20261007_223948.mp4,299,302,moving,2,,,0,
+data/procedure_videos/capture_20261007_223948.mp4,303,310,board_cloth,3,grey,upright,0,"auto: lines 3, not cardboard 57%"
+data/procedure_videos/capture_20261007_223948.mp4,311,328,hand,3,,,0,
+data/procedure_videos/capture_20261007_223948.mp4,329,332,moving,3,,,0,
+data/procedure_videos/capture_20261007_223948.mp4,333,346,board_cloth,3,grey,upright,0,"auto: lines 3, not cardboard 57%"
+data/procedure_videos/capture_20261007_223948.mp4,347,347,moving,3,,,0,
+data/procedure_videos/capture_20261007_223948.mp4,348,360,hand,3,,,0,
+data/procedure_videos/capture_20261007_223948.mp4,361,362,moving,3,,,0,
+data/procedure_videos/capture_20261007_223948.mp4,363,393,board_cloth,4,grey,mixed,0,"auto: lines 4, not cardboard 57%"
+data/procedure_videos/capture_20261007_223948.mp4,394,403,moving,4,,,0,
+data/procedure_videos/capture_20261007_223948.mp4,404,417,hand,4,,,0,
+data/procedure_videos/capture_20261007_223948.mp4,418,422,board_cloth,4,grey,upright,0,"auto: lines 4, not cardboard 62%"
+data/procedure_videos/capture_20261007_223948.mp4,423,424,hand,4,,,0,
+data/procedure_videos/capture_20261007_223948.mp4,425,428,moving,4,,,0,
+data/procedure_videos/capture_20261007_223948.mp4,429,446,board_cloth,4,grey,upright,0,"auto: lines 4, not cardboard 64%"
+data/procedure_videos/capture_20261007_223948.mp4,447,481,moving,4,,,0,
+data/procedure_videos/capture_20261007_223948.mp4,482,500,board_cloth,4,grey,upright,0,"auto: lines 4, not cardboard 64%"
+data/procedure_videos/capture_20261007_223948.mp4,501,519,moving,4,,,0,
+data/procedure_videos/capture_20261007_223948.mp4,520,522,hand,4,,,0,
+data/procedure_videos/capture_20261007_223948.mp4,523,527,moving,4,,,0,
+data/procedure_videos/capture_20261007_223948.mp4,528,536,bare_bed,0,,,0,
+data/procedure_videos/capture_20261007_223948.mp4,537,539,moving,0,,,0,
+data/procedure_videos/capture_20261007_223948.mp4,540,693,bare_bed,0,,,0,
+data/procedure_videos/capture_20261007_223948.mp4,694,695,moving,0,,,0,

@@ -1,0 +1,27 @@
+FLOD MAS — Proprietary Software Licence
+
+Copyright (c) 2026 Idea8 (Private) Limited. All rights reserved.
+
+This software, including its source code, trained models, documentation and
+build artifacts (the "Software"), is the confidential and proprietary property
+of Idea8 (Private) Limited ("Idea8").
+
+No licence or right is granted to any person to use, copy, modify, merge,
+publish, distribute, sublicense, sell, or create derivative works of the
+Software, in whole or in part, except under a separate written agreement signed
+by Idea8. Access to the Software, including through a public repository, does
+not grant any such right.
+
+Installation and use of a released build at a customer site is permitted only
+to the extent set out in that customer's written agreement with Idea8.
+
+Third-party components included in the Software remain under their own licences,
+listed in THIRD-PARTY-NOTICES.md. Nothing in this licence restricts rights
+granted by those licences.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, EXCEPT AS EXPRESSLY STATED IN A WRITTEN AGREEMENT WITH IDEA8. IN NO
+EVENT SHALL IDEA8 BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY ARISING
+FROM THE USE OF THE SOFTWARE, EXCEPT AS EXPRESSLY STATED IN SUCH AN AGREEMENT.
+
+Enquiries about licensing: contact Idea8 through https://github.com/Idea8PvtLtd.

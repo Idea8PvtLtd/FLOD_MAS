@@ -78,6 +78,40 @@ def segment_joins(component):
     return joins
 
 
+def segment_ends(component):
+    """Bars where the first segment starts and the last segment ends (end zones only).
+
+    The same boundary rule as the joins, walked inward from each end: the
+    outermost accepted sample of the end segment, falling back to the outermost
+    sample with geometry. An end segment without boundary geometry adds no bar.
+    Without end zones (``inspection.end_exclusion_px`` off) there are no bars.
+    From the ``dev-lm`` branch.
+    """
+    segments = list(component.get('segments', ()))
+    if not segments or 'trimmed_each_end_px' not in component:
+        return []
+    samples = component.get('samples', ())
+    ends = []
+    for number, ordered in ((segments[0].get('segment'), samples),
+                            (segments[-1].get('segment'), list(reversed(samples)))):
+        boundary = None
+        for sample in ordered:
+            if sample.get('segment') != number:
+                continue
+            points = [sample.get(key) for key in ('left_x', 'left_y', 'right_x', 'right_y')]
+            if None in points:
+                continue
+            if sample.get('valid'):
+                boundary = points
+                break
+            if boundary is None:
+                boundary = points
+        if boundary is not None:
+            ends.append(((int(boundary[0]), int(boundary[1])),
+                         (int(boundary[2]), int(boundary[3]))))
+    return ends
+
+
 def annotated_overlay(image, measurement, mask=None):
     overlay = tint_mask(image, mask) if mask is not None else image.copy()
     for component in measurement['components']:
@@ -108,7 +142,7 @@ def annotated_overlay(image, measurement, mask=None):
             y = max(20, min(int(y), overlay.shape[0]-8))
             cv2.putText(overlay, label, (x, y), cv2.FONT_HERSHEY_SIMPLEX, .55, (0, 0, 0), 4, cv2.LINE_AA)
             cv2.putText(overlay, label, (x, y), cv2.FONT_HERSHEY_SIMPLEX, .55, color, 1, cv2.LINE_AA)
-        for start, end in segment_joins(component):
+        for start, end in segment_joins(component) + segment_ends(component):
             cv2.line(overlay, start, end, SEPARATOR_OUTLINE, 4, cv2.LINE_AA)
             cv2.line(overlay, start, end, SEPARATOR_COLOR, 2, cv2.LINE_AA)
     return overlay
