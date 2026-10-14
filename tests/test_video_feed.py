@@ -25,6 +25,25 @@ def write_video(path, values, size=(64, 48)):
     writer.release()
 
 
+def stop(stream):
+    """Stop playing and wait until the file is closed.
+
+    release() only asks the playing thread to stop; it closes the file a moment later.
+    Windows cannot delete a file that is still open, so the temporary folder can only
+    be removed once the thread has finished.
+    """
+    stream.release()
+    stream.thread.join(timeout=5)
+
+
+def close_log_files():
+    logger = logging.getLogger(app_logging.ROOT)
+    for handler in list(logger.handlers):
+        if not isinstance(handler, logging.NullHandler):
+            logger.removeHandler(handler)
+            handler.close()
+
+
 def brightness(frame):
     return int(round(float(frame[20:40, 20:60].mean()) / 10) * 10)
 
@@ -76,7 +95,7 @@ class VideoSourceTests(unittest.TestCase):
             self.assertEqual(stream.read_snapshot()[1], sequence)                    # no new frame is offered
             self.assertEqual(brightness(frame), 140)
         finally:
-            stream.release()
+            stop(stream)
 
     def test_looping_starts_again_from_the_first_file(self):
         stream, seen = self.play(loop=True)
@@ -86,7 +105,7 @@ class VideoSourceTests(unittest.TestCase):
             self.assertLess(seen[seen.index(140):].count(140), len(seen[seen.index(140):]))   # something follows the last file
             self.assertIn(seen[-1], {40, 60, 80, 120, 140})
         finally:
-            stream.release()
+            stop(stream)
 
     def test_the_recordings_own_rotation_is_applied_not_the_cameras(self):
         stream, _ = self.play(loop=True, rotation=180, seconds=0.1)
@@ -97,7 +116,7 @@ class VideoSourceTests(unittest.TestCase):
             self.assertGreater(frame[-8:, -8:].mean(), 200)      # the corner mark is now bottom right
             self.assertLess(frame[:8, :8].mean(), 200)
         finally:
-            stream.release()
+            stop(stream)
 
     def test_a_folder_stands_for_its_videos_by_name(self):
         for name in ('b.mp4', 'a.mp4'):
@@ -122,11 +141,7 @@ class VideoSourceTests(unittest.TestCase):
 
 class LoggingTests(unittest.TestCase):
     def tearDown(self):
-        logger = logging.getLogger(app_logging.ROOT)
-        for handler in list(logger.handlers):
-            if not isinstance(handler, logging.NullHandler):
-                logger.removeHandler(handler)
-                handler.close()
+        close_log_files()
 
     def test_by_default_nothing_is_written(self):
         self.assertIs(CONFIG['logging']['enabled'], False)
@@ -150,6 +165,8 @@ class LoggingTests(unittest.TestCase):
                 sys.excepthook, threading.excepthook = hooks
             for handler in logging.getLogger(app_logging.ROOT).handlers:
                 handler.flush()
+            # Closed before the folder is removed: Windows cannot delete an open file.
+            close_log_files()
             text = path.read_text(encoding='utf-8')
             self.assertIn('line 3 measured', text)
             self.assertNotIn('too detailed', text)
