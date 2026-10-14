@@ -46,3 +46,8 @@ dist/
 *.egg-info/
 
 tests/end_exclusion_profile.png
+
+# data folders
+data/
+
+agent_memory/
