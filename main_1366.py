@@ -1120,7 +1120,7 @@ class IndustrialDashboard(AutomaticDashboard):
 # MAIN
 # ======================================================================
 def main():
-    import video_feed; video_feed.install()  # TEST ONLY: loop video files instead of the camera. Delete this line for the real camera.
+    # import video_feed; video_feed.install()  # TEST ONLY: loop video files instead of the camera. Delete this line for the real camera.
     root = tk.Tk()
 
     def load_initial():
