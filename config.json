@@ -160,6 +160,10 @@
     "strip_width_tolerance_mm": 1.0,
     "result_display_seconds": 5.0,
     "end_exclusion_percent": 5.0,
+    "end_exclusion_px": 0,
+    "end_trim_px": 0,
+    "segment_count": 10,
+    "min_line_length_mm": 0,
     "local_defect_length_mm": 0.0,
     "min_coverage_percent": 0.0,
     "max_gap_mm": 0.0,
@@ -211,7 +215,17 @@
     "detect_width": 320,
     "max_hands": 2,
     "hand_confidence": 0.5,
-    "marker_confirm_seconds": 0.5
+    "marker_confirm_seconds": 0.5,
+    "mode": "hand",
+    "scene": {
+      "still_motion_percent": 1.0,
+      "still_seconds": 1.0,
+      "change_percent": 5.0,
+      "bare_bed_markers": 2,
+      "hand_veto": true,
+      "veto_retry_seconds": 1.0,
+      "veto_retries": 3
+    }
   },
   "segmentation": {
     "provider": "workflow",
@@ -223,7 +237,8 @@
     "max_fabrics": 4
   },
   "result_view": {
-    "show_live_preview": true
+    "show_live_preview": true,
+    "fill_screen": true
   },
   "capture_storage": {
     "directory": "Dataset_capture/Automatic",
@@ -239,6 +254,20 @@
     "offset_pixels": 100.0,
     "smooth_normal_rows": 0,
     "smooth_logits": false,
+    "ribbon_finish": false,
+    "board_match_distance_px": 60.0,
+    "board_quarter_turn": "auto",
     "min_line_length_ratio": 0.0
+  },
+  "video_source": {
+    "files": [],
+    "loop": true,
+    "rotation": 0
+  },
+  "logging": {
+    "enabled": false,
+    "level": "INFO",
+    "max_bytes": 5000000,
+    "backups": 5
   }
 }

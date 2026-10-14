@@ -32,6 +32,9 @@ from ui_theme import (
     set_button_role, status_dot,
 )
 
+import logging
+LOG = logging.getLogger('flod.app')
+
 # ---------------- CONFIG ----------------
 WINDOW_WIDTH = 1366
 WINDOW_HEIGHT = 768
@@ -234,6 +237,7 @@ class IndustrialDashboard(AutomaticDashboard):
         if self.camera2: self.camera2.release()
 
     def close_application(self):
+        LOG.info('Application closing')
         self._shutdown_session()
         self.root.destroy()
 
@@ -835,6 +839,8 @@ class IndustrialDashboard(AutomaticDashboard):
                     errors.append(str(error))
             if errors or getattr(self, '_closing', False):
                 for camera in cameras: camera.release()
+                if errors:
+                    LOG.error('Camera could not start: %s', ' | '.join(errors))
                 if not getattr(self, '_closing', False):
                     self.set_pass_fail("CAMERA ERROR")
                     self.update_progress(0, " | ".join(errors))
@@ -844,6 +850,11 @@ class IndustrialDashboard(AutomaticDashboard):
                 return
             self.camera1 = cameras[0]
             self.camera2 = cameras[1] if CAMERA_COUNT == 2 else None
+            for camera in cameras:
+                LOG.info('Camera %s started: %s, frame %s x %s, turned %s degrees; lens calibration %s',
+                         camera.camera_index, type(camera.stream).__name__, *camera.stream.size,
+                         camera.stream.rotation,
+                         'loaded' if camera.calibration_available else f'missing ({camera.calibration_error})')
             if getattr(self, 'calibration_page', None) is None:
                 self.start_video_stream()
         self.root.after(50, finish)
@@ -1074,7 +1085,21 @@ class IndustrialDashboard(AutomaticDashboard):
 # MAIN
 # ======================================================================
 def main():
+    import logging
+    import app_logging
+    app_logging.setup(CONFIG)
+    log = logging.getLogger('flod.app')
+    log.info('Application starting. Local inspection settings: %s; grading: %s',
+             CONFIG['local_inspection'],
+             {key: value for key, value in CONFIG['inspection'].items() if key != 'sizes'})
+    if CONFIG.get('video_source', {}).get('files'):
+        # Recorded videos stand in for the camera; see video_feed.py.
+        import video_feed
+        video_feed.install(CONFIG)
+    else:
+        log.info('Frames come from the camera')
     root = tk.Tk()
+    app_logging.watch_tk(root)
 
     def load_initial():
         app.update_progress(0, "Loading inspection models…")

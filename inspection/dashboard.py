@@ -10,11 +10,46 @@ from .local.engine import LiveInspection
 from .pipeline import InspectionPipeline
 from .storage import CaptureStore
 from .result_view import LineResultView
+from .board_view import BoardResultView
+import logging
+
+log = logging.getLogger('flod.dashboard')
 
 # Detections older than this are not drawn. The worker cannot publish once the
 # feed is paused, switched off or the thread has failed, so this age is what
 # clears the overlay in those cases instead of leaving stale boxes on screen.
 OVERLAY_MAX_AGE = 0.5
+
+
+def _open_result_view(app, view_class):
+    """Swap the camera view for a result view and move the progress widgets beside it.
+
+    Shared by the line-by-line results and the board results of the scene mode,
+    so both are laid out the same way and ``_dismiss_result_view`` undoes either.
+    """
+    # Fill the physical screen, retaining the existing application chrome;
+    # result_view.fill_screen false keeps the window at its own size.
+    if CONFIG.get('result_view', {}).get('fill_screen', True):
+        app.root.geometry(f'{app.root.winfo_screenwidth()}x{app.root.winfo_screenheight()}+0+0')
+    app.bottom_panel.place_forget()
+    app.images_container.pack_forget()
+    app.result_view = view_class(
+        app.image_panel,
+        show_live_preview=CONFIG.get('result_view', {}).get('show_live_preview', True))
+    app.result_view.pack(fill=tk.BOTH, expand=True, padx=10, pady=(58, 8))
+    app.result_view.on_grade_changed = app.set_pass_fail
+    app.result_view.set_paused(app.auto_controller.paused)
+    app.action_overlay.place_configure(y=8)
+    if app.result_view.show_live_preview:
+        app.loading_container.place(in_=app.result_view.live_panel, x=0, rely=1,
+                                    y=-12, anchor='sw', width=240)
+        app.progress_label.configure(wraplength=212)
+        app.inspection_queue_label.configure(font=(FONT, 8), padx=4, wraplength=232)
+        app.inspection_queue_label.place_configure(height=38)
+        app.progress_label.pack_configure(pady=(40, 2))
+    app.action_overlay.lift()
+    app.loading_container.lift()
+    app.inspection_queue_label.lift()
 
 
 class AutomaticDashboard:
@@ -31,7 +66,9 @@ class AutomaticDashboard:
                                        settings['offset_pixels'], settings['source_width'],
                                        smooth_normal_rows=settings.get('smooth_normal_rows', 0),
                                        smooth_logits=settings.get('smooth_logits', False),
-                                       min_line_length_ratio=settings.get('min_line_length_ratio', 0.))
+                                       min_line_length_ratio=settings.get('min_line_length_ratio', 0.),
+                                       ribbon_finish=settings.get('ribbon_finish', False),
+                                       segments=CONFIG['inspection'].get('segment_count', 10))
             return InspectionPipeline(inspector, store, CONFIG)
         self.auto_controller = AutoController(CONFIG, factory)
         self._reset_due = None
@@ -101,6 +138,11 @@ class AutomaticDashboard:
                 if generation != controller.generation or not active:
                     continue
                 self._show_automatic_results(payload)
+            elif event == 'board':
+                # Scene mode only: one payload holds every line of the board so far.
+                if generation != controller.generation or not active:
+                    continue
+                self._show_board_results(payload)
             elif event == 'reset_wait':
                 if active and generation == controller.generation:
                     self.update_progress(100, payload)
@@ -188,30 +230,12 @@ class AutomaticDashboard:
     def _show_automatic_results(self, result):
         measurement = result['measurement']
         if measurement and getattr(self, 'result_view', None) is None:
-            # Fill the physical screen, retaining the existing application chrome.
-            self.root.geometry(f'{self.root.winfo_screenwidth()}x{self.root.winfo_screenheight()}+0+0')
-            self.bottom_panel.place_forget()
-            self.images_container.pack_forget()
-            self.result_view = LineResultView(
-                self.image_panel,
-                show_live_preview=CONFIG.get('result_view', {}).get('show_live_preview', True))
-            self.result_view.pack(fill=tk.BOTH, expand=True, padx=10, pady=(58, 8))
-            self.result_view.on_grade_changed = self.set_pass_fail
-            self.result_view.set_paused(self.auto_controller.paused)
-            self.action_overlay.place_configure(y=8)
-            if self.result_view.show_live_preview:
-                self.loading_container.place(in_=self.result_view.live_panel, x=0, rely=1,
-                                             y=-12, anchor='sw', width=240)
-                self.progress_label.configure(wraplength=212)
-                self.inspection_queue_label.configure(font=(FONT, 8), padx=4, wraplength=232)
-                self.inspection_queue_label.place_configure(height=38)
-                self.progress_label.pack_configure(pady=(40, 2))
-            self.action_overlay.lift()
-            self.loading_container.lift()
-            self.inspection_queue_label.lift()
+            _open_result_view(self, LineResultView)
         if measurement:
             self.result_view.show_inspection(result)
         status = 'WARNING' if result['warnings'] else measurement['status']
+        log.info('Shown to the operator: line %s as %s%s', measurement['selected_line'], status,
+                 f" (warnings: {' | '.join(result['warnings'])})" if result['warnings'] else '')
         self.set_pass_fail(status)
         # Why a line failed an extra check (a short defect, missing adhesive) is
         # not visible from the segment averages, so it is said in words.
@@ -220,6 +244,30 @@ class AutomaticDashboard:
                              (f"Line #{measurement['selected_line']}: " + ' | '.join(reasons) if reasons else
                               f"Line #{measurement['selected_line']} of {measurement['line_count']} "
                               'measured — results saved — monitoring hands'))
+
+    def _show_board_results(self, payload):
+        """Scene mode: show every line of the board on one screen, from one payload."""
+        view = getattr(self, 'result_view', None)
+        if view is not None and not isinstance(view, BoardResultView):
+            # A line-by-line view left over from the other mode cannot draw a board.
+            self._dismiss_result_view()
+            view = None
+        if view is None:
+            _open_result_view(self, BoardResultView)
+        self.result_view.show_board(payload)
+        verdict = payload['verdict']
+        lines = payload['lines']
+        new = payload.get('new_lines') or []
+        log.info('Shown to the operator: board with %s line(s) as %s (new: %s)', len(lines), verdict,
+                 ', '.join(str(line) for line in new) or 'none')
+        # A board with no glue line yet has no verdict; the label stays neutral.
+        self.set_pass_fail('READY' if verdict == 'EMPTY' else verdict)
+        failed = [str(entry['line_id']) for entry in lines
+                  if entry.get('measurement') is None or entry.get('status') == 'FAIL']
+        self.update_progress(100, 'Board on the bed — no glue line yet' if not lines else
+                             f"Board: {len(lines)} line{'' if len(lines) == 1 else 's'} — "
+                             + (f"line {', '.join(failed)} failed" if failed else verdict)
+                             + ' — results saved')
 
     def _dismiss_result_view(self):
         if getattr(self, 'result_view', None) is not None:
@@ -241,6 +289,7 @@ class AutomaticDashboard:
 
     def _refresh_inspection_availability(self):
         if self.camera1 is None or not self.camera1.calibration_available:
+            log.warning('Camera calibration is missing: automatic measurement cannot run')
             self.set_pass_fail('SETUP')
             self.update_progress(100, 'Camera calibration required; open Settings → Camera setup')
         else:

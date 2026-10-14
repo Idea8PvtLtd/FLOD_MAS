@@ -621,3 +621,11 @@ length. `0` disables exclusion; values must be finite, nonnegative and below 50.
 The textbox is in Settings → Inspection profile. Save Profile persists the value
 and applies it to future captures; queued captures retain their captured setting.
 It is also available in the startup settings form.
+
+`inspection.end_exclusion_px` defaults to `0` (off). Above 0 it replaces the
+percentage: each end of a line becomes a zone of that many pixels which is graded
+as a segment of its own, and `inspection.end_trim_px` (default `0`) leaves the
+rounded tip, that close to each end, out of it. `inspection.segment_count`
+(default `10`) is the number of equal segments between the two zones, and
+`inspection.min_line_length_mm` (default `0`, off) reports a shorter measured
+line instead of grading it. See AUTOMATIC_INSPECTION.md.

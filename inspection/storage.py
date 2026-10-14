@@ -47,6 +47,34 @@ class CaptureStore:
                 raise
             return path
 
+    def begin_deferred(self, metadata):
+        """A new set with its capture.json only (scene mode).
+
+        The two lossless source pictures take longer to write than a line takes to
+        measure, so the board path shows its result first and adds them afterwards
+        with ``save_sources``. Until ``finish`` the set counts as still being
+        written, exactly as after ``begin``.
+        """
+        with self.lock:
+            self.prune(reserve=1)
+            name = datetime.now().strftime('%Y%m%d_%H%M%S_%f') + '_' + uuid.uuid4().hex[:8]
+            path = self.root / name
+            path.mkdir()
+            (path / '.inspection-set').write_text('automatic-inspection-v1', encoding='utf-8')
+            try:
+                self._json(path / 'capture.json', metadata)
+            except Exception as error:
+                self.finish(path, {'status': 'save_failed', 'error': str(error)})
+                raise
+            return path
+
+    def save_sources(self, path, original, undistorted):
+        """The source pictures of a set begun with ``begin_deferred``, as ``begin`` writes them."""
+        if original is not None:
+            self._image(path / 'original.png', original, [cv2.IMWRITE_PNG_COMPRESSION, 3])
+        if undistorted is not None:
+            self._image(path / 'undistorted.png', undistorted, [cv2.IMWRITE_PNG_COMPRESSION, 3])
+
     def save_preview(self, path, name, image):
         h, w = image.shape[:2]
         factor = min(1.0, self.settings['preview_max_edge'] / max(h, w))

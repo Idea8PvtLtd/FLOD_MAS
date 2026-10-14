@@ -162,35 +162,74 @@ def _gaps(components, scale, ratio):
     return largest_px, largest_mm
 
 
-def measurement_record(result, scale, target_width, tolerance, end_exclusion_percent=0.0, checks=None):
+def measurement_record(result, scale, target_width, tolerance, end_exclusion_percent=0.0, checks=None,
+                       end_exclusion_px=None, end_trim_px=0.0):
     """Keep reference pixel measurements; map points, never use a global px scale.
 
     ``checks`` are the extra grading checks (see CHECKS); None or all zero grades
     exactly as before, by segment averages alone.
+
+    ``end_exclusion_px`` (None: off, the percentage is used as before) makes each
+    end a zone of that many pixels along the centreline which is measured and
+    graded as a segment of its own instead of being left out, and ``end_trim_px``
+    leaves the rounded tip itself, that close to each end, out of it. From the
+    ``dev-lm`` branch.
     """
     checks = dict(CHECKS, **(checks or {}))
     if (isinstance(end_exclusion_percent, bool) or not np.isfinite(end_exclusion_percent)
             or not 0 <= end_exclusion_percent < 50):
         raise ValueError('End exclusion must be at least 0 and less than 50 percent')
+    for value in (end_exclusion_px, end_trim_px):
+        if value is not None and (isinstance(value, bool) or not np.isfinite(value) or value < 0):
+            raise ValueError('End zone and end trim must be at least 0 pixels')
+    zones = end_exclusion_px is not None
     ratio = current_ratio()
     components = copy.deepcopy(result['components'])
     for component in components:
         samples = component['samples']
-        low = component['length_px'] * end_exclusion_percent / 100.0
-        high = component['length_px'] - low
+        length = component['length_px']
+        # With end zones the rounded tip is ignored up to end_trim_px from each
+        # end; the end bar is drawn there and the end zone starts there.
+        trim = float(end_trim_px or 0.0) if zones else 0.0
+        # Samples are about 5 px apart; cut half a step short of the trim so the
+        # sample nearest the setting is kept and the end bar sits on the setting
+        # rather than up to a step further in.
+        edge = max(0.0, trim - length / max(1, len(samples) - 1) / 2) if trim else 0.0
+        low = max(float(end_exclusion_px), edge) if zones else length * end_exclusion_percent / 100.0
+        high = length - low
+        # Shorter than both ends together: nothing is left to grade, so WARNING.
+        empty = high <= low
         component['excluded_each_end_px'] = low
-        component['inspected_length_px'] = high-low
+        component['inspected_length_px'] = max(0.0, high-low)
+        if zones:
+            component['trimmed_each_end_px'] = trim
         count = len(component['segments'])
+        # The two end zones are segments of their own: 0 before the equal split,
+        # count+1 after it.
+        graded_ends = zones and low > trim and not empty
         for sample in samples:
-            excluded = not low <= sample['arc_px'] <= high
-            sample['excluded_end'] = excluded
-            if excluded:
-                sample.update(segment=0, valid=False, width_px=None)
-            elif end_exclusion_percent:
-                sample['segment'] = min(count, int((sample['arc_px']-low)/(high-low)*count)+1)
+            arc = sample['arc_px']
+            trimmed = arc < edge or arc > length - edge
+            excluded = empty or not low <= arc <= high
+            sample['excluded_end'] = excluded and (trimmed or not graded_ends)
+            if excluded and graded_ends and not trimmed:
+                sample['segment'] = 0 if arc < low else count + 1
+            elif excluded:
+                # -1 with end zones, so an ignored tip can never join end zone 0.
+                sample.update(segment=-1 if zones else 0, valid=False, width_px=None)
+            elif low:
+                sample['segment'] = min(count, int((arc-low)/(high-low)*count)+1)
         for segment in component['segments']:
-            segment['start_arc_px'] = low+(segment['segment']-1)*(high-low)/count
-            segment['end_arc_px'] = low+segment['segment']*(high-low)/count
+            span = max(0.0, high-low)
+            segment['start_arc_px'] = low+(segment['segment']-1)*span/count
+            segment['end_arc_px'] = low+segment['segment']*span/count
+        if graded_ends:
+            component['segments'] = (
+                [{'segment': 0, 'end_zone': 'start', 'start_arc_px': trim, 'end_arc_px': low}]
+                + component['segments']
+                + [{'segment': count + 1, 'end_zone': 'end', 'start_arc_px': high,
+                    'end_arc_px': length - trim}])
+        for segment in component['segments']:
             pixels = [s['width_px'] for s in samples if s['segment'] == segment['segment'] and s['valid']]
             segment['sample_count'] = len(pixels)
             for name, operation in [('average', np.mean), ('minimum', np.min), ('maximum', np.max)]:
@@ -246,4 +285,9 @@ def measurement_record(result, scale, target_width, tolerance, end_exclusion_per
                 length_basis='sum of separately measured adhesive components; no gap bridging',
                 checks=checks, band_length_px=band, coverage_percent=coverage,
                 largest_gap_px=gap_px, largest_gap_mm=gap_mm)
+    if zones:
+        record.update(end_exclusion_px=float(end_exclusion_px), end_trim_px=float(end_trim_px or 0.0))
+    if result.get('ribbon') is not None:
+        # Only with local_inspection.ribbon_finish: what the ribbon step did to this line.
+        record['ribbon'] = result['ribbon']
     return _grade(record)
