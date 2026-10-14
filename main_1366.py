@@ -1074,6 +1074,10 @@ class IndustrialDashboard(AutomaticDashboard):
 # MAIN
 # ======================================================================
 def main():
+    if os.environ.get('FLOD_VIDEO_FILES'):
+        # TEST ONLY: loop recorded videos instead of the camera (see video_feed.py).
+        import video_feed
+        video_feed.install()
     root = tk.Tk()
 
     def load_initial():
