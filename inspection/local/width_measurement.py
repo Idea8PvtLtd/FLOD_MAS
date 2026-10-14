@@ -49,11 +49,14 @@ def measure_component(mask,spacing=5.,segments=10,tip_trim=0.,center_window=11,r
     if (along[1]<0 if abs(along[1])>=abs(along[0]) else along[0]<0):along=-along
     across=np.array([-along[1],along[0]])
     u=(pixels-origin)@along;v=(pixels-origin)@across
-    bins=np.rint(u).astype(int);points=[]
-    for key in np.unique(bins):
-        cross=v[bins==key]
-        points.append(origin+key*along+(cross.min()+cross.max())*.5*across)
-    points=moving_average(np.asarray(points),center_window)
+    bins=np.rint(u).astype(int)
+    # Midpoint of the cross-section in each 1-pixel bin along the strip.
+    order=np.argsort(bins,kind='stable');sorted_bins=bins[order];sorted_v=v[order]
+    starts=np.flatnonzero(np.r_[True,sorted_bins[1:]!=sorted_bins[:-1]])
+    keys=sorted_bins[starts]
+    middle=(np.minimum.reduceat(sorted_v,starts)+np.maximum.reduceat(sorted_v,starts))*.5
+    points=origin+keys[:,None]*along+middle[:,None]*across
+    points=moving_average(points,center_window)
     points,arc=resample(points,spacing)
     # Recenter on the midpoint of actual perpendicular intersections twice.
     for _ in range(2):

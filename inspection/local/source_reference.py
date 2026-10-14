@@ -59,10 +59,11 @@ def segment(session, bgr, flip=False):
     keep = np.r_[False, st[1:, cv2.CC_STAT_AREA] >= MIN_REGION * mask.size]
     mask = keep[lab].astype(np.uint8)
     n, lab, st, _ = cv2.connectedComponentsWithStats(1 - mask, 4)
-    for k in range(1, n):
-        bx, by, bw, bh = st[k, :4]
-        if bx > 0 and by > 0 and bx + bw < w and by + bh < h:
-            mask[lab == k] = 1
+    bx, by, bw, bh = (st[:, i] for i in range(4))
+    hole = (bx > 0) & (by > 0) & (bx + bw < w) & (by + bh < h)
+    hole[0] = False
+    if hole.any():
+        mask[hole[lab]] = 1
     return mask * 255
 
 

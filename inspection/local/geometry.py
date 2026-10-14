@@ -2,6 +2,23 @@
 import cv2
 import numpy as np
 
+
+def median_true_rows(mask):
+    """Per column of a boolean array, np.median of the row indices that are True.
+
+    Same values as ``np.median(np.flatnonzero(mask[:, x]))`` for every column x
+    (the mean of the two middle indices), NaN for columns with no True, but in
+    one array pass instead of one Python call per column.
+    """
+    mask = np.asarray(mask, bool)
+    counts = mask.sum(axis=0)
+    running = np.cumsum(mask, axis=0, dtype=np.int32)
+    low = (running > (counts - 1) // 2).argmax(axis=0)
+    high = (running > counts // 2).argmax(axis=0)
+    median = (low + high) / 2
+    median[counts == 0] = np.nan
+    return median
+
 def trim_endpoint_hooks(chain, hook_zone=.04, hook_angle=65., trim_top=0, trim_bottom=0):
     """Only slice endpoint cap returns; never filter or interpolate the wave."""
     if hook_zone <= 0:
@@ -214,8 +231,8 @@ def offset_lines(mask, pixels, side='inside', thickness=0, tangent_window=5, sou
         region = np.uint8(labels[y:y+height, x:x+width] == component)
         # These seams have one x position per row. Thick strokes are reduced to
         # their row centers; the wave profile is not fitted or smoothed.
-        points = np.array([[x + np.median(np.flatnonzero(row)), y + i]
-                           for i, row in enumerate(region) if row.any()], dtype=float)
+        rows = np.flatnonzero(region.any(axis=1))
+        points = np.column_stack((x + median_true_rows(region[rows].T), y + rows)).astype(float)
         scores = None
         line_side = side
         if side in ('inside', 'outside'):
@@ -375,13 +392,13 @@ def clean_mask(mask,window=9,max_gap=12,width_tolerance=.15,round_tips=True):
     if count<=1:return result
     # Prefer longitudinal support to small, fat noise blobs.
     main=max(range(1,count),key=lambda i:stats[i,cv2.CC_STAT_WIDTH]*np.sqrt(stats[i,cv2.CC_STAT_AREA]))
-    ys,xs=np.where(labels==main)
-    x0,x1=int(xs.min()),int(xs.max())
+    x0=int(stats[main,cv2.CC_STAT_LEFT]);x1=x0+int(stats[main,cv2.CC_STAT_WIDTH])-1
     columns=np.arange(x0,x1+1)
-    centers=np.array([np.median(np.flatnonzero(labels[:,x]==main)) if np.any(labels[:,x]==main) else np.nan for x in columns])
+    in_main=labels[:,x0:x1+1]==main
+    centers=median_true_rows(in_main)
     valid=np.isfinite(centers)
     centers=np.interp(columns,columns[valid],centers[valid])
-    main_widths=np.array([np.count_nonzero(labels[:,x]==main) for x in columns])
+    main_widths=in_main.sum(axis=0)
     typical=max(1.,float(np.median(main_widths[main_widths>0])))
     accepted=np.zeros(count,bool);accepted[main]=True
     # Retain plausible broken pieces along the same strip; reject isolated speckles.
@@ -395,8 +412,9 @@ def clean_mask(mask,window=9,max_gap=12,width_tolerance=.15,round_tips=True):
     selected=accepted[labels]
     present=np.flatnonzero(selected.any(axis=0))
     if not len(present):return result
-    upper=np.array([np.flatnonzero(selected[:,x])[0] for x in present],float)
-    lower=np.array([np.flatnonzero(selected[:,x])[-1] for x in present],float)
+    columns_present=selected[:,present]
+    upper=columns_present.argmax(axis=0).astype(float)
+    lower=(len(selected)-1-columns_present[::-1].argmax(axis=0)).astype(float)
     # Divide at substantial gaps so cleanup never invents a long missing strip.
     splits=np.flatnonzero(np.diff(present)>max_gap+1)+1
     for indices in np.split(np.arange(len(present)),splits):
