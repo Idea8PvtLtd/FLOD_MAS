@@ -11,6 +11,12 @@ import cv2
 SET_NAME = re.compile(r'^\d{8}_\d{6}_\d{6}_[0-9a-f]{8}$')
 
 
+def _is_junction(path):
+    """Path.is_junction() is Python 3.12+; junctions exist only on Windows."""
+    check = getattr(path, 'is_junction', None)
+    return bool(check()) if check else False
+
+
 class CaptureStore:
     def __init__(self, root, settings):
         self.root = Path(root).resolve()
@@ -26,7 +32,7 @@ class CaptureStore:
     def _sets(self):
         return sorted(p for p in self.root.iterdir()
                       if SET_NAME.fullmatch(p.name) and p.is_dir()
-                      and not p.is_symlink() and not p.is_junction()
+                      and not p.is_symlink() and not _is_junction(p)
                       and (p / '.inspection-set').is_file())
 
     def begin(self, original, undistorted, metadata):
@@ -91,10 +97,10 @@ class CaptureStore:
                 if not (path / 'result.json').is_file():
                     continue  # never delete an inspection still being written
                 resolved = path.resolve()
-                if resolved.parent != self.root or path.is_symlink() or path.is_junction():
+                if resolved.parent != self.root or path.is_symlink() or _is_junction(path):
                     raise OSError('Capture retention target escaped its storage directory')
                 # Allow generated line folders, but reject links and unexpected subdirectories.
-                if any(p.is_symlink() or p.is_junction() or
+                if any(p.is_symlink() or _is_junction(p) or
                        (p.is_dir() and (p.parent != path or not re.fullmatch(r'line_\d+', p.name)))
                        for p in path.rglob('*')):
                     raise OSError(f'Unexpected content in capture set {path.name}')
