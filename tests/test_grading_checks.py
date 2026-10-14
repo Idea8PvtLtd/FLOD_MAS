@@ -17,6 +17,10 @@ from unittest.mock import patch
 from test_local_inspection import synthetic_inspection
 
 CONFIG = json.loads((Path(__file__).resolve().parents[1] / 'config.json').read_text())
+# The shipped config.json carries the site's end zones, segment count and minimum
+# line length. These tests build on the plain measurement, so they start with those
+# stages off and switch on only what a test checks.
+CONFIG['inspection'].update(end_exclusion_px=0, end_trim_px=0, segment_count=10, min_line_length_mm=0)
 SCALE = PlaneScale(np.diag([.1, .1, 1]), .1)        # 10 px per mm: the 30 px strip is 3 mm
 
 

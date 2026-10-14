@@ -21,7 +21,7 @@ log = logging.getLogger('flod.dashboard')
 OVERLAY_MAX_AGE = 0.5
 
 
-def _open_result_view(app, view_class):
+def _open_result_view(app, view_class, **options):
     """Swap the camera view for a result view and move the progress widgets beside it.
 
     Shared by the line-by-line results and the board results of the scene mode,
@@ -35,7 +35,8 @@ def _open_result_view(app, view_class):
     app.images_container.pack_forget()
     app.result_view = view_class(
         app.image_panel,
-        show_live_preview=CONFIG.get('result_view', {}).get('show_live_preview', True))
+        show_live_preview=CONFIG.get('result_view', {}).get('show_live_preview', True),
+        **options)
     app.result_view.pack(fill=tk.BOTH, expand=True, padx=10, pady=(58, 8))
     app.result_view.on_grade_changed = app.set_pass_fail
     app.result_view.set_paused(app.auto_controller.paused)
@@ -229,10 +230,14 @@ class AutomaticDashboard:
 
     def _show_automatic_results(self, result):
         measurement = result['measurement']
-        if measurement and getattr(self, 'result_view', None) is None:
-            _open_result_view(self, LineResultView)
         if measurement:
-            self.result_view.show_inspection(result)
+            # Every line of the cycle is kept, so the result screen can open or
+            # close when the defects-only filter is switched.
+            self._cycle_results = getattr(self, '_cycle_results', []) + [result]
+            if getattr(self, 'result_view', None) is not None:
+                self.result_view.show_inspection(result)
+            else:
+                self._sync_result_view()
         status = 'WARNING' if result['warnings'] else measurement['status']
         log.info('Shown to the operator: line %s as %s%s', measurement['selected_line'], status,
                  f" (warnings: {' | '.join(result['warnings'])})" if result['warnings'] else '')
@@ -269,7 +274,35 @@ class AutomaticDashboard:
                              + (f"line {', '.join(failed)} failed" if failed else verdict)
                              + ' — results saved')
 
+    def _sync_result_view(self):
+        """Open the result screen when it has a tab to show, otherwise stay on the live camera.
+
+        With defects only on, a cycle of passed lines has none, so the camera stays
+        in view. Switching the filter opens or closes the screen to match.
+        """
+        results = getattr(self, '_cycle_results', [])
+        wanted = any(not getattr(self, 'defects_only', False) or r['measurement']['status'] != 'PASS'
+                     for r in results)
+        view = getattr(self, 'result_view', None)
+        if view is not None and not wanted:
+            self._close_result_view()
+        elif view is not None:
+            view.set_defects_only(self.defects_only)
+        elif wanted:
+            self._open_line_results()
+            for result in results:
+                self.result_view.show_inspection(result)
+
+    def _open_line_results(self):
+        """The line-by-line result screen, showing defects only when that filter is on."""
+        _open_result_view(self, LineResultView, defects_only=getattr(self, 'defects_only', False))
+
     def _dismiss_result_view(self):
+        """End of a cycle: the results are dropped and the live camera returns."""
+        self._cycle_results = []
+        self._close_result_view()
+
+    def _close_result_view(self):
         if getattr(self, 'result_view', None) is not None:
             self.result_view.destroy()
             self.result_view = None

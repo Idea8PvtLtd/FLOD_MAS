@@ -57,8 +57,8 @@ class LiveInspection:
     def find_lines(self, photo, progress=lambda text: None, sideways=False):
         """The source mask of a photo and the lines accepted in it, left to right.
 
-        ``sideways`` (scene mode only) also looks for pieces laid a quarter turn
-        round; see ``_with_sideways``. Without it this is what ``run_lines`` finds.
+        ``sideways`` also looks for pieces laid a quarter turn round; see
+        ``_with_sideways``. Both the hand mode (``run_lines``) and the scene mode use it.
         """
         progress('AI source mask')
         source = self.source.predict(photo)
@@ -163,7 +163,12 @@ class LiveInspection:
         leaves that many for them instead of measuring the same line twice.
         """
         started = perf_counter()
-        source, lines = self.find_lines(photo, progress)
+        source, lines = self.find_lines(photo, progress, sideways=True)
+        if lines and all(line.get('turned') for line in lines):
+            # Fabric laid sideways: its lines are stacked down the photo, so they are
+            # numbered top first, the order they are placed in (as on main, where the
+            # whole capture was turned a quarter for detection).
+            lines.sort(key=lambda line: float(np.mean(np.asarray(line['original_xy'])[:, 1])))
         total = len(lines)
         if only_rightmost:
             indices = [total - 1]
