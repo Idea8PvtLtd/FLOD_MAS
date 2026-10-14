@@ -1,0 +1,30 @@
+# Install once with: pre-commit install
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-added-large-files
+        args: [--maxkb=5120]
+      - id: check-merge-conflict
+      - id: detect-private-key
+      - id: check-yaml
+      - id: check-json
+      - id: check-toml
+      - id: end-of-file-fixer
+        exclude: \.(sha256|lock)$
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.17.0
+    hooks:
+      - id: ruff
+  - repo: local
+    hooks:
+      - id: model-checksums
+        name: model checksums
+        entry: python tools/ci/check_models.py
+        language: system
+        pass_filenames: false
+        files: /models/

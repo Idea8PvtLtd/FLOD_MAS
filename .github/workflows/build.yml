@@ -1,0 +1,83 @@
+name: Build
+
+# Packs the application into a self-contained folder for Windows and Linux, runs the
+# bundled selfcheck, and keeps the archive as a workflow artifact. release.yml calls
+# this workflow for tagged releases.
+on:
+  pull_request:
+    paths:
+      - "**.py"
+      - "config.json"
+      - "requirements.txt"
+      - "requirements.lock"
+      - "packaging/**"
+      - "tools/ci/**"
+      - "**/models/**"
+      - ".github/workflows/build.yml"
+  push:
+    branches: [dev]
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      version:
+        description: Version stamped into the bundle, without the leading v
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.workflow }}-${{ github.ref }}-${{ inputs.version }}
+  cancel-in-progress: true
+
+jobs:
+  bundle:
+    name: Bundle (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-24.04]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+          # No cache for release builds (called with a version); hashes are enforced anyway.
+          cache: ${{ inputs.version == '' && 'pip' || '' }}
+          cache-dependency-path: |
+            requirements.lock
+            packaging/requirements-build.txt
+      - name: Linux display and OpenGL libraries
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends xvfb libgl1 libegl1 libtcl8.6 libtk8.6
+      - name: Install locked requirements and build tools
+        run: |
+          python -m pip install --require-hashes -r requirements.lock
+          python -m pip install --require-hashes -r packaging/requirements-build.txt
+      - name: Model files match their checksums
+        run: python tools/ci/check_models.py
+      - name: Third-party notices for this platform
+        run: python tools/ci/third_party_notices.py --output THIRD-PARTY-NOTICES.md
+      - name: Build and selfcheck (Windows)
+        if: runner.os == 'Windows'
+        env:
+          VERSION: ${{ inputs.version }}
+        run: python tools/ci/build_bundle.py --version "$env:VERSION"
+      - name: Build and selfcheck (Linux)
+        if: runner.os == 'Linux'
+        env:
+          VERSION: ${{ inputs.version }}
+        run: xvfb-run -a python tools/ci/build_bundle.py --version "$VERSION"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: bundle-${{ runner.os }}
+          path: release-assets/
+          if-no-files-found: error
+          retention-days: 14
+          compression-level: 0

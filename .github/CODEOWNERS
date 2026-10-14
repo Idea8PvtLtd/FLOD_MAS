@@ -1,0 +1,9 @@
+# Pipeline, packaging and security settings need a maintainer's review.
+/.github/                      @salithasadalinda
+/packaging/                    @salithasadalinda
+/tools/ci/                     @salithasadalinda
+/requirements.lock             @salithasadalinda
+/.bandit-baseline.json         @salithasadalinda
+/updater/                      @salithasadalinda
+/SECURITY.md                   @salithasadalinda
+/LICENSE                       @salithasadalinda

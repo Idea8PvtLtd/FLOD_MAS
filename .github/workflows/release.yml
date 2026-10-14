@@ -1,0 +1,116 @@
+name: Release
+
+# Cut a release by pushing a tag:
+#   vX.Y.Z-rc.N  release candidate from dev (published as a pre-release)
+#   vX.Y.Z       stable release; the tagged commit must already be on main
+# The workflow builds both platforms, writes SHA256SUMS, an SBOM and build provenance,
+# and creates a DRAFT GitHub Release. A person reviews and publishes it.
+# Run it by hand (workflow_dispatch) for a dry run that only produces the artifacts.
+on:
+  push:
+    tags: ["v*.*.*"]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Dry-run version, e.g. 0.0.0-dryrun.1 (nothing is published)
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    name: Verify tag
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      prerelease: ${{ steps.version.outputs.prerelease }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - id: version
+        env:
+          EVENT: ${{ github.event_name }}
+          REF_NAME: ${{ github.ref_name }}
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          if [ "$EVENT" = "push" ]; then version="${REF_NAME#v}"; else version="$INPUT_VERSION"; fi
+          if ! printf '%s' "$version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?$'; then
+            echo "::error::'$version' is not a semantic version"; exit 1
+          fi
+          prerelease=false
+          case "$version" in *-*) prerelease=true ;; esac
+          if [ "$EVENT" = "push" ] && [ "$prerelease" = false ]; then
+            if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+              echo "::error::stable tag $REF_NAME is not on main; tag a release candidate (-rc.N) instead"; exit 1
+            fi
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "prerelease=$prerelease" >> "$GITHUB_OUTPUT"
+
+  build:
+    name: Build
+    needs: verify
+    uses: ./.github/workflows/build.yml # zizmor: ignore[self-repository]
+    with:
+      version: ${{ needs.verify.outputs.version }}
+
+  publish:
+    name: Draft release
+    needs: [verify, build]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: bundle-*
+          path: release-assets
+          merge-multiple: true
+      - name: SBOM and notices
+        run: |
+          uvx --from cyclonedx-bom==7.5.0 cyclonedx-py requirements requirements.lock \
+            --output-format JSON --output-file "release-assets/FLOD_MAS-${VERSION}-sbom.cdx.json"
+          cp LICENSE release-assets/LICENSE.txt
+        env:
+          VERSION: ${{ needs.verify.outputs.version }}
+      - name: Checksums
+        working-directory: release-assets
+        run: sha256sum -- * | tee SHA256SUMS
+      - uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        if: github.event_name == 'push'
+        with:
+          subject-path: release-assets/FLOD_MAS-*
+      - name: Create draft release
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+          PRERELEASE: ${{ needs.verify.outputs.prerelease }}
+        run: |
+          flags=(--draft --verify-tag --title "FLOD MAS $TAG" --generate-notes)
+          if [ "$PRERELEASE" = true ]; then flags+=(--prerelease); fi
+          gh release create "$TAG" "${flags[@]}" release-assets/*
+      - name: Keep dry-run output
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release-dry-run
+          path: release-assets/
+          retention-days: 7
+          compression-level: 0

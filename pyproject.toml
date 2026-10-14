@@ -1,0 +1,17 @@
+# Tool settings only. The application is not an installable package: it runs from the
+# source folder (main_1366.py) and its modules are imported by their plain names.
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+extend-exclude = [".venv", "packaging/build", "packaging/dist"]
+
+[tool.ruff.lint]
+# Only rules that mean the code is broken: syntax errors, bad comparisons,
+# undefined names. Style is not enforced, so existing code is left as it is.
+select = ["E9", "F63", "F7", "F82"]
+
+[tool.bandit]
+# train_segemnt_crop_part: offline training tools, not shipped in the app; their
+# torch.load(weights_only=False) is tracked as a GitHub issue instead.
+exclude_dirs = [".venv", "tests", "packaging/build", "packaging/dist", "train_segemnt_crop_part"]
