@@ -1,0 +1,17 @@
+name: Task or improvement
+description: Planned work, refactoring, hardening or a feature request
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+  - type: textarea
+    id: done
+    attributes:
+      label: Done when

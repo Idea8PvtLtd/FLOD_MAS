@@ -1,0 +1,34 @@
+name: Bug
+description: Something does not work as documented
+labels: [bug]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      description: From BUILD_INFO.json, flod-mas-selfcheck, or the starter's window
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      options: [Windows inspection PC, Windows (other), Linux]
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what you expected
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+  - type: textarea
+    id: logs
+    attributes:
+      label: Log excerpt
+      description: From Documents/data files/logs/flod_mas.log. Remove customer data first.
+      render: text

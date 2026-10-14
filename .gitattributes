@@ -1,0 +1,28 @@
+# Line endings: the app is developed on Linux and deployed on Windows.
+* text=auto
+
+*.py   text eol=lf
+*.sh   text eol=lf
+*.yml  text eol=lf
+*.yaml text eol=lf
+*.toml text eol=lf
+*.md   text eol=lf
+*.json text eol=lf
+*.txt  text eol=lf
+*.spec text eol=lf
+*.ino  text eol=lf
+*.bat  text eol=crlf
+*.cmd  text eol=crlf
+*.ps1  text eol=crlf
+
+# Models and images are never text. They stay ordinary git files, not Git LFS:
+# the starter installs with "git archive", which does not fetch LFS objects.
+*.onnx binary
+*.h5   binary
+*.task binary
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.pdf  binary
+# A LightGBM text model: keep the bytes exactly as trained, the checksum depends on it.
+inspection/local/models/*.txt -text
