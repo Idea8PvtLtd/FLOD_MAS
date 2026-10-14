@@ -146,6 +146,9 @@ class GateTests(unittest.TestCase):
         self.assertIn("REGION 02", banner)
         self.assertNotIn("REGION 01,", banner)
 
+    # camera_number() maps a device index to a side through CONFIG['cameras'], so the
+    # test supplies its own cameras instead of relying on the shipped config.json.
+    @patch.dict(region_ui.CONFIG, {'cameras': [{'index': 2}, {'index': 3}]})
     @patch.object(region_ui, 'CAMERA_IDS', [2, 3])
     def test_an_unmarked_camera_closes_the_gate_for_both_regions(self):
         page = make_page(cameras={"1": [dict(MARKED), dict(MARKED)], "2": [None, None]})
@@ -171,6 +174,9 @@ class GateTests(unittest.TestCase):
 class CameraNumberTests(unittest.TestCase):
     """The store is keyed by side, not by device index."""
 
+    # camera_number() maps a device index to a side through CONFIG['cameras'], so the
+    # test supplies its own cameras instead of relying on the shipped config.json.
+    @patch.dict(region_ui.CONFIG, {'cameras': [{'index': 2}, {'index': 3}]})
     @patch.object(region_ui, 'CAMERA_IDS', [2, 3])
     def test_the_device_index_is_mapped_to_the_side_that_owns_it(self):
         page = make_page()
