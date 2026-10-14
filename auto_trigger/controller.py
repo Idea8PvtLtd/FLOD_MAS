@@ -8,6 +8,7 @@ from collections import deque
 from .bed_markers import BedMarkers
 from datetime import datetime
 import inspect
+import logging
 import queue
 import threading
 import time
@@ -15,14 +16,52 @@ from .checkpoint import Checkpoint, Debouncer
 from .models import HandPresence, FabricGate
 
 
+log = logging.getLogger('flod.trigger')
+
+
+class _Events(queue.SimpleQueue):
+    """The queue the window reads, with every event except a measured line also logged.
+
+    Measured lines are logged where they are measured (inspection/pipeline.py),
+    with their figures; here they would only be a name.
+    """
+    LEVELS = {'error': logging.ERROR, 'startup_error': logging.ERROR, 'line_failed': logging.WARNING}
+
+    def put(self, item, *args, **kwargs):
+        event, generation, payload = item
+        # A board result carries pictures; it is logged where it is made, like a line.
+        if event not in ('result', 'board'):
+            log.log(self.LEVELS.get(event, logging.INFO), '%s: %s', event, payload)
+        super().put(item, *args, **kwargs)
+
+
+class _NoGate:
+    """Scene mode has no fabric classifier: whether glue lines are there is for the
+    line finder to say. This stands in so that the capture queue runs unchanged."""
+
+    def classify(self, frame):
+        return {'label': 'not_checked', 'confidence': 1.0, 'accepted': True, 'empty': False, 'scores': {}}
+
+
 class AutoController(threading.Thread):
+    # auto_trigger.mode. 'hand' (the default): a capture when a hand has come and gone,
+    # as before. 'scene': a capture of the whole board whenever the picture is still
+    # and has changed, with every line shown together; see auto_trigger/scene_monitor.py.
+    # Class-level so that instances built without __init__ (the tests) are in hand mode.
+    mode = 'hand'
+    scene = None          # the SceneMonitor, in scene mode
+    board = None          # the lines known on the board now on the bed (inspection.board_lines)
+    scene_settings = {}
+
     def __init__(self, config, pipeline_factory, hand_factory=HandPresence, fabric_factory=FabricGate):
         super().__init__(name='automatic-hand-monitor', daemon=True)
         self.config = config
         self.settings = config['auto_trigger']
+        self.mode = self.settings.get('mode', 'hand')
+        self.scene_settings = self.settings.get('scene', {})
         self.pipeline_factory = pipeline_factory
         self.hand_factory, self.fabric_factory = hand_factory, fabric_factory
-        self.events = queue.SimpleQueue()
+        self.events = _Events()
         self.lock = threading.Lock()
         self.wake = threading.Event()
         self.stopped = threading.Event()
@@ -77,6 +116,7 @@ class AutoController(threading.Thread):
                     self.reset_requested = False
                     self.reset_ready = False
                     self.inspected_lines = set()
+                    self.board = self._new_board()
         self.wake.set()
 
     def stop(self):
@@ -163,10 +203,22 @@ class AutoController(threading.Thread):
             self.reset_requested = False
             self.reset_ready = False
             self.inspected_lines = set()
+            self.board = self._new_board()
             self.epoch += 1
             self.latest = None
             self.detections = None
         self.wake.set()
+
+    def _new_board(self):
+        """A fresh record of the board's lines, or None outside scene mode.
+
+        A new object rather than a cleared one: an inspection still running keeps
+        the record it started with, so its late results cannot land on the next board.
+        """
+        if self.mode != 'scene':
+            return None
+        from inspection.board_lines import BoardLines
+        return BoardLines(self.config.get('local_inspection', {}).get('board_match_distance_px', 60.0))
 
     def _hand_detect(self, hand, raw):
         """Return (present, landmarks) from whichever interface the hand offers.
@@ -200,6 +252,9 @@ class AutoController(threading.Thread):
 
     def _start_job(self, job):
         self._status('Inspecting captured fabric…')
+        log.info('Inspection started for the capture of frame %s; lines already measured: %s; captures behind it: %d',
+                 job['metadata'].get('frame_sequence'), sorted(self.inspected_lines),
+                 self.preparing_count + len(self.pending_jobs))
         self.future = Future()
         self.job_generation = job['generation']
         # What this capture still owes, decided here rather than when it was
@@ -219,6 +274,26 @@ class AutoController(threading.Thread):
                         with self.lock:
                             self.inspected_lines.add(result['measurement']['selected_line'])
                         self.events.put(('result', job['generation'], result))
+                if self.mode == 'scene' and hasattr(self.pipeline, 'run_board'):
+                    def shown(payload):
+                        if job['generation'] == self.generation and not self.stopped.is_set():
+                            # Even a board with no line yet is on the screen and is
+                            # cleared with the bed, so it counts as a result.
+                            self.has_results = True
+                            with self.lock:
+                                self.inspected_lines = {entry['line_id'] for entry in payload['lines']
+                                                        if entry.get('measurement') is not None}
+                            log.info('Frame %s, board: %s | lines %s | new from this photo %s | %.2f s',
+                                     payload.get('frame_sequence'), payload['verdict'],
+                                     [f"{entry['line_id']} {entry['status']}" for entry in payload['lines']],
+                                     payload['new_lines'], payload['seconds'])
+                            self.events.put(('board', job['generation'], payload))
+                    self.pipeline.run_board(job['original'], job['corrected'], job['metadata'],
+                        job['profile']['width'], job['profile']['tolerance'], job['path'],
+                        board=job.get('board'), on_board=shown,
+                        on_error=lambda message: self.events.put(('error', job['generation'], message)))
+                    future.set_result(None)
+                    return
                 if hasattr(self.pipeline, 'run_batch'):
                     extra = {}
                     if 'on_missing' in inspect.signature(self.pipeline.run_batch).parameters:
@@ -263,6 +338,9 @@ class AutoController(threading.Thread):
                 capture_path = pipeline.store.begin(original, corrected, metadata)
             verdict = gate.classify(original)
             metadata['fabric'] = verdict
+            if verdict['label'] != 'not_checked':
+                log.info('Fabric check of frame %s: %s (%.0f %%), %s', sequence, verdict['label'],
+                         100 * verdict['confidence'], 'accepted' if verdict['accepted'] else 'not accepted')
             if capture_path is not None:
                 pipeline.store.update_metadata(capture_path, metadata)
             if item_epoch != self.epoch or not self.active or self.stopped.is_set():
@@ -280,7 +358,7 @@ class AutoController(threading.Thread):
                 corrected = undistorter.undistort(original)
             job = {'original': original, 'corrected': corrected, 'metadata': metadata,
                    'profile': profile, 'path': capture_path, 'generation': trigger_generation,
-                   'epoch': item_epoch}
+                   'epoch': item_epoch, 'board': self.board}
             return job
         except Exception as error:
             if capture_path is not None:
@@ -304,15 +382,100 @@ class AutoController(threading.Thread):
                     self.prepared_jobs.put(job)
             self.wake.set()
 
+    def _queue_capture(self, raw, sequence, undistorter, profile, item_epoch, trigger):
+        """Hand this frame to the fabric check and the inspection queue."""
+        trigger_generation = self.generation
+        # The hand result, fabric verdict, saved raw image and
+        # undistortion all refer to this exact immutable snapshot.
+        original = raw.copy()
+        metadata = {'triggered_at': datetime.now().astimezone().isoformat(),
+                    'frame_sequence': sequence, 'fabric': None,
+                    'end_exclusion_percent': profile.get('end_exclusion_percent',
+                        self.config['inspection'].get('end_exclusion_percent', 5.0)),
+                    'size': profile['size'], 'target_width_mm': profile['width'],
+                    'tolerance_mm': profile['tolerance']}
+        if trigger != 'hand':
+            metadata['trigger'] = trigger
+        self.preparing_count += 1
+        self.gate_busy = True
+        self.capture_jobs.put((original, sequence, undistorter, dict(profile),
+                               item_epoch, trigger_generation, metadata))
+
+    SCENE_STATUS = {'BARE': 'Bed is empty — waiting for a board',
+                    'MOVING': 'Movement — waiting for the board to be still',
+                    'SETTLING': 'Still — confirming…',
+                    'STILL': 'Board still — nothing new to measure',
+                    'VETOED': 'Hand in the picture — waiting for it to leave'}
+
+    def _scene_step(self, hand, raw, sequence, undistorter, profile, item_epoch, now, markers):
+        """One frame of scene mode: a capture when the picture is still and has changed.
+
+        No hand has to come and go. Movement, a hand's included, only delays the
+        capture; the hand model is asked once about the still frame that would be
+        captured, so that a hand resting in view is not measured as cloth.
+        """
+        small, motion = self._scene_signals(raw, self._scene_previous)
+        self._scene_previous = small
+        bare = len(markers) >= self.scene_settings.get('bare_bed_markers', 2)
+        event = self.scene.update(motion, bare, small, now)
+        hands = ()
+        if event == 'capture' and hand is not None:
+            present, hands = self._hand_detect(hand, raw)
+            if present:
+                self.scene.reject(now)
+                log.info('Still frame %s not captured: a hand is in the picture', sequence)
+                event = None
+        self._publish_detections(sequence, item_epoch, now, raw.shape[:2], hands, markers)
+        if self.scene.state != self._scene_logged:
+            self._scene_logged = self.scene.state
+            log.info('Scene %s at frame %s (%s)', self.scene.state, sequence, self.scene.describe())
+        if event == 'cycle_end':
+            log.info('Board left the bed at frame %s', sequence)
+            if (self.has_results or self.busy) and not self.reset_requested:
+                self.reset_requested = True
+                self.events.put(('reset_wait', self.generation, 'Waiting for inspection results…'))
+            else:
+                self.board = self._new_board()
+            return
+        if event != 'capture':
+            # A still board whose photo is still being read is not "nothing new".
+            if self.scene.state == 'STILL' and self.busy:
+                self._status('Measuring the board…')
+            else:
+                self._status(self.SCENE_STATUS.get(self.scene.state, self.scene.state))
+            return
+        self.scene.accept()
+        self._status('Measuring the board…')
+        log.info('Trigger: board still and changed; frame %s is captured', sequence)
+        self._queue_capture(raw, sequence, undistorter, profile, item_epoch, 'scene')
+
+    def _reset_scene(self):
+        if self.scene is not None:
+            self.scene.reset()
+        self._scene_previous = None
+        self._scene_logged = None
+
     def run(self):
         hand = None
+        scene = self.mode == 'scene'
         try:
+            if scene:
+                from .scene_monitor import SceneMonitor, scene_signals
+                self._scene_signals = scene_signals
+                self.scene = SceneMonitor.from_settings(self.settings)
+                self._reset_scene()
+                self.board = self._new_board()
             self._status('Loading hand, fabric and local ONNX inspection models…')
-            hand = self.hand_factory(self.settings)
+            # In scene mode the hand model only vetoes a still frame, and can be left out.
+            if not scene or self.scene_settings.get('hand_veto', True):
+                hand = self.hand_factory(self.settings)
             if self.stopped.is_set():
                 return
-            self._status('Loading fabric classification model…')
-            gate = self.fabric_factory(self.settings)
+            if scene:
+                gate = _NoGate()
+            else:
+                self._status('Loading fabric classification model…')
+                gate = self.fabric_factory(self.settings)
             if self.stopped.is_set():
                 return
             self._status('Loading adhesive inspection models…')
@@ -327,7 +490,8 @@ class AutoController(threading.Thread):
             self.marker_monitor = BedMarkers(self.settings.get("marker_confirm_seconds", 0.5))
             self.ready = True
             self.events.put(('ready', self.generation, None))
-            self._status('Automatic inspection ready — waiting for a hand')
+            self._status('Automatic inspection ready — waiting for a board' if scene
+                         else 'Automatic inspection ready — waiting for a hand')
             while not self.stopped.is_set():
                 self._complete()
                 self.wake.wait(0.05)
@@ -341,9 +505,11 @@ class AutoController(threading.Thread):
                     last_seq = None
                     self._reset_checkpoint()
                     self.marker_monitor.reset()
+                    self._reset_scene()
                 if pause_revision != self.pause_revision:
                     pause_revision = self.pause_revision
                     self._reset_checkpoint()
+                    self._reset_scene()
                 if not active or item is None:
                     continue
                 raw, sequence, undistorter, profile, item_epoch = item
@@ -355,7 +521,9 @@ class AutoController(threading.Thread):
                     if item_epoch != self.epoch or not self.active:
                         continue
                     now = time.monotonic()
-                    if self.has_results or self.busy:
+                    if scene:
+                        pass        # the scene monitor ends the cycle, in _scene_step
+                    elif self.has_results or self.busy:
                         if self.marker_monitor.update(raw, now) and not self.reset_requested:
                             self.reset_requested = True
                             self.events.put(('reset_wait', self.generation, 'Waiting for inspection results…'))
@@ -372,11 +540,17 @@ class AutoController(threading.Thread):
                         # skeleton drawn over a frame that no longer has one.
                         self._publish_detections(sequence, item_epoch, now, raw.shape[:2], (), markers)
                         continue
+                    if scene:
+                        self._scene_step(hand, raw, sequence, undistorter, profile, item_epoch, now, markers)
+                        continue
                     raw_present, hands = self._hand_detect(hand, raw)
                     if item_epoch != self.epoch or not self.active:
                         continue
                     self._publish_detections(sequence, item_epoch, now, raw.shape[:2], hands, markers)
                     present = self.presence.update(raw_present)
+                    if present != getattr(self, '_logged_present', None):
+                        self._logged_present = present
+                        log.info('Hands %s at frame %s', 'in the picture' if present else 'out of the picture', sequence)
                     fired = self.checkpoint.update(present, time.monotonic())
                     if not fired:
                         if present:
@@ -385,20 +559,8 @@ class AutoController(threading.Thread):
                             self._status('Hands clear — confirming absence…')
                         continue
                     self._status('Checking fabric…')
-                    trigger_generation = self.generation
-                    # The hand result, fabric verdict, saved raw image and
-                    # undistortion all refer to this exact immutable snapshot.
-                    original = raw.copy()
-                    metadata = {'triggered_at': datetime.now().astimezone().isoformat(),
-                                'frame_sequence': sequence, 'fabric': None,
-                                'end_exclusion_percent': profile.get('end_exclusion_percent',
-                                    self.config['inspection'].get('end_exclusion_percent', 5.0)),
-                                'size': profile['size'], 'target_width_mm': profile['width'],
-                                'tolerance_mm': profile['tolerance']}
-                    self.preparing_count += 1
-                    self.gate_busy = True
-                    self.capture_jobs.put((original, sequence, undistorter, dict(profile),
-                                           item_epoch, trigger_generation, metadata))
+                    log.info('Trigger: hands left; frame %s is captured', sequence)
+                    self._queue_capture(raw, sequence, undistorter, profile, item_epoch, 'hand')
                 except Exception as error:
                     if capture_path is not None:
                         try:
@@ -406,6 +568,7 @@ class AutoController(threading.Thread):
                         except OSError:
                             pass
                     self._reset_checkpoint()
+                    self._reset_scene()
                     self.events.put(('error', self.generation, str(error)))
         except Exception as error:
             self.events.put(('error' if self.ready else 'startup_error', self.generation,

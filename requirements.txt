@@ -19,6 +19,8 @@ Pillow==12.3.0
 
 # Local source-region and unfolded adhesive models (automatic inspection).
 onnxruntime==1.30.0
+# Trained edge corrector of the optional smooth ribbon (local_inspection.ribbon_finish).
+lightgbm==4.7.0
 
 # Camera/Arduino serial communication
 pyserial==3.5

@@ -1062,6 +1062,14 @@ libclang==18.1.1 \
     --hash=sha256:c533091d8a3bbf7460a00cb6c1a71da93bffe148f172c7d03b1c31fbf8aa2a0b \
     --hash=sha256:cf4a99b05376513717ab5d82a0db832c56ccea4fd61a69dbb7bccf2dfb207dbe
     # via tensorflow
+lightgbm==4.7.0 \
+    --hash=sha256:129535462686f274df179133643118c5c5c5667167fe6c3a28d955f0b3c8e868 \
+    --hash=sha256:d23e922acd891e77212e4d0fbcee9ba973c96dee479491341d05ba595357ebb7 \
+    --hash=sha256:d4529acec5c6fefe4768302a529707d0ead90f6a6f42df694b856212e09695b8 \
+    --hash=sha256:dfc1cfe8e760387be1e7ba7a214688be21fdff96e4ed9749188f83e1877c2477 \
+    --hash=sha256:f42d1e5b32b6f170e606d7c689c6165671da98d7bf37f1addec2623efc8740c9 \
+    --hash=sha256:f8e20f682c9aabd000bcf4a7ed8aa6f473c1adfecccae34ec24e823d156f4af0
+    # via -r requirements.txt
 markdown-it-py==4.2.0 \
     --hash=sha256:04a21681d6fbb623de53f6f364d352309d4094dd4194040a10fd51833e418d49 \
     --hash=sha256:9f7ebbcd14fe59494226453aed97c1070d83f8d24b6fc3a3bcf9a38092641c4a
@@ -1408,6 +1416,10 @@ namex==0.1.0 \
     --hash=sha256:117f03ccd302cc48e3f5c58a296838f6b89c83455ab8683a1e85f2a430aa4306 \
     --hash=sha256:e2012a474502f1e2251267062aae3114611f07df4224b6e06334c57b0f2ce87c
     # via keras
+narwhals==2.27.1 \
+    --hash=sha256:aed93076a3ea42d9c32c88e4eb5ea422a21937011cbe1f480f9572a523c82094 \
+    --hash=sha256:d057df13f5852b8e157596e82eb5e955fad267425df5e420e0ee9863da483b31
+    # via lightgbm
 networkx==3.7 \
     --hash=sha256:e3fd2c13a7814cee3746340d8d7f8598a67f16a58bf47fb7f8793fab6efca1b0 \
     --hash=sha256:fd77a511bd90f39f3d016351345b52cf5319b813bdca01de3f755d3cca62e96a
@@ -1475,6 +1487,7 @@ numpy==2.2.6 \
     #   imageio
     #   inference-sdk
     #   keras
+    #   lightgbm
     #   matplotlib
     #   mediapipe
     #   ml-dtypes
@@ -2159,6 +2172,7 @@ scipy==1.18.1 \
     --hash=sha256:fdaf5ea890a6183d0565f51a61799d67081bd5b1cf03c5f4b3fd3732108625c9
     # via
     #   -r requirements.txt
+    #   lightgbm
     #   scikit-image
     #   supervision
 setuptools==84.0.0 \

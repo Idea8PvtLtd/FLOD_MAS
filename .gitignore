@@ -77,3 +77,4 @@ release-assets/
 *.sarif
 sbom*.json
 packaging/BUILD_INFO.json
+agent_memory/
