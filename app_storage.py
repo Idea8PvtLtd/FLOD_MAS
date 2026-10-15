@@ -53,6 +53,15 @@ def documents_folder():
 DATA_ROOT = documents_folder() / APP_FOLDER
 
 
+def _inside(path, root):
+    """Path.is_relative_to(), which only exists from Python 3.9 (the Jetson runs 3.8)."""
+    try:
+        path.relative_to(root)
+        return True
+    except ValueError:
+        return False
+
+
 def data_path(path):
     """Resolve data below Documents; relocate legacy absolute config paths."""
     text = os.fspath(path).replace('\\', '/')
@@ -67,7 +76,7 @@ def data_path(path):
             start = next((i for i, part in enumerate(parts) if part.lower() in anchors), None)
             relative = Path(*parts[start:]) if start is not None else Path(parts[-1])
     destination = (DATA_ROOT / relative).resolve()
-    if not destination.is_relative_to(DATA_ROOT.resolve()):
+    if not _inside(destination, DATA_ROOT.resolve()):
         raise ValueError('Saved data paths must stay inside the application Documents folder')
     destination.parent.mkdir(parents=True, exist_ok=True)
     return destination
@@ -127,13 +136,13 @@ def migrate_storage(code_root=CODE_ROOT):
     cleanup_dirs = set()
     for source, relative, allowed_source, origin in sources:
         # Check resolved boundaries before any move/delete, including symlink parents.
-        if not source.resolve().is_relative_to(allowed_source.resolve()):
+        if not _inside(source.resolve(), allowed_source.resolve()):
             raise ValueError(f'Migration source escapes its folder: {source}')
         destination = data_path(relative)
-        if not destination.resolve().is_relative_to(DATA_ROOT.resolve()):
+        if not _inside(destination.resolve(), DATA_ROOT.resolve()):
             raise ValueError(f'Migration destination escapes Documents data folder: {destination}')
         parent = source.parent
-        while parent != allowed_source and parent.is_relative_to(allowed_source):
+        while parent != allowed_source and _inside(parent, allowed_source):
             cleanup_dirs.add(parent)
             parent = parent.parent
         if destination.exists():

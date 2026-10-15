@@ -38,7 +38,7 @@ import random
 import time
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Iterable, Mapping, Sequence
+from typing import Any, Iterable, Mapping, Sequence, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -58,8 +58,8 @@ API_KEY_ENV_VAR = "ROBOFLOW_API_KEY"
 _ENV_FILE = Path(__file__).resolve().parents[2] / ".env"
 
 # A segmentation outline: an ordered ring of (x, y) pixel coordinates.
-Point = tuple[float, float]
-Polygon = tuple[Point, ...]
+Point = Tuple[float, float]       # typing.Tuple: tuple[...] needs Python 3.9 (the Jetson has 3.8)
+Polygon = Tuple[Point, ...]
 
 
 # --- Errors ------------------------------------------------------------------

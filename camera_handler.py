@@ -1,6 +1,7 @@
 """Background full-resolution capture, shared by setup and dashboard."""
 import hashlib
 import json
+import os
 import threading
 import time
 import cv2
@@ -84,9 +85,10 @@ class CameraStream:
         self.stopped = threading.Event()
         spec = camera_config(index)
         self.rotation = spec.get('rotation', 0)
-        if CONFIG['capture']['use_dshow']:
+        if CONFIG['capture']['use_dshow'] and os.name == 'nt':
             self.cap = cv2.VideoCapture(index, cv2.CAP_DSHOW)
         else:
+            # DirectShow exists only on Windows; Linux (the Jetson) uses V4L2.
             # Let OpenCV select the normal platform-default camera backend.
             self.cap = cv2.VideoCapture(index)
         try:

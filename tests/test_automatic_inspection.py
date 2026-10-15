@@ -284,7 +284,8 @@ class ControllerTests(unittest.TestCase):
 
     def test_slow_fabric_check_keeps_hand_monitor_running_and_preserves_fifo(self):
         cfg = copy.deepcopy(CONFIG)
-        cfg['auto_trigger'].update(debounce_frames=1, hand_absence_seconds=.05)
+        # No queue cap: the second capture must wait behind the slow first one.
+        cfg['auto_trigger'].update(debounce_frames=1, hand_absence_seconds=.05, max_queued_captures=0)
         cfg['capture_storage']['save_rejected_triggers'] = False
         checking, release = threading.Event(), threading.Event()
         processed, detected = [], []

@@ -3,6 +3,8 @@
 The model adapter compares full_fabric against no_fabric. This module prepares
 the two-class model input using the original preprocessing.
 """
+from __future__ import annotations   # list[str] below, on the Jetson's Python 3.8
+
 from pathlib import Path
 import cv2
 import numpy as np
@@ -13,9 +15,15 @@ PAD_COLOR = 'white'
 
 
 def _keras_models():
-    # Teachable Machine H5 exports need legacy Keras 2 deserialization.
-    import tf_keras
-    return tf_keras.models
+    # Teachable Machine H5 exports need legacy Keras 2 deserialization. TensorFlow
+    # 2.16+ ships Keras 3, so the PC uses tf_keras. The Jetson's TensorFlow 2.13
+    # has no tf_keras, but its own Keras is still Keras 2.
+    try:
+        import tf_keras
+        return tf_keras.models
+    except ImportError:
+        from tensorflow import keras
+        return keras.models
 
 
 def load_labels(path: Path) -> list[str]:

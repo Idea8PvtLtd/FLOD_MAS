@@ -18,12 +18,15 @@ def segformer_mask(logits,shape):
 
 class SegformerOnnx:
     """Match the user's two-class SegFormer training/inference recipe."""
-    def __init__(self,path,width=1024,height=64):
+    def __init__(self,path,width=1024,height=64,provider='cpu'):
         self.path=str(Path(path).resolve());self.width=int(width);self.height=int(height)
         if min(self.width,self.height)<2:raise ValueError('Invalid model input dimensions.')
         try:import onnxruntime as ort
         except ImportError as exc:raise ValueError('ONNX Runtime is missing. Install requirements.txt into the application environment.') from exc
-        self.session=ort.InferenceSession(self.path,providers=['CPUExecutionProvider'])
+        if provider=='cpu':self.session=ort.InferenceSession(self.path,providers=['CPUExecutionProvider'])
+        else:
+            from .ort_providers import create_session
+            self.session=create_session(self.path,provider)
         inputs=self.session.get_inputs();outputs=self.session.get_outputs()
         if len(inputs)!=1 or not outputs:raise ValueError('Expected one SegFormer input and at least one output.')
         self.input_name=inputs[0].name;self.output_name=outputs[0].name
@@ -40,4 +43,5 @@ class SegformerOnnx:
     def settings(self):
         return dict(path=self.path,width=self.width,height=self.height,
                     mean=[.485,.456,.406],std=[.229,.224,.225],input_name=self.input_name,output_name=self.output_name,
-                    input='float32 NCHW normalized RGB',output='argmax over 2 classes; foreground class 1; nearest resize')
+                    input='float32 NCHW normalized RGB',output='argmax over 2 classes; foreground class 1; nearest resize',
+                    provider=self.session.get_providers()[0])

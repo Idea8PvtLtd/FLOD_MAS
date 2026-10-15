@@ -6,7 +6,7 @@
       "width": 4608,
       "height": 3456,
       "fps": 10,
-      "fourcc": "",
+      "fourcc": "MJPG",
       "rotation": 180,
       "calibration_file": "Files/camera_calibration_0.json",
       "extrinsics_file": "Files/camera_extrinsics_0.json"
@@ -211,7 +211,8 @@
     "detect_width": 320,
     "max_hands": 2,
     "hand_confidence": 0.5,
-    "marker_confirm_seconds": 0.5
+    "marker_confirm_seconds": 0.5,
+    "max_queued_captures": 1
   },
   "segmentation": {
     "provider": "workflow",
@@ -237,6 +238,7 @@
     "source_model": "inspection/local/models/strip_unet_resnet34.onnx",
     "glue_model": "inspection/local/models/segformer_b0.onnx",
     "source_width": 1152,
-    "offset_pixels": 100.0
+    "offset_pixels": 100.0,
+    "execution_provider": "cpu"
   }
 }

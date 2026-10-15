@@ -38,11 +38,13 @@ def _turn_back_line(line, width):
 class LiveInspection:
     segments = 10  # instances built without __init__ (the tests) keep the reference ten
 
-    def __init__(self, source_path, glue_path, offset=100., source_width=1152, segments=10):
+    def __init__(self, source_path, glue_path, offset=100., source_width=1152, segments=10,
+                 execution_provider='cpu'):
         from .source_model import SourceMaskOnnx
         from .glue_model import SegformerOnnx
-        self.source = SourceMaskOnnx(source_path, width=source_width, flip=False)
-        self.glue = SegformerOnnx(glue_path)
+        self.source = SourceMaskOnnx(source_path, width=source_width, flip=False,
+                                     provider=execution_provider)
+        self.glue = SegformerOnnx(glue_path, provider=execution_provider)
         self.offset = float(offset)
         if not np.isfinite(self.offset) or self.offset <= 0:
             raise ValueError('Inspection offset must be positive and finite')

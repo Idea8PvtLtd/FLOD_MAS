@@ -79,8 +79,8 @@ class PerCaptureProcessingTests(unittest.TestCase):
         app.board.matchImagePoints.return_value = object_points, corners
 
         saved_frame = np.zeros((900, 1200, 3), np.uint8)
-        with (patch.object(calibration_ui.cv2, 'imwrite', return_value=True),
-              patch.object(calibration_ui.cv2, 'imread', return_value=saved_frame)):
+        with patch.object(calibration_ui.cv2, 'imwrite', return_value=True), \
+                patch.object(calibration_ui.cv2, 'imread', return_value=saved_frame):
             app._detect_capture_worker(saved_frame, Path('capture.png'))
 
         app._capture_detection_complete.assert_called_once()
@@ -98,8 +98,8 @@ class PerCaptureProcessingTests(unittest.TestCase):
         )
         file_path = MagicMock()
         saved_frame = np.zeros((900, 1200, 3), np.uint8)
-        with (patch.object(calibration_ui.cv2, 'imwrite', return_value=True),
-              patch.object(calibration_ui.cv2, 'imread', return_value=saved_frame)):
+        with patch.object(calibration_ui.cv2, 'imwrite', return_value=True), \
+                patch.object(calibration_ui.cv2, 'imread', return_value=saved_frame):
             app._detect_capture_worker(saved_frame, file_path)
 
         file_path.unlink.assert_called_once_with(missing_ok=True)

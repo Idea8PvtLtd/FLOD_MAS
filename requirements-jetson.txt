@@ -1,0 +1,37 @@
+# Runtime dependencies for the original NVIDIA Jetson Nano 4GB: JetPack 4.6.x
+# (L4T R32.7, Ubuntu 18.04, glibc 2.27, aarch64) with Python 3.8 built by
+# jetson/setup_jetson.sh. requirements.txt stays the Windows / Python 3.12 set.
+#
+# The system Python 3.6 cannot be used: MediaPipe and TensorFlow publish no
+# wheels for it. Every pin below is the newest release with a cp38 aarch64
+# manylinux2014 wheel, which installs on glibc 2.27 without compiling.
+#
+# The updater installs this file when updater.json says
+#   "python_version": "3.8", "requirements": "requirements-jetson.txt"
+# tkinter comes with the Python 3.8 build (Tk headers from tk-dev).
+
+# TensorFlow 2.13 accepts numpy 1.22 - 1.24.3.
+numpy==1.24.3
+# One OpenCV distribution only (contrib is a superset; MediaPipe needs it).
+# On Python 3.8 this release uses numpy < 2.
+opencv-contrib-python==4.12.0.88
+Pillow==10.4.0
+
+# Local source-region and adhesive models, on the CPU. The GPU build for
+# JetPack 4.6 (onnxruntime-gpu 1.11, CUDA 10.2) is a later step.
+onnxruntime==1.16.3
+
+pyserial==3.5
+
+# Hand trigger (Tasks HandLandmarker API) and the Teachable Machine H5 fabric
+# check. TensorFlow 2.13 still ships Keras 2, so no tf-keras package is needed.
+mediapipe==0.10.9
+tensorflow==2.13.1
+# MediaPipe needs protobuf < 4 and TensorFlow >= 3.20.3: this is the only overlap.
+protobuf==3.20.3
+
+# Geometry, morphology, skeleton and measurement algorithms.
+scipy==1.10.1
+scikit-image==0.21.0
+
+# Left out: inference-sdk (legacy SAM utilities only).

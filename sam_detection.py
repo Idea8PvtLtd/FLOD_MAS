@@ -19,7 +19,7 @@ import threading
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, Sequence
+from typing import Any, Callable, Sequence, Tuple
 
 import cv2
 import numpy as np
@@ -48,7 +48,7 @@ _PALETTE: tuple[tuple[int, int, int], ...] = (
     (147, 69, 52), (255, 115, 100), (236, 24, 0), (255, 56, 132),
 )
 
-Point = tuple[float, float]
+Point = Tuple[float, float]       # typing.Tuple: tuple[...] needs Python 3.9 (the Jetson has 3.8)
 
 _client: Any = None
 

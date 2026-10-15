@@ -236,6 +236,16 @@ class AutoController(threading.Thread):
         threading.Thread(target=process, args=(self.future,),
                          name='automatic-inspection', daemon=True).start()
 
+    def _queue_full(self):
+        """True when a new capture would exceed auto_trigger.max_queued_captures.
+
+        Each queued capture holds several full-size frames, so a small-memory
+        device (the Jetson) caps the captures being checked or waiting; the one
+        being inspected is not counted. 0 or absent means no limit.
+        """
+        limit = self.settings.get('max_queued_captures', 0)
+        return bool(limit) and self.preparing_count + len(self.pending_jobs) >= limit
+
     @property
     def queue_text(self):
         return (f"Queue: {self.preparing_count} checking | "
@@ -375,6 +385,10 @@ class AutoController(threading.Thread):
                             self._status('Hand present — waiting for hands to leave')
                         elif self.checkpoint.state == Checkpoint.WAITING:
                             self._status('Hands clear — confirming absence…')
+                        continue
+                    if self._queue_full():
+                        self._status('Queue full — not captured. Wait for the inspection, '
+                                     'then repeat the hand cycle')
                         continue
                     self._status('Checking fabric…')
                     trigger_generation = self.generation

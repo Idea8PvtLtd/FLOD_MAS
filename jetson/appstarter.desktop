@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=AppStarter (FLOD_MAS)
+Comment=Update and start the vision inspection app
+Exec=@APP_HOME@/run_appstarter.sh
+Terminal=false
+X-GNOME-Autostart-enabled=true
+X-GNOME-Autostart-Delay=10

@@ -1,4 +1,5 @@
 """Replaceable segmentation boundary. Input and output use undistorted pixels."""
+from __future__ import annotations   # X | Y and list[...] hints, on Python 3.8
 from dataclasses import dataclass
 import importlib
 import cv2

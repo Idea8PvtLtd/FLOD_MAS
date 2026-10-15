@@ -52,6 +52,37 @@ MIRROR_DIR   = ROOT / "repo.git"
 RELEASES_DIR = ROOT / "releases"
 VENV_DIR     = ROOT / "venv"
 STATE_FILE   = ROOT / "state.json"
+SETTINGS_FILE = ROOT / "updater.json"
+
+
+def _load_settings() -> dict:
+    """Per-install overrides kept beside the starter. The Jetson Nano uses
+    {"branch": "dev-jetson-lm", "python_version": "3.8",
+     "requirements": "requirements-jetson.txt"}.
+    A missing or unreadable file keeps the defaults above."""
+    try:
+        data = json.loads(SETTINGS_FILE.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    if not isinstance(data, dict):
+        return {}
+    settings = {}
+    if isinstance(data.get("branch"), str) and data["branch"].strip():
+        settings["branch"] = data["branch"].strip()
+    version = data.get("python_version")
+    if isinstance(version, str) and version.count(".") == 1 and version.replace(".", "").isdigit():
+        settings["python_version"] = version
+    requirements = data.get("requirements")
+    # A plain file name in the build, never a path out of it.
+    if isinstance(requirements, str) and requirements and Path(requirements).name == requirements:
+        settings["requirements"] = requirements
+    return settings
+
+
+_SETTINGS = _load_settings()
+BRANCH = _SETTINGS.get("branch", BRANCH)
+TARGET_PYTHON_VERSION = _SETTINGS.get("python_version", TARGET_PYTHON_VERSION)
+REQUIREMENTS_FILE = _SETTINGS.get("requirements", REQUIREMENTS_FILE)
 
 CHECK_INTERVAL   = 60
 KEEP_RELEASES    = 3
@@ -236,6 +267,10 @@ class GitRepo:
                     tf.extractall(dest, filter="data")
                 except TypeError:
                     tf.extractall(dest)
+            # tarfile stops at the end-of-archive marker, before git has written its
+            # padding. Closing the pipe now would kill git with SIGPIPE (exit 141).
+            while proc.stdout.read(65536):
+                pass
         finally:
             proc.stdout.close()
         if proc.wait() != 0:
@@ -245,10 +280,11 @@ class GitRepo:
 # --------------------------------------------------------------------------- #
 # Dependency management
 # --------------------------------------------------------------------------- #
-def ensure_venv(venv: Path, log):
+def ensure_venv(venv: Path, log) -> bool:
+    """Make sure the environment exists; True when it was just created (and is empty)."""
     existing = _venv_python_version(venv)
     if existing == TARGET_PYTHON_VERSION:
-        return
+        return False
 
     if existing is not None:
         log(f"Rebuilding environment (Python {existing} → {TARGET_PYTHON_VERSION}) …")
@@ -258,12 +294,15 @@ def ensure_venv(venv: Path, log):
     if not target:
         raise RuntimeError(
             f"Python {TARGET_PYTHON_VERSION} was not found.\n"
-            f"Install it from https://www.python.org/downloads/ and enable the 'py' launcher."
+            + ("Install it from https://www.python.org/downloads/ and enable the 'py' launcher."
+               if os.name == "nt" else
+               f"Install python{TARGET_PYTHON_VERSION} (on the Jetson: run jetson/setup_jetson.sh).")
         )
 
     log(f"Preparing runtime environment (Python {TARGET_PYTHON_VERSION}) …")
     run_cmd([target, "-m", "venv", str(venv)])
     run_cmd([venv_python(venv), "-m", "pip", "install", "--upgrade", "pip", "wheel"])
+    return True
 
 
 def install_requirements(venv: Path, req: Path, log):
@@ -692,8 +731,19 @@ class UpdaterApp(ctk.CTk):
 
     def _launch_release(self, release_dir: Path):
         try:
-            ensure_venv(VENV_DIR, self.log)
-        except RuntimeError as exc:
+            created = ensure_venv(VENV_DIR, self.log)
+            # A new environment, or an install that failed or never finished, has
+            # not got this build's packages: install them before starting it.
+            req_file = release_dir / REQUIREMENTS_FILE
+            req_hash = sha256_file(req_file)
+            state = load_json(STATE_FILE, {})
+            if req_hash and (created or state.get("deps_hash") != req_hash):
+                self.set_status("Installing components …", "This may take a few minutes",
+                                progress=0.6, icon="◆", tone=ACCENT)
+                install_requirements(VENV_DIR, req_file, self.log)
+                state["deps_hash"] = req_hash
+                save_json(STATE_FILE, state)
+        except (RuntimeError, subprocess.CalledProcessError) as exc:
             self.log(str(exc))
             self.set_status("Launch failed", "Runtime environment not ready",
                             progress=0.0, icon="✕", tone=ERROR)

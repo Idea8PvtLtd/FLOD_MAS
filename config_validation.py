@@ -22,6 +22,8 @@ def validate_automatic_config(config):
     for key in ('hand_absence_seconds',):
         number('auto_trigger', key, 0.05)
     number('auto_trigger', 'min_hand_present_seconds', 0)
+    if 'max_queued_captures' in config['auto_trigger']:
+        number('auto_trigger', 'max_queued_captures', 0, integer=True)
     for key in ('debounce_frames', 'detect_width', 'max_hands'):
         number('auto_trigger', key, 1, integer=True)
     for key in ('hand_confidence',):
@@ -40,6 +42,10 @@ def validate_automatic_config(config):
     if 'local_inspection' in config:
         number('local_inspection', 'source_width', 32, integer=True)
         number('local_inspection', 'offset_pixels', 0.5)
+        provider = config['local_inspection'].get('execution_provider', 'cpu')
+        from inspection.local.ort_providers import KINDS
+        if provider not in KINDS:
+            raise ValueError(f'local_inspection.execution_provider must be one of {", ".join(KINDS)}')
         for key in ('source_model', 'glue_model'):
             value = config['local_inspection'][key]
             if not isinstance(value, str) or not value.strip() or not value.lower().endswith('.onnx'):
