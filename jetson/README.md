@@ -58,14 +58,20 @@ the PCs. Calibrate the camera on the Jetson itself (Settings → Camera setup), 
 `Files/` from a PC that uses the same camera at the same resolution and rotation.
 
 ## Speed and memory
-- Everything runs on the CPU for now, so expect several seconds to tens of seconds per glue
-  line. Watch memory and load with `tegrastats`.
+- The crop and glue models run on the GPU: NVIDIA's ONNX Runtime 1.11 for JetPack 4.6,
+  with `local_inspection.execution_provider: "cuda"` in `config.json`. The log shows
+  `running on CUDA` for both models; `running on CPU` means the GPU build is not installed.
+  - **`"cpu"`:** forces the CPU, for comparison.
+  - **`"tensorrt"`:** can be faster. The first start builds the engines, which takes several
+    minutes and a lot of memory, and caches them in `~/Documents/data files/Files/trt_cache`.
+- That runtime reads ONNX opset 16 at most, so the opset-17 models are converted in memory
+  when loaded (`inspection/local/onnx_compat.py`). The masks are the same as the original
+  models'. The files on disk are not changed.
+- The hand detector (MediaPipe) and the fabric check (TensorFlow) stay on the CPU.
+- Watch memory and load with `tegrastats`.
 - `auto_trigger.max_queued_captures` is 1 in `config.json`: a hand cycle made while one
   capture is already waiting is not captured, and the status line says so. Raise it only if
   `tegrastats` shows spare memory.
-- **Planned next step:** run the models on the GPU with NVIDIA's `onnxruntime-gpu` 1.11 for
-  JetPack 4.6 and `local_inspection.execution_provider: "cuda"` / `"tensorrt"`. Those
-  builds need the models converted to ONNX opset 16.
 
 ## Troubleshooting
 - **App does not start:** read `~/AppStarter/starter.log`. To run the app directly and see

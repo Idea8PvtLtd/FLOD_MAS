@@ -26,7 +26,8 @@ class SourceMaskOnnx:
         self.reference=load_reference()
         self.reference.MODEL=self.path;self.reference.TRAIN_WIDTH=self.width
         self.reference.THRESHOLD=self.threshold;self.reference.MIN_REGION=self.min_region
-        if provider=='cpu':self.session=self.reference.load_session('cpu')
+        from .onnx_compat import runtime_needs_lowering
+        if provider=='cpu' and not runtime_needs_lowering():self.session=self.reference.load_session('cpu')
         else:
             from .ort_providers import create_session
             self.session=create_session(self.path,provider)

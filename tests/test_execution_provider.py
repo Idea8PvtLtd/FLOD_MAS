@@ -19,7 +19,8 @@ def names(providers):
 
 class ProviderListTests(unittest.TestCase):
     def test_the_default_is_the_cpu(self):
-        self.assertEqual(CONFIG['local_inspection']['execution_provider'], 'cpu')
+        # The Jetson branch's config.json asks for "cuda"; the code's default stays the CPU.
+        self.assertIn(CONFIG['local_inspection'].get('execution_provider', 'cpu'), ('cpu', 'cuda', 'tensorrt'))
         self.assertEqual(names(provider_list()), ['CPUExecutionProvider'])
 
     def test_cuda_falls_back_to_the_cpu(self):
@@ -48,11 +49,15 @@ class ProviderListTests(unittest.TestCase):
             def preload_dlls():
                 pass
 
-            @staticmethod
-            def InferenceSession(path, providers):
-                return providers
+            class InferenceSession:
+                def __init__(self, path, providers):
+                    self.providers = providers
+
+                def get_providers(self):
+                    return self.providers
         with patch.dict('sys.modules', onnxruntime=Runtime):
-            self.assertEqual(ort_providers.create_session('model.onnx', 'cuda'), ['CPUExecutionProvider'])
+            session = ort_providers.create_session('model.onnx', 'cuda')
+            self.assertEqual(session.get_providers(), ['CPUExecutionProvider'])
 
 
 class ValidationTests(unittest.TestCase):

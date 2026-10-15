@@ -88,6 +88,21 @@ fi
 "$APP_HOME/starter-venv/bin/python" -m pip install --upgrade pip
 "$APP_HOME/starter-venv/bin/python" -m pip install customtkinter==6.0.0
 
+step "ONNX Runtime for the GPU (NVIDIA build for JetPack 4.6)"
+# Not on PyPI. requirements-jetson.txt installs it from this folder.
+WHEEL="$APP_HOME/wheels/onnxruntime_gpu-1.11.0-cp38-cp38-linux_aarch64.whl"
+WHEEL_SHA256=127a6f95ba315b8a7a71ac52d1f4f68cd225a4887e77f11ea24091cd0211b185
+mkdir -p "$APP_HOME/wheels"
+if ! echo "$WHEEL_SHA256  $WHEEL" | sha256sum -c --status 2>/dev/null; then
+    curl -fL -o "$WHEEL" https://nvidia.box.com/shared/static/2sv2fv1wseihaw8ym0d4srz41dzljwxh.whl
+    echo "$WHEEL_SHA256  $WHEEL" | sha256sum -c -
+fi
+# An environment made before the GPU build has the CPU 'onnxruntime'. Both install
+# the same module, so the CPU one goes; the updater then installs the GPU one.
+if [ -x "$APP_HOME/venv/bin/pip" ] && "$APP_HOME/venv/bin/pip" show onnxruntime >/dev/null 2>&1; then
+    "$APP_HOME/venv/bin/pip" uninstall -y onnxruntime
+fi
+
 step "Start at login"
 mkdir -p "$HOME/.config/autostart"
 sed "s|@APP_HOME@|$APP_HOME|g" "$HERE/appstarter.desktop" > "$HOME/.config/autostart/appstarter.desktop"

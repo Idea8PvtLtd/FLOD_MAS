@@ -11,6 +11,8 @@ the millimetre readings. Built engines are cached in the data folder, so only th
 first start after a model or input size change spends minutes building them.
 """
 
+from pathlib import Path
+
 KINDS = ('cpu', 'cuda', 'tensorrt')
 
 
@@ -52,7 +54,16 @@ def create_session(path, kind='cpu'):
             ort.preload_dlls()
         except Exception:
             pass
-    return ort.InferenceSession(str(path), providers=providers)
+    model = str(path)
+    from .onnx_compat import runtime_max_opset
+    if runtime_max_opset(getattr(ort, '__version__', '99.0')) < 17:
+        # The Jetson Nano's GPU build (1.11) reads opset 16 at most: load an
+        # in-memory opset-16 copy. The file on disk is unchanged.
+        from .onnx_compat import compatible_model
+        model = compatible_model(path, ort.__version__) or model
+    session = ort.InferenceSession(model, providers=providers)
+    print(f"model {Path(path).name}, running on {active_provider(session).replace('ExecutionProvider', '')}")
+    return session
 
 
 def active_provider(session):

@@ -23,7 +23,8 @@ class SegformerOnnx:
         if min(self.width,self.height)<2:raise ValueError('Invalid model input dimensions.')
         try:import onnxruntime as ort
         except ImportError as exc:raise ValueError('ONNX Runtime is missing. Install requirements.txt into the application environment.') from exc
-        if provider=='cpu':self.session=ort.InferenceSession(self.path,providers=['CPUExecutionProvider'])
+        from .onnx_compat import runtime_needs_lowering
+        if provider=='cpu' and not runtime_needs_lowering():self.session=ort.InferenceSession(self.path,providers=['CPUExecutionProvider'])
         else:
             from .ort_providers import create_session
             self.session=create_session(self.path,provider)

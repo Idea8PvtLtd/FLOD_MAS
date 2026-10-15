@@ -22,9 +22,14 @@ numpy==1.24.3
 opencv-contrib-python==4.12.0.88
 Pillow==10.4.0
 
-# Local source-region and adhesive models, on the CPU. The GPU build for
-# JetPack 4.6 (onnxruntime-gpu 1.11, CUDA 10.2) is a later step.
-onnxruntime==1.16.3
+# Local source-region and adhesive models on the GPU: NVIDIA's ONNX Runtime 1.11
+# for JetPack 4.6 (CUDA 10.2, TensorRT 8.2). It is not on PyPI; setup_jetson.sh
+# downloads it into ~/AppStarter/wheels. It reads ONNX opset 16 at most, so the
+# opset-17 models are converted in memory when loaded (inspection/local/onnx_compat.py),
+# which needs the onnx package.
+--find-links ${HOME}/AppStarter/wheels
+onnxruntime-gpu==1.11.0
+onnx==1.17.0
 
 pyserial==3.5
 
