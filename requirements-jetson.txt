@@ -10,6 +10,11 @@
 #   "python_version": "3.8", "requirements": "requirements-jetson.txt"
 # tkinter comes with the Python 3.8 build (Tk headers from tk-dev).
 
+# Never compile on the Jetson: a source build needs newer system libraries than
+# Ubuntu 18.04 has (h5py 3.11 failed on HDF5 1.10.0). pip then picks the newest
+# release that has a ready-made wheel.
+--only-binary :all:
+
 # TensorFlow 2.13 accepts numpy 1.22 - 1.24.3.
 numpy==1.24.3
 # One OpenCV distribution only (contrib is a superset; MediaPipe needs it).
@@ -29,6 +34,8 @@ mediapipe==0.10.9
 tensorflow==2.13.1
 # MediaPipe needs protobuf < 4 and TensorFlow >= 3.20.3: this is the only overlap.
 protobuf==3.20.3
+# TensorFlow's H5 reader. 3.10.0 is the last release with a cp38 aarch64 wheel.
+h5py==3.10.0
 
 # Geometry, morphology, skeleton and measurement algorithms.
 scipy==1.10.1
