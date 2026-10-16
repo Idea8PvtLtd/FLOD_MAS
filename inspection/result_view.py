@@ -107,15 +107,15 @@ class FabricResultView(CropResultView):
         measurement = item['measurement']
         text = f"Fabric {item['fabric']}  ·  {item['status']}"
         if measurement and measurement['metric']:
-            text += (f"  ·  Length {measurement['total_length_mm']:.2f} mm"
-                     f"  ·  Average width {measurement['average_width_mm']:.2f} mm"
+            text += (f"  ·  Length {measurement['total_length_mm']:.1f} mm"
+                     f"  ·  Average width {measurement['average_width_mm']:.1f} mm"
                      f"  ·  Target {measurement['target_width_mm']:g} ± "
                      f"{measurement['width_tolerance_mm']:g} mm\n")
             # A segment with no width of its own is named WARNING here too, so a
             # gap in the summary reads as one, not as "0.00 mm".
             text += '    '.join(
                 f"{s['index']}: " + ('WARNING' if s['average_width_mm'] is None
-                                     else f"{s['average_width_mm']:.2f} mm")
+                                     else f"{s['average_width_mm']:.1f} mm")
                 for s in measurement['segments'])
         else:
             text += '  ·  Millimetre measurement unavailable — check calibration/segmentation'
@@ -275,8 +275,8 @@ class LineResultView(FabricResultView):
             item = self.records[self._active]
             text = f"Fabric {self._active+1} · {item['status']}"
             if item.get('metric'):
-                text += (f"  ·  Length {item['length_mm']:.2f} mm"
-                         f"  ·  Mean width {item['mean_width_mm']:.2f} mm"
+                text += (f"  ·  Length {item['length_mm']:.1f} mm"
+                         f"  ·  Mean width {item['mean_width_mm']:.1f} mm"
                          f"  ·  Ratio {item.get('distance_ratio', 1):.6g} ×")
             self.summary.configure(text=text,
                                    font=('Segoe UI', 12, 'bold'))

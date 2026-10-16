@@ -1,6 +1,6 @@
 """Immutable capture -> local ONNX unfolding/refolding -> calibrated measurements."""
 import plane_scale
-from .line_measurement import measurement_record
+from .line_measurement import measurement_record, rounded_record
 
 
 class InspectionPipeline:
@@ -46,7 +46,7 @@ class InspectionPipeline:
             self.store.save_overlay(path, result['overlay'])
             self.store.save_preview(path, 'overview', result['overlay'])
             record.update(status='complete', frame_size=[width, height], warnings=warnings,
-                          settings=self.config['local_inspection'], measurement=measurement)
+                          settings=self.config['local_inspection'], measurement=rounded_record(measurement))
             return {'measurement': measurement, 'overlay': result['overlay'], 'mask': result['mask'],
                     'source_image': undistorted,
                     'warnings': warnings, 'path': str(path)}
@@ -97,8 +97,9 @@ class InspectionPipeline:
                 self.store.save_mask(line_path, result['mask'])
                 self.store.save_overlay(line_path, overlay)
                 self.store.save_preview(line_path, 'overview', overlay)
-                self.store.finish(line_path, {'status': 'complete', 'measurement': measurement})
-                record['lines'].append(measurement)
+                saved = rounded_record(measurement)   # only final 0.1 mm values are kept
+                self.store.finish(line_path, {'status': 'complete', 'measurement': saved})
+                record['lines'].append(saved)
                 line_warnings = list(warnings)
                 if measurement['status'] == 'WARNING':
                     line_warnings.append('Calibrated widths incomplete or unavailable')

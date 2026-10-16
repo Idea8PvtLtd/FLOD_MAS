@@ -220,7 +220,7 @@ def annotated_overlay(image, measurement, mask=None):
                     overlay = cv2.addWeighted(tint, .35, overlay, .65, 0)
             width = segment['average_width_mm']
             pixels = segment['average_width_px']
-            label = (f'{width:.2f} mm' if width is not None else
+            label = (f'{width:.1f} mm' if width is not None else   # graded at 0.1 mm
                      f'{pixels:.1f} px' if pixels is not None else 'WARNING')
             labels.append((label, color, rotated,
                            label_origin(overlay.shape, samples, label, side, placed, rotated)))
