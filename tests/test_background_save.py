@@ -32,7 +32,8 @@ def write_set(store):
 
 
 def snapshot(root):
-    return {str(p.relative_to(root)).split('/', 1)[1]: p.read_bytes()
+    # the capture folder's own name differs between the two stores: compare below it
+    return {'/'.join(p.relative_to(root).parts[1:]): p.read_bytes()
             for p in sorted(Path(root).rglob('*')) if p.is_file()}
 
 
