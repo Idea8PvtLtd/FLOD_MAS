@@ -643,11 +643,29 @@ class IndustrialDashboard(AutomaticDashboard):
             if trim > 0 and tip >= trim:
                 raise ValueError('End bar distance must be smaller than the end zone, '
                                  'or the end zones would be empty.')
+            # The whole profile is saved, so RESET and the next start keep it.
+            # Saved values are checked rather than silently replaced by defaults.
+            def positive(variable, name):
+                try:
+                    value = float(variable.get())
+                except ValueError:
+                    value = float('nan')
+                if not math.isfinite(value) or value <= 0:
+                    raise ValueError(f'{name} must be a number greater than 0.')
+                return value
+            validated_width = positive(self.strip_width_var, 'Required width')
+            validated_tolerance = positive(self.strip_width_tolerance_var, 'Allowed tolerance')
+            display_seconds = positive(self.result_display_seconds_var, 'Result display time')
+            size = self.size_var.get()
             from startup_settings import save_config
             candidate = copy.deepcopy(CONFIG)
             candidate['inspection']['end_exclusion_px'] = trim
             candidate['inspection']['end_trim_px'] = tip
             candidate['inspection']['segment_count'] = segments
+            candidate['inspection']['default_size'] = size
+            candidate['inspection']['strip_width_mm'] = validated_width
+            candidate['inspection']['strip_width_tolerance_mm'] = validated_tolerance
+            candidate['inspection']['result_display_seconds'] = display_seconds
             save_config(candidate)
         except (ValueError, OSError) as error:
             messagebox.showerror('Settings not saved', str(error), parent=self.size_win)
@@ -657,18 +675,16 @@ class IndustrialDashboard(AutomaticDashboard):
         CONFIG['inspection']['end_exclusion_px'] = trim
         CONFIG['inspection']['end_trim_px'] = tip
         CONFIG['inspection']['segment_count'] = segments
+        CONFIG['inspection']['default_size'] = size
+        CONFIG['inspection']['strip_width_mm'] = validated_width
+        CONFIG['inspection']['strip_width_tolerance_mm'] = validated_tolerance
+        CONFIG['inspection']['result_display_seconds'] = display_seconds
         self.end_trim_var.set(f'{tip:g}')
         pipeline = getattr(getattr(self, 'auto_controller', None), 'pipeline', None)
         if pipeline is not None:
             pipeline.inspector.segments = segments
         self.end_exclusion_var.set(f'{trim:g}')
         self.segment_count_var.set(str(segments))
-        strip_value = self.strip_width_var.get()
-        validated_width = self._validate_strip_width(strip_value)
-        tolerance_value = self.strip_width_tolerance_var.get()
-        validated_tolerance = self._validate_strip_width_tolerance(tolerance_value)
-        display_seconds = self._validate_result_display_seconds(
-            self.result_display_seconds_var.get())
         self.strip_width_var.set(f"{validated_width:g}")
         self.strip_width_tolerance_var.set(f"{validated_tolerance:g}")
         self.result_display_seconds_var.set(f"{display_seconds:g}")
