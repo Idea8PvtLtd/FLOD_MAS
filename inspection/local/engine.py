@@ -5,6 +5,7 @@ from .geometry import (cv2, extract_lines, filter_wave_lines, offset_lines,
     region_mask, original_dimensions, unfold_maps, enhance_image, clean_mask,
     individual_crop, mapped_mask)
 from .width_measurement import measure_component
+from . import line_identity
 
 # The line geometry finds glue edges that run top-to-bottom. Fabric laid
 # sideways puts its edge left-to-right, so such a capture is processed turned a
@@ -53,16 +54,19 @@ class LiveInspection:
         return next(self.run_lines(photo, progress, only_rightmost=True))
 
     def run_lines(self, photo, progress=lambda text: None, inspected=(), reserved=0,
-                  only_rightmost=False, on_error=None):
+                  only_rightmost=False, on_error=None, measured=()):
         """Measure the lines this capture still owes, leftmost first.
 
-        Positions are counted from the left and name the same physical line in
-        every capture of a cycle, because lines are only ever added on the right.
-        `inspected` holds the positions already measured, so a line that failed
-        and was never measured is offered again rather than skipped over.
+        `measured` holds the fingerprints (line_identity) of the lines already
+        measured: a line is owed unless one matches it in place and look, so a
+        fabric taken off the bed does not shift the others, and one added in its
+        place is measured. `inspected` holds positions counted from the left; it
+        is only right while fabric is never removed, and is kept for callers that
+        know that. A line that failed and was never measured is offered again.
         `reserved` is how many captures are already queued behind this one: each
         will measure one more of the lines still outstanding, so this capture
         leaves that many for them instead of measuring the same line twice.
+        Each result carries its line's `fingerprint`.
         """
         started = perf_counter()
         progress('AI source mask')
@@ -79,20 +83,26 @@ class LiveInspection:
             raise ValueError('No accepted source lines. Check placement or the source mask model.')
         lines.sort(key=lambda line: float(np.mean(np.asarray(line['original_xy'])[:, 0])))
         total = len(lines)
+        # Identity is taken in the camera frame, where every capture agrees.
+        prints = [line_identity.fingerprint(photo, _turn_back_line(line, photo.shape[1]) if turned else line)
+                  for line in lines]
         if only_rightmost:
             indices = [total - 1]
         else:
-            measured = {int(position) for position in inspected if 1 <= int(position) <= total}
+            done = {int(position) for position in inspected if 1 <= int(position) <= total}
             outstanding = [position for position in range(1, total + 1)
-                           if position not in measured]
+                           if position not in done
+                           and not line_identity.already_measured(prints[position - 1], measured)]
             # The rightmost of what is outstanding is what this capture owes once
             # the queued captures have taken their share of it.
             indices = [position - 1 for position in outstanding[max(0, int(reserved)):]]
         for index in indices:
             progress(f'Inspecting line {index+1} of {len(lines)}')
             try:
-                yield self._inspect_line(photo, source, lines[index], index+1, len(lines), started,
-                                         progress, turned)
+                result = self._inspect_line(photo, source, lines[index], index+1, len(lines), started,
+                                            progress, turned)
+                result['fingerprint'] = prints[index]
+                yield result
             except Exception as error:
                 if on_error is None:
                     raise

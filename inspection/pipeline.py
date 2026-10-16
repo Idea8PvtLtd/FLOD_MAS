@@ -77,7 +77,8 @@ class InspectionPipeline:
                 on_error(message)
             for result in self.inspector.run_lines(
                     undistorted, inspected=metadata.get('inspected_lines', ()),
-                    reserved=metadata.get('queued_captures', 0), on_error=failed_line):
+                    reserved=metadata.get('queued_captures', 0), on_error=failed_line,
+                    measured=metadata.get('measured_lines', ())):
                 measurement = measurement_record(result, scale, target_width, tolerance,
                     metadata.get('end_exclusion_percent', self.config['inspection'].get('end_exclusion_percent', 5.0)),
                     self.config['inspection'].get('end_exclusion_px'),
@@ -102,7 +103,7 @@ class InspectionPipeline:
                 if measurement['status'] == 'WARNING':
                     line_warnings.append('Calibrated widths incomplete or unavailable')
                 on_result({'measurement': measurement, 'overlay': overlay, 'mask': result['mask'],
-                           'source_image': undistorted,
+                           'source_image': undistorted, 'fingerprint': result.get('fingerprint'),
                            'warnings': line_warnings, 'path': str(line_path)})
             record.update(status='complete_with_errors' if failures else 'complete',
                           errors=failures, warnings=warnings, frame_size=[width, height])

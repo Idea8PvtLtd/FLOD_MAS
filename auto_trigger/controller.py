@@ -34,10 +34,12 @@ class AutoController(threading.Thread):
         self.paused = False
         self.pause_revision = 0
         self.has_results = False
-        # Line positions measured since the bed was last reset, counted from the
-        # left. Failure to measure a line leaves it out, so that line is offered
-        # again on the next trigger instead of being counted as done.
-        self.inspected_lines = set()
+        # Fingerprints (place and look, inspection/local/line_identity.py) of the
+        # lines measured since the bed was last reset. Not positions counted from
+        # the left: taking a finished fabric off would shift every number and hide
+        # a new one. Failure to measure a line leaves it out, so that line is
+        # offered again on the next trigger instead of being counted as done.
+        self.measured_lines = []
         self.reset_requested = False
         self.reset_ready = False
         self.marker_monitor = None
@@ -75,7 +77,7 @@ class AutoController(threading.Thread):
                     self.has_results = False
                     self.reset_requested = False
                     self.reset_ready = False
-                    self.inspected_lines = set()
+                    self.measured_lines = []
         self.wake.set()
 
     def stop(self):
@@ -161,7 +163,7 @@ class AutoController(threading.Thread):
             self.has_results = False
             self.reset_requested = False
             self.reset_ready = False
-            self.inspected_lines = set()
+            self.measured_lines = []
             self.epoch += 1
             self.latest = None
             self.detections = None
@@ -205,7 +207,7 @@ class AutoController(threading.Thread):
         # triggered: the lines nothing has measured yet, less one for each capture
         # already queued behind this one, which will measure them instead.
         with self.lock:
-            job['metadata']['inspected_lines'] = sorted(self.inspected_lines)
+            job['metadata']['measured_lines'] = list(self.measured_lines)
             job['metadata']['queued_captures'] = self.preparing_count + len(self.pending_jobs)
 
         def process(future):
@@ -215,8 +217,9 @@ class AutoController(threading.Thread):
                 def publish(result):
                     if job['generation'] == self.generation and not self.stopped.is_set():
                         self.has_results = True
-                        with self.lock:
-                            self.inspected_lines.add(result['measurement']['selected_line'])
+                        if result.get('fingerprint') is not None:
+                            with self.lock:
+                                self.measured_lines.append(result['fingerprint'])
                         self.events.put(('result', job['generation'], result))
                 if hasattr(self.pipeline, 'run_batch'):
                     self.pipeline.run_batch(job['original'], job['corrected'], job['metadata'],
