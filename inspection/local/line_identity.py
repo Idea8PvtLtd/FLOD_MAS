@@ -46,16 +46,23 @@ def fingerprint(photo, line):
     # can make a measured line be measured again; it can never hide a line.
     x0, y0 = np.maximum(points.min(0) - LOOK_MARGIN, 0).astype(int)
     x1, y1 = np.minimum(points.max(0) + LOOK_MARGIN, [width, height]).astype(int)
-    patch = photo[y0:max(y1, y0 + 1), x0:max(x1, x0 + 1)]
-    if patch.ndim == 3:
-        patch = cv2.cvtColor(patch, cv2.COLOR_BGR2GRAY)
+    box = [int(x0), int(y0), int(max(x1, x0 + 1)), int(max(y1, y0 + 1))]
     # The look runs along the line whichever way it lies, so a line across the
     # photo (sideways fabric) is sampled as finely along its length.
     across, along = LOOK_SIZE
-    size = (across, along) if patch.shape[0] >= patch.shape[1] else (along, across)
-    look = cv2.resize(patch, size, interpolation=cv2.INTER_AREA)
-    return {'path': np.rint(points[keep]).astype(int).tolist(), 'size': list(size),
-            'look': base64.b64encode(np.ascontiguousarray(look, np.uint8).tobytes()).decode('ascii')}
+    size = (across, along) if box[3] - box[1] >= box[2] - box[0] else (along, across)
+    return {'path': np.rint(points[keep]).astype(int).tolist(), 'box': box, 'size': list(size),
+            'look': _look(photo, box, size)}
+
+
+def _look(photo, box, size):
+    """The photo inside box, greyscale, resized to size, as base64."""
+    x0, y0, x1, y1 = box
+    patch = photo[y0:y1, x0:x1]
+    if patch.ndim == 3:
+        patch = cv2.cvtColor(patch, cv2.COLOR_BGR2GRAY)
+    look = cv2.resize(patch, tuple(size), interpolation=cv2.INTER_AREA)
+    return base64.b64encode(np.ascontiguousarray(look, np.uint8).tobytes()).decode('ascii')
 
 
 def path_distance(a, b):
@@ -87,12 +94,28 @@ def look_match(a, b):
     return float(p @ q / (np.linalg.norm(p) * np.linalg.norm(q)))
 
 
-def same_line(a, b):
+def same_line(a, b, photo=None):
+    """Whether b, a line in `photo`, is the measured line a.
+
+    With the photo, b's look is cut from exactly a's stored box. Each look cut
+    around its own detected edge does not line up: the detected edge of the same
+    fabric can end 20+ px further along in another photo (2026-10-16, mini PC),
+    which stretched the look and dropped the same fabric to 0.63. Cut from the
+    same box, that fabric matched 0.996.
+    """
     if path_distance(a, b) > MAX_SHIFT_PX:
         return False
-    match = look_match(a, b)
-    return match is None or match >= MIN_LOOK_MATCH
+    # Two ways of lining the looks up, and either may agree: the stored box for
+    # an unmoved fabric whose detected edge varies, b's own box for a fabric
+    # nudged by a hand, whose edge moves with it. A different fabric in the same
+    # place matched neither (0.24-0.52 on real captures).
+    matches = [look_match(a, b)]
+    if photo is not None and 'box' in a:
+        matches.append(look_match(a, dict(b, size=a['size'], look=_look(photo, a['box'], a['size']))))
+    if any(match is None for match in matches):
+        return True     # too little texture to compare: place decides
+    return max(matches) >= MIN_LOOK_MATCH
 
 
-def already_measured(item, measured):
-    return any(same_line(item, other) for other in measured)
+def already_measured(item, measured, photo=None):
+    return any(same_line(other, item, photo) for other in measured)

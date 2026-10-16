@@ -92,7 +92,7 @@ class LiveInspection:
             done = {int(position) for position in inspected if 1 <= int(position) <= total}
             outstanding = [position for position in range(1, total + 1)
                            if position not in done
-                           and not line_identity.already_measured(prints[position - 1], measured)]
+                           and not line_identity.already_measured(prints[position - 1], measured, photo)]
             # The rightmost of what is outstanding is what this capture owes once
             # the queued captures have taken their share of it.
             indices = [position - 1 for position in outstanding[max(0, int(reserved)):]]

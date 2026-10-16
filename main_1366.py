@@ -1031,6 +1031,7 @@ class IndustrialDashboard(AutomaticDashboard):
         if not getattr(self, '_activity_animating', False):
             self.progress_bar['value'] = 0
         self.progress_label.config(text=text)
+        self._progress_text = text  # shown again when a busy spell ends
         if getattr(self, '_models_loading', False) and hasattr(self, 'startup_description'):
             self.startup_description.configure(text=text)
         self.root.update_idletasks()

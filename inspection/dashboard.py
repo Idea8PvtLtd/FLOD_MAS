@@ -16,6 +16,10 @@ from .result_view import LineResultView
 # clears the overlay in those cases instead of leaving stale boxes on screen.
 OVERLAY_MAX_AGE = 0.5
 
+# Progress texts that only say work is under way; never left on screen after it.
+BUSY_TEXTS = ('Inspecting captured fabric…', 'Checking queued captures…',
+              'Waiting for inspection…', 'Checking fabric…')
+
 
 class AutomaticDashboard:
     def _init_automatic(self):
@@ -122,12 +126,23 @@ class AutomaticDashboard:
         if queue_label is not None:
             queue_label.configure(text=controller.queue_text)
         if hasattr(self, '_set_activity_animation'):
-            self._set_activity_animation(controller.busy and active)
-            if controller.busy and active:
+            busy = controller.busy and active
+            self._set_activity_animation(busy)
+            if busy:
                 text = ('Inspecting captured fabric…' if controller.future is not None
                         else 'Checking queued captures…' if controller.gate_busy
                         else 'Waiting for inspection…')
                 self.progress_label.configure(text=text)
+            elif getattr(self, '_was_busy', False):
+                # While busy, the text above covers every message, including a
+                # hand seen or a capture rejected by the fabric check. Show the
+                # latest of them again, rather than a busy text that is no
+                # longer true.
+                latest = getattr(self, '_progress_text', '')
+                if not latest or latest in BUSY_TEXTS:
+                    latest = 'Ready — waiting for a hand cycle'
+                self.progress_label.configure(text=latest)
+            self._was_busy = busy
         if controller.reset_requested and not controller.paused:
             self.update_progress(100, 'Waiting for inspection results…' if self._reset_due is None
                                  else 'Results complete — returning to live…')

@@ -106,6 +106,22 @@ class FingerprintTests(unittest.TestCase):
         far = dict(a, path=[[x + 300, y] for x, y in a['path']])
         self.assertFalse(line_identity.same_line(a, far))
 
+    def test_the_same_fabric_matches_when_its_edge_is_detected_longer(self):
+        # Mini PC, 2026-10-16: the same fabric's edge ended 23 px further down in
+        # the next photo. Its own look then no longer lined up (0.63) and it was
+        # measured twice; cut from the stored box it matches.
+        photo, _ = bed([(650, 2)])
+        longer = line_identity.fingerprint(photo, {'original_xy': [[650, y] for y in range(30, 770)]})
+        shorter = line_identity.fingerprint(photo, {'original_xy': [[650, y] for y in range(30, 700)]})
+        self.assertTrue(line_identity.already_measured(longer, [shorter], photo))
+        self.assertTrue(line_identity.already_measured(shorter, [longer], photo))
+
+    def test_another_fabric_in_the_stored_box_is_not_the_same(self):
+        before, _ = bed([(650, 2)])
+        after, _ = bed([(650, 9)])
+        stored = line_identity.fingerprint(before, self.line)
+        self.assertFalse(line_identity.already_measured(line_identity.fingerprint(after, self.line), [stored], after))
+
     def test_fingerprints_are_plain_json(self):
         import json
         self.assertEqual(json.loads(json.dumps(self.print)), self.print)
