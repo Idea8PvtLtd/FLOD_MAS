@@ -128,11 +128,12 @@ class LineResultView(FabricResultView):
     With ``defects_only`` the tabs of passed lines are hidden, never dropped: they
     keep their records and images, so switching the filter off lists them again.
     """
-    def __init__(self, parent, show_live_preview=True, defects_only=False):
+    def __init__(self, parent, show_live_preview=True, defects_only=False, defect_labels_only=False):
         self._original_results = []
         self._paused = False
         self._ratio_job = None
         self.defects_only = bool(defects_only)
+        self.defect_labels_only = bool(defect_labels_only)
         self.on_grade_changed = lambda status: None
         super().__init__(parent, show_live_preview, title='INSPECTION RESULTS')
 
@@ -182,6 +183,8 @@ class LineResultView(FabricResultView):
             result['mask'][y0:y1, x0:x1].copy(), (x0, y0)))
         self._tabs.append(self._blank_tab(self._to_pil(image)))
         index = len(self._tabs)-1
+        if self.defect_labels_only:
+            self._redraw(index, self.records[index])   # the pipeline's overlay labels every segment
         button = themed_button(self.tab_header, self._tab_label(index),
                                lambda i=index: self.select_tab(i), role='secondary',
                                font_size=11, padx=14, pady=8)
@@ -223,6 +226,33 @@ class LineResultView(FabricResultView):
             self._render()
             self._show_summary()
 
+    def set_defect_labels_only(self, defect_labels_only):
+        """Show width labels on failing segments only, or on every segment."""
+        self.defect_labels_only = bool(defect_labels_only)
+        for index in range(len(self._original_results)):
+            self._redraw(index, self.records[index])
+        if self.records:
+            self._render()
+
+    def _redraw(self, index, record):
+        """Draw tab `index` again from its clean image, for `record` and the label setting."""
+        import copy
+        from .overlay import annotated_overlay
+        _, source, mask, origin = self._original_results[index]
+        if source is None:
+            return  # Older callers have no clean image on which to redraw labels.
+        display = copy.deepcopy(record)
+        for component in display['components']:
+            for sample in component['samples']:
+                for key in ('center_x', 'left_x', 'right_x'):
+                    if sample.get(key) is not None:
+                        sample[key] -= origin[0]
+                for key in ('center_y', 'left_y', 'right_y'):
+                    if sample.get(key) is not None:
+                        sample[key] -= origin[1]
+        image = annotated_overlay(source, display, mask, self.defect_labels_only)
+        self._tabs[index]['image'] = self._to_pil(image)
+
     def set_paused(self, paused):
         self._paused = bool(paused)
         self.developer_controls.set_editing_allowed(paused)
@@ -234,9 +264,7 @@ class LineResultView(FabricResultView):
         self._ratio_job = self.after(120, self._apply_ratio_preview)
 
     def _apply_ratio_preview(self):
-        import copy
         from .line_measurement import with_distance_ratio
-        from .overlay import annotated_overlay
         self._ratio_job = None
         try:
             ratio = self.developer_controls.value()
@@ -247,17 +275,7 @@ class LineResultView(FabricResultView):
                 continue  # Older callers have no clean image on which to redraw labels.
             record = with_distance_ratio(original, ratio)
             self.records[index] = record
-            display = copy.deepcopy(record)
-            for component in display['components']:
-                for sample in component['samples']:
-                    for key in ('center_x', 'left_x', 'right_x'):
-                        if sample.get(key) is not None:
-                            sample[key] -= origin[0]
-                    for key in ('center_y', 'left_y', 'right_y'):
-                        if sample.get(key) is not None:
-                            sample[key] -= origin[1]
-            image = annotated_overlay(source, display, mask)
-            self._tabs[index]['image'] = self._to_pil(image)
+            self._redraw(index, record)
         self._apply_filter()   # a new ratio can turn a line from FAIL to PASS or back
         self._render()
         self._show_summary()

@@ -225,7 +225,8 @@
   },
   "result_view": {
     "show_live_preview": true,
-    "defects_only": true
+    "defects_only": true,
+    "defect_labels_only": false
   },
   "capture_storage": {
     "directory": "Dataset_capture/Automatic",

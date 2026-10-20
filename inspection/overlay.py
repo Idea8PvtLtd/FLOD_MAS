@@ -191,7 +191,9 @@ def label_origin(shape, samples, label, side, placed, rotated=False):
     return x, y
 
 
-def annotated_overlay(image, measurement, mask=None):
+def annotated_overlay(image, measurement, mask=None, defect_labels_only=False):
+    """Segment grades and width labels. With `defect_labels_only` the width label of a
+    passed segment is left out, so only failing (and ungraded) segments carry a number."""
     overlay = tint_mask(image, mask) if mask is not None else image.copy()
     labels, placed = [], []
     for component in measurement['components']:
@@ -218,6 +220,8 @@ def annotated_overlay(image, measurement, mask=None):
                     tint = overlay.copy()
                     cv2.fillPoly(tint, [polygon], color)
                     overlay = cv2.addWeighted(tint, .35, overlay, .65, 0)
+            if defect_labels_only and grade:
+                continue
             width = segment['average_width_mm']
             pixels = segment['average_width_px']
             label = (f'{width:.1f} mm' if width is not None else   # graded at 0.1 mm
