@@ -18,7 +18,7 @@ def _to_step(value, direction):
     return round(whole * GRADE_STEP_MM, 6)
 
 
-def grade_segments(segments, target, tolerance):
+def grade_segments(segments, target, tolerance, end_min=None):
     """Grade one glue line's segments (in order along the line) on rounded widths.
 
     Each width is rounded to 0.1 mm and passes inside target ± tolerance. A
@@ -28,16 +28,20 @@ def grade_segments(segments, target, tolerance):
     segments beside the whole run. A side that is an end zone or has no width is
     skipped; at the end of the line the one side there is decides. Sets
     `graded_width_mm`, `rounding` and `within_tolerance` on every segment.
+    End zones (the bead narrows towards its tip) pass from `end_min` instead of
+    target - tolerance when `end_min` is given; the upper limit is the same.
     """
     low, high = target - tolerance, target + tolerance
-    inside = lambda value: low - _EPS <= value <= high + _EPS
+    def inside(segment, value):
+        floor = end_min if end_min is not None and segment.get('end_zone') else low
+        return floor - _EPS <= value <= high + _EPS
     measured = [s for s in segments if s.get('average_width_mm') is not None]
     for segment in segments:
         segment['graded_width_mm'] = segment['rounding'] = segment['within_tolerance'] = None
     for segment in measured:
         segment['graded_width_mm'] = _to_step(segment['average_width_mm'], 'nearest')
         segment['rounding'] = 'nearest'
-    failing = [not inside(s['graded_width_mm']) for s in measured]
+    failing = [not inside(s, s['graded_width_mm']) for s in measured]
 
     def side(index, step):
         while 0 <= index < len(measured) and measured[index].get('end_zone'):
@@ -63,11 +67,11 @@ def grade_segments(segments, target, tolerance):
                     segment['rounding'] = direction
         start = end + 1
     for segment in measured:
-        segment['within_tolerance'] = inside(segment['graded_width_mm'])
+        segment['within_tolerance'] = inside(segment, segment['graded_width_mm'])
     return segments
 
 
-def _grade_component(component, target, tolerance):
+def _grade_component(component, target, tolerance, end_min=None):
     """Segment widths from the samples' widths, graded and reported at 0.1 mm.
 
     Only the final values are kept: each segment's width is the graded value
@@ -80,7 +84,7 @@ def _grade_component(component, target, tolerance):
                   if s['segment'] == segment['segment'] and s.get('width_mm') is not None]
         for name, operation in [('average', np.mean), ('minimum', np.min), ('maximum', np.max)]:
             segment[f'{name}_width_mm'] = float(operation(widths)) if widths else None
-    grade_segments(component['segments'], target, tolerance)
+    grade_segments(component['segments'], target, tolerance, end_min)
     for segment in component['segments']:
         segment['average_width_mm'] = segment.pop('graded_width_mm')
         for name in ('minimum_width_mm', 'maximum_width_mm'):
@@ -127,7 +131,8 @@ def with_distance_ratio(measurement, ratio):
             multiply(sample, ('width_mm',))
         # Segment figures are final rounded values, so they are worked out again
         # from the samples rather than scaled.
-        _grade_component(component, result['target_width_mm'], result['tolerance_mm'])
+        _grade_component(component, result['target_width_mm'], result['tolerance_mm'],
+                         result.get('end_zone_min_width_mm'))
         grades += [segment['within_tolerance'] for segment in component['segments']]
     main = max(result['components'], key=lambda c: c['length_px'])
     result['segments'] = main['segments']
@@ -138,7 +143,7 @@ def with_distance_ratio(measurement, ratio):
 
 
 def measurement_record(result, scale, target_width, tolerance, end_exclusion_percent=0.0,
-                       end_exclusion_px=None, end_trim_px=0.0):
+                       end_exclusion_px=None, end_trim_px=0.0, end_zone_min_width=None):
     """Keep reference pixel measurements; map points, never use a global px scale."""
     if (isinstance(end_exclusion_percent, bool) or not np.isfinite(end_exclusion_percent)
             or not 0 <= end_exclusion_percent < 50):
@@ -214,7 +219,7 @@ def measurement_record(result, scale, target_width, tolerance, end_exclusion_per
                 width = float(np.linalg.norm(endpoints[1] - endpoints[0])) * ratio
                 if np.isfinite(width):
                     sample['width_mm'] = width
-        _grade_component(component, target_width, tolerance)
+        _grade_component(component, target_width, tolerance, end_zone_min_width)
     main = max(components, key=lambda c: c['length_px'])
     widths = [s['width_mm'] for s in main['samples'] if s['width_mm'] is not None]
     pixel_widths = [s['width_px'] for s in main['samples'] if s['valid']]
@@ -237,6 +242,7 @@ def measurement_record(result, scale, target_width, tolerance, end_exclusion_per
                 longest_length_mm=main['length_mm'],
                 mean_width_mm=float(np.mean(widths)) if widths else None,
                 target_width_mm=float(target_width), tolerance_mm=float(tolerance),
+                end_zone_min_width_mm=None if end_zone_min_width is None else float(end_zone_min_width),
                 segments=main['segments'], components=components,
                 selected_boundary=result['selected_boundary'], seconds=result['seconds'],
                 coordinate_space='undistorted input frame',

@@ -115,6 +115,8 @@ class IndustrialDashboard(AutomaticDashboard):
             value=str(int(CONFIG['inspection'].get('segment_count', 10))))
         self.end_trim_var = tk.StringVar(
             value=f"{float(CONFIG['inspection'].get('end_trim_px', 0)):g}")
+        self.end_zone_min_var = tk.StringVar(
+            value=f"{float(CONFIG['inspection'].get('end_zone_min_width_mm', 2.9)):g}")
         self.result_display_seconds_var = tk.StringVar(
             value=f"{float(CONFIG['inspection'].get('result_display_seconds', 5.0)):g}")
 
@@ -607,11 +609,19 @@ class IndustrialDashboard(AutomaticDashboard):
             fg=C["text"], insertbackground=C["text"], font=(FONT, 12),
             relief=tk.FLAT, highlightthickness=1, highlightbackground=C["border"], justify=tk.CENTER)
         self.end_trim_entry.grid(row=6, column=0, padx=20, pady=(7, 16), sticky="ew", ipady=8)
-        tk.Label(settings, text="Glue closer to the tip than the end bar is ignored.\n"
-                                "End zones run from the end bar to the end-zone distance and are\n"
-                                "graded on their own; the rest is split into equal segments.",
+        tk.Label(settings, text="End zone minimum width (mm)", **label_options).grid(
+            row=5, column=1, sticky="w", padx=20, pady=(8, 0))
+        self.end_zone_min_entry = tk.Entry(
+            settings, textvariable=self.end_zone_min_var, bg=C["surface_2"],
+            fg=C["text"], insertbackground=C["text"], font=(FONT, 12),
+            relief=tk.FLAT, highlightthickness=1, highlightbackground=C["border"], justify=tk.CENTER)
+        self.end_zone_min_entry.grid(row=6, column=1, padx=20, pady=(7, 16), sticky="ew", ipady=8)
+        tk.Label(settings, text="Glue closer to the tip than the end bar is ignored. End zones run from the\n"
+                                "end bar to the end-zone distance and are graded on their own: the bead narrows\n"
+                                "towards its tip, so they pass from the end zone minimum width instead of\n"
+                                "required width - tolerance. The rest is split into equal segments.",
                  fg=C["muted"], bg=C["card"], font=(FONT, 10), justify=tk.LEFT).grid(
-            row=6, column=1, sticky="w", padx=20, pady=(0, 16))
+            row=7, column=0, columnspan=2, sticky="w", padx=20, pady=(0, 16))
 
         footer = tk.Frame(content, bg=C["bg"])
         footer.pack(fill=tk.X, pady=(4, 0))
@@ -656,6 +666,9 @@ class IndustrialDashboard(AutomaticDashboard):
             validated_width = positive(self.strip_width_var, 'Required width')
             validated_tolerance = positive(self.strip_width_tolerance_var, 'Allowed tolerance')
             display_seconds = positive(self.result_display_seconds_var, 'Result display time')
+            end_zone_min = positive(self.end_zone_min_var, 'End zone minimum width')
+            if end_zone_min > validated_width + validated_tolerance:
+                raise ValueError('End zone minimum width must not be above required width + tolerance.')
             size = self.size_var.get()
             from startup_settings import save_config
             candidate = copy.deepcopy(CONFIG)
@@ -666,6 +679,7 @@ class IndustrialDashboard(AutomaticDashboard):
             candidate['inspection']['strip_width_mm'] = validated_width
             candidate['inspection']['strip_width_tolerance_mm'] = validated_tolerance
             candidate['inspection']['result_display_seconds'] = display_seconds
+            candidate['inspection']['end_zone_min_width_mm'] = end_zone_min
             save_config(candidate)
         except (ValueError, OSError) as error:
             messagebox.showerror('Settings not saved', str(error), parent=self.size_win)
@@ -679,6 +693,7 @@ class IndustrialDashboard(AutomaticDashboard):
         CONFIG['inspection']['strip_width_mm'] = validated_width
         CONFIG['inspection']['strip_width_tolerance_mm'] = validated_tolerance
         CONFIG['inspection']['result_display_seconds'] = display_seconds
+        CONFIG['inspection']['end_zone_min_width_mm'] = end_zone_min
         self.end_trim_var.set(f'{tip:g}')
         pipeline = getattr(getattr(self, 'auto_controller', None), 'pipeline', None)
         if pipeline is not None:
@@ -688,6 +703,7 @@ class IndustrialDashboard(AutomaticDashboard):
         self.strip_width_var.set(f"{validated_width:g}")
         self.strip_width_tolerance_var.set(f"{validated_tolerance:g}")
         self.result_display_seconds_var.set(f"{display_seconds:g}")
+        self.end_zone_min_var.set(f"{end_zone_min:g}")
 
         # Commit to active values
         self.active_size              = self.size_var.get()

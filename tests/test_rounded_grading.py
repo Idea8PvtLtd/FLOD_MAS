@@ -80,3 +80,15 @@ class RecordTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+def test_end_zones_pass_from_their_own_minimum():
+    from inspection.line_measurement import grade_segments
+    segments = [{'segment': 0, 'end_zone': 'start', 'average_width_mm': 2.9},
+                {'segment': 1, 'average_width_mm': 4.0},
+                {'segment': 2, 'average_width_mm': 2.94},
+                {'segment': 3, 'end_zone': 'end', 'average_width_mm': 2.8}]
+    grade_segments(segments, 4.0, 1.0, end_min=2.9)
+    assert [s['within_tolerance'] for s in segments] == [True, True, True, False]   # middle 2.94 rounds up to 3.0 (its side is 4.0)
+    grade_segments(segments, 4.0, 1.0)                     # without it, end zones use 3.0 like the rest
+    assert segments[0]['within_tolerance'] is False

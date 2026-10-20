@@ -39,7 +39,8 @@ class InspectionPipeline:
             measurement = measurement_record(result, scale, target_width, tolerance,
                     metadata.get('end_exclusion_percent', self.config['inspection'].get('end_exclusion_percent', 5.0)),
                     self.config['inspection'].get('end_exclusion_px'),
-                    self.config['inspection'].get('end_trim_px', 0.0))
+                    self.config['inspection'].get('end_trim_px', 0.0),
+                    self.config['inspection'].get('end_zone_min_width_mm'))
             if measurement['status'] == 'WARNING':
                 warnings.append('Pixel measurements available; calibrated widths incomplete or unavailable')
             self.store.save_mask(path, result['mask'])
@@ -82,7 +83,8 @@ class InspectionPipeline:
                 measurement = measurement_record(result, scale, target_width, tolerance,
                     metadata.get('end_exclusion_percent', self.config['inspection'].get('end_exclusion_percent', 5.0)),
                     self.config['inspection'].get('end_exclusion_px'),
-                    self.config['inspection'].get('end_trim_px', 0.0))
+                    self.config['inspection'].get('end_trim_px', 0.0),
+                    self.config['inspection'].get('end_zone_min_width_mm'))
                 short = self._too_short(measurement)
                 if short:
                     # Not published or marked measured: the line is offered again
