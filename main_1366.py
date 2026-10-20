@@ -195,6 +195,8 @@ class IndustrialDashboard(AutomaticDashboard):
                                        highlightbackground=C['border'], highlightthickness=1)
         themed_button(self.title_bar, "✕", self.close_application, role="quiet",
                       padx=16, pady=6, font_size=12).pack(side=tk.RIGHT, fill=tk.Y)
+        themed_button(self.title_bar, "⛶", lambda: self._toggle_window_fullscreen(self.root), role="quiet",
+                      padx=16, pady=6, font_size=12).pack(side=tk.RIGHT, fill=tk.Y)
         themed_button(self.title_bar, "—", self.minimize_window, role="quiet",
                       padx=16, pady=6, font_size=12).pack(side=tk.RIGHT, fill=tk.Y)
         themed_button(self.action_overlay, "SETTINGS", self.open_settings_selector, role="quiet",
