@@ -90,6 +90,8 @@ class IndustrialDashboard(AutomaticDashboard):
         # Result tabs of passed lines are hidden while on. Unlike the overlays this
         # is saved back to config.json, so the operator's choice survives a restart.
         self.defects_only = bool(CONFIG.get('result_view', {}).get('defects_only', True))
+        # Width labels on failing segments only, or on every segment; also saved.
+        self.defect_labels_only = bool(CONFIG.get('result_view', {}).get('defect_labels_only', False))
 
         self.result_image_1 = None
         self.result_image_2 = None
@@ -216,6 +218,10 @@ class IndustrialDashboard(AutomaticDashboard):
             self.action_overlay, "", self._toggle_defects_only, role="secondary", padx=16, pady=6)
         self.defects_button.pack(side=tk.RIGHT, fill=tk.Y)
         self._refresh_defects_button()
+        self.labels_button = themed_button(
+            self.action_overlay, "", self._toggle_defect_labels_only, role="secondary", padx=16, pady=6)
+        self.labels_button.pack(side=tk.RIGHT, fill=tk.Y)
+        self._refresh_labels_button()
         self.inspection_queue_label = tk.Label(
             self.root, text="Queue: 0 checking | 0 waiting | 0 inspecting",
             bg=C["surface"], fg=C["text"], font=(FONT, 10), anchor="w", padx=16)
@@ -255,6 +261,27 @@ class IndustrialDashboard(AutomaticDashboard):
             self.update_progress(100, f'Result filter not saved: {error}')
             return
         CONFIG.setdefault('result_view', {})['defects_only'] = self.defects_only
+
+    def _refresh_labels_button(self):
+        self.labels_button.configure(text="DEFECT DIMENSIONS" if self.defect_labels_only else "ALL DIMENSIONS")
+        set_button_role(self.labels_button, "selected" if self.defect_labels_only else "secondary")
+
+    def _toggle_defect_labels_only(self):
+        self.defect_labels_only = not self.defect_labels_only
+        self._refresh_labels_button()
+        view = getattr(self, 'result_view', None)
+        if view is not None:
+            view.set_defect_labels_only(self.defect_labels_only)
+        from startup_settings import save_config
+        candidate = copy.deepcopy(CONFIG)
+        candidate.setdefault('result_view', {})['defect_labels_only'] = self.defect_labels_only
+        try:
+            save_config(candidate)
+        except (ValueError, OSError) as error:
+            # The setting still applies for this session; only the saved default is stale.
+            self.update_progress(100, f'Dimensions setting not saved: {error}')
+            return
+        CONFIG.setdefault('result_view', {})['defect_labels_only'] = self.defect_labels_only
 
     def _shutdown_session(self):
         """Stop every worker and hand the cameras back to the driver."""
