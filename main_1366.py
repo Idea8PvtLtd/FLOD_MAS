@@ -115,6 +115,8 @@ class IndustrialDashboard(AutomaticDashboard):
             value=str(int(CONFIG['inspection'].get('segment_count', 10))))
         self.end_trim_var = tk.StringVar(
             value=f"{float(CONFIG['inspection'].get('end_trim_px', 0)):g}")
+        self.end_zone_min_var = tk.StringVar(
+            value=f"{float(CONFIG['inspection'].get('end_zone_min_width_mm', 2.9)):g}")
         self.result_display_seconds_var = tk.StringVar(
             value=f"{float(CONFIG['inspection'].get('result_display_seconds', 5.0)):g}")
 
@@ -192,6 +194,8 @@ class IndustrialDashboard(AutomaticDashboard):
         self.action_overlay = tk.Frame(self.root, bg=C['surface'], padx=5, pady=5,
                                        highlightbackground=C['border'], highlightthickness=1)
         themed_button(self.title_bar, "✕", self.close_application, role="quiet",
+                      padx=16, pady=6, font_size=12).pack(side=tk.RIGHT, fill=tk.Y)
+        themed_button(self.title_bar, "⛶", lambda: self._toggle_window_fullscreen(self.root), role="quiet",
                       padx=16, pady=6, font_size=12).pack(side=tk.RIGHT, fill=tk.Y)
         themed_button(self.title_bar, "—", self.minimize_window, role="quiet",
                       padx=16, pady=6, font_size=12).pack(side=tk.RIGHT, fill=tk.Y)
@@ -502,6 +506,15 @@ class IndustrialDashboard(AutomaticDashboard):
     # --------------------------------------------------------------
     # Size window (replaces pattern window)
     # --------------------------------------------------------------
+    def _toggle_window_fullscreen(self, window):
+        """Switch a borderless window between the whole screen and its normal size."""
+        if getattr(window, '_normal_geometry', None):
+            window.geometry(window._normal_geometry)
+            window._normal_geometry = None
+        else:
+            window._normal_geometry = window.geometry()
+            window.geometry(f'{window.winfo_screenwidth()}x{window.winfo_screenheight()}+0+0')
+
     def open_size_window(self):
         self.sel_win.destroy()
 
@@ -526,9 +539,17 @@ class IndustrialDashboard(AutomaticDashboard):
         ).pack(side=tk.LEFT, padx=10)
         themed_button(header, "✕", self.close_application, role="quiet",
                       padx=16, pady=6, font_size=12).pack(side=tk.RIGHT, fill=tk.Y)
+        themed_button(header, "⛶", lambda: self._toggle_window_fullscreen(self.size_win), role="quiet",
+                      padx=16, pady=6, font_size=12).pack(side=tk.RIGHT, fill=tk.Y)
 
         content = tk.Frame(self.size_win, bg=C["bg"])
         content.pack(expand=True, fill=tk.BOTH, padx=54, pady=30)
+        # Packed first at the bottom so SAVE PROFILE always stays on screen,
+        # whatever the cards above need.
+        footer = tk.Frame(content, bg=C["bg"])
+        footer.pack(side=tk.BOTTOM, fill=tk.X, pady=(4, 0))
+        themed_button(footer, "SAVE PROFILE", self.save_settings,
+                      role="primary", width=14).pack(side=tk.RIGHT)
         tk.Label(
             content, text="Inspection profile", fg=C["text"], bg=C["bg"],
             font=(FONT, 28, "bold"),
@@ -606,17 +627,18 @@ class IndustrialDashboard(AutomaticDashboard):
             settings, textvariable=self.end_trim_var, bg=C["surface_2"],
             fg=C["text"], insertbackground=C["text"], font=(FONT, 12),
             relief=tk.FLAT, highlightthickness=1, highlightbackground=C["border"], justify=tk.CENTER)
-        self.end_trim_entry.grid(row=6, column=0, padx=20, pady=(7, 16), sticky="ew", ipady=8)
-        tk.Label(settings, text="Glue closer to the tip than the end bar is ignored.\n"
-                                "End zones run from the end bar to the end-zone distance and are\n"
-                                "graded on their own; the rest is split into equal segments.",
-                 fg=C["muted"], bg=C["card"], font=(FONT, 10), justify=tk.LEFT).grid(
-            row=6, column=1, sticky="w", padx=20, pady=(0, 16))
-
-        footer = tk.Frame(content, bg=C["bg"])
-        footer.pack(fill=tk.X, pady=(4, 0))
-        themed_button(footer, "SAVE PROFILE", self.save_settings,
-                      role="primary", width=14).pack(side=tk.RIGHT)
+        self.end_trim_entry.grid(row=6, column=0, padx=20, pady=(7, 6), sticky="ew", ipady=8)
+        tk.Label(settings, text="End zone minimum width (mm)", **label_options).grid(
+            row=5, column=1, sticky="w", padx=20, pady=(8, 0))
+        self.end_zone_min_entry = tk.Entry(
+            settings, textvariable=self.end_zone_min_var, bg=C["surface_2"],
+            fg=C["text"], insertbackground=C["text"], font=(FONT, 12),
+            relief=tk.FLAT, highlightthickness=1, highlightbackground=C["border"], justify=tk.CENTER)
+        self.end_zone_min_entry.grid(row=6, column=1, padx=20, pady=(7, 6), sticky="ew", ipady=8)
+        tk.Label(settings, text="Glue closer to the tip than the end bar is ignored. End zones pass from the "
+                                "end zone minimum width; the other segments need required width ± tolerance.",
+                 fg=C["muted"], bg=C["card"], font=(FONT, 9), justify=tk.LEFT).grid(
+            row=7, column=0, columnspan=2, sticky="w", padx=20, pady=(0, 8))
 
         self._select_size(self.size_var.get())
 
@@ -656,6 +678,9 @@ class IndustrialDashboard(AutomaticDashboard):
             validated_width = positive(self.strip_width_var, 'Required width')
             validated_tolerance = positive(self.strip_width_tolerance_var, 'Allowed tolerance')
             display_seconds = positive(self.result_display_seconds_var, 'Result display time')
+            end_zone_min = positive(self.end_zone_min_var, 'End zone minimum width')
+            if end_zone_min > validated_width + validated_tolerance:
+                raise ValueError('End zone minimum width must not be above required width + tolerance.')
             size = self.size_var.get()
             from startup_settings import save_config
             candidate = copy.deepcopy(CONFIG)
@@ -666,6 +691,7 @@ class IndustrialDashboard(AutomaticDashboard):
             candidate['inspection']['strip_width_mm'] = validated_width
             candidate['inspection']['strip_width_tolerance_mm'] = validated_tolerance
             candidate['inspection']['result_display_seconds'] = display_seconds
+            candidate['inspection']['end_zone_min_width_mm'] = end_zone_min
             save_config(candidate)
         except (ValueError, OSError) as error:
             messagebox.showerror('Settings not saved', str(error), parent=self.size_win)
@@ -679,6 +705,7 @@ class IndustrialDashboard(AutomaticDashboard):
         CONFIG['inspection']['strip_width_mm'] = validated_width
         CONFIG['inspection']['strip_width_tolerance_mm'] = validated_tolerance
         CONFIG['inspection']['result_display_seconds'] = display_seconds
+        CONFIG['inspection']['end_zone_min_width_mm'] = end_zone_min
         self.end_trim_var.set(f'{tip:g}')
         pipeline = getattr(getattr(self, 'auto_controller', None), 'pipeline', None)
         if pipeline is not None:
@@ -688,6 +715,7 @@ class IndustrialDashboard(AutomaticDashboard):
         self.strip_width_var.set(f"{validated_width:g}")
         self.strip_width_tolerance_var.set(f"{validated_tolerance:g}")
         self.result_display_seconds_var.set(f"{display_seconds:g}")
+        self.end_zone_min_var.set(f"{end_zone_min:g}")
 
         # Commit to active values
         self.active_size              = self.size_var.get()

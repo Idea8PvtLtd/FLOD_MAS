@@ -33,6 +33,8 @@ def validate_automatic_config(config):
         number('inspection', 'end_exclusion_px', 0)
     if 'end_trim_px' in config.get('inspection', {}):
         number('inspection', 'end_trim_px', 0)
+    if config.get('inspection', {}).get('end_zone_min_width_mm') is not None:
+        number('inspection', 'end_zone_min_width_mm', 0)
     if 'segment_count' in config.get('inspection', {}):
         number('inspection', 'segment_count', 1, integer=True)
     if 'min_line_length_mm' in config.get('inspection', {}):

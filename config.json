@@ -162,6 +162,7 @@
     "end_exclusion_percent": 5.0,
     "end_exclusion_px": 80,
     "end_trim_px": 50,
+    "end_zone_min_width_mm": 2.9,
     "segment_count": 40,
     "min_line_length_mm": 150
   },
