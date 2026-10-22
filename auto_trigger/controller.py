@@ -52,6 +52,7 @@ class AutoController(threading.Thread):
     scene = None          # the SceneMonitor, in scene mode
     board = None          # the lines known on the board now on the bed (inspection.board_lines)
     scene_settings = {}
+    gate_running = False  # a fabric check is inside its model right now
 
     def __init__(self, config, pipeline_factory, hand_factory=HandPresence, fabric_factory=FabricGate):
         super().__init__(name='automatic-hand-monitor', daemon=True)
@@ -187,6 +188,17 @@ class AutoController(threading.Thread):
     @property
     def busy(self):
         return self.future is not None or bool(self.pending_jobs) or self.gate_busy
+
+    @property
+    def working(self):
+        """True while a model runs on another thread: an inspection or a fabric check.
+
+        Unlike ``busy`` this stays right after ``stop()``: queued work that will never
+        start does not count. Ending the process while a model runs aborts it in
+        native code (exit 134), so closing waits for this to clear.
+        """
+        future = self.future
+        return (future is not None and not future.done()) or self.gate_running
 
     def set_paused(self, paused):
         with self.lock:
@@ -374,7 +386,11 @@ class AutoController(threading.Thread):
             item = self.capture_jobs.get()
             if item is None:
                 return
-            job = self._prepare_capture(gate, item)
+            self.gate_running = True
+            try:
+                job = self._prepare_capture(gate, item)
+            finally:
+                self.gate_running = False
             with self.lock:
                 if job is not None and self.stopped.is_set():
                     self._cancel_job(job, 'cancelled')

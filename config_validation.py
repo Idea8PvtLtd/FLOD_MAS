@@ -62,6 +62,8 @@ def validate_automatic_config(config):
             raise ValueError('local_inspection.ribbon_finish must be true or false')
         if 'board_match_distance_px' in config['local_inspection']:
             number('local_inspection', 'board_match_distance_px', 1)
+        if 'board_edge_margin_px' in config['local_inspection']:
+            number('local_inspection', 'board_edge_margin_px', 0, integer=True)
         if config['local_inspection'].get('board_quarter_turn', 'auto') not in ('auto', 'off'):
             raise ValueError("local_inspection.board_quarter_turn must be 'auto' or 'off'")
         if 'min_line_length_ratio' in config['local_inspection']:

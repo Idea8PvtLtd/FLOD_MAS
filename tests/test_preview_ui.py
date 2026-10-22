@@ -323,7 +323,7 @@ class PreviewUITests(unittest.TestCase):
     def test_reset_relaunches_the_app_without_the_startup_countdown(self, popen):
         app = IndustrialDashboard.__new__(IndustrialDashboard)
         app.root = MagicMock()
-        app.auto_controller = MagicMock()
+        app.auto_controller = MagicMock(working=False)   # no measurement running
         app.camera1 = MagicMock()
         app.camera2 = None
         app._camera_futures = []
@@ -336,6 +336,47 @@ class PreviewUITests(unittest.TestCase):
         self.assertEqual(popen.call_args.args[0][2], main_1366.NO_STARTUP_FLAG)
         self.assertEqual(popen.call_args.kwargs['cwd'],
                          os.path.dirname(os.path.abspath(main_1366.__file__)))
+        app.root.destroy.assert_called_once_with()
+
+    def closing_app(self, working):
+        app = IndustrialDashboard.__new__(IndustrialDashboard)
+        app.root = MagicMock()
+        app.auto_controller = MagicMock(working=working)
+        app.camera1 = None
+        app.camera2 = None
+        app._camera_futures = []
+        app._dismiss_result_view = MagicMock()
+        app.update_progress = MagicMock()
+        return app
+
+    def test_closing_with_no_measurement_running_closes_at_once(self):
+        app = self.closing_app(working=False)
+        app.close_application()
+        app.auto_controller.stop.assert_called_once_with()
+        app.root.destroy.assert_called_once_with()
+        app.root.after.assert_not_called()
+
+    def test_closing_waits_for_a_running_measurement_then_closes(self):
+        # Ending the process inside a model aborts it (exit 134), so the window waits.
+        app = self.closing_app(working=True)
+        app.close_application()
+        app.root.destroy.assert_not_called()
+        app.update_progress.assert_called_once()
+        delay, again = app.root.after.call_args.args
+        self.assertEqual(delay, 200)
+        app.close_application()                 # a second click starts no second wait
+        self.assertEqual(app.root.after.call_count, 1)
+        app.auto_controller.working = False
+        again()
+        app.auto_controller.join.assert_called_once_with(timeout=2.0)
+        app.root.destroy.assert_called_once_with()
+
+    @patch('main_1366.time.monotonic', side_effect=[0.0, 0.0, 31.0, 31.0])
+    def test_closing_gives_up_waiting_after_the_limit(self, _clock):
+        app = self.closing_app(working=True)
+        app.close_application()
+        app.root.destroy.assert_not_called()
+        app.root.after.call_args.args[1]()
         app.root.destroy.assert_called_once_with()
 
     @patch('main_1366.ImageTk.PhotoImage')

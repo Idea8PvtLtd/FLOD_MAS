@@ -536,3 +536,20 @@ class DetectionPublishingTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class WorkingTests(unittest.TestCase):
+    """``working``: a model runs on another thread, so the app must not end yet."""
+
+    def test_only_a_running_inspection_or_fabric_check_counts(self):
+        from concurrent.futures import Future
+        from auto_trigger.controller import AutoController
+        controller = AutoController.__new__(AutoController)
+        controller.future = None
+        self.assertFalse(controller.working)
+        controller.future = Future()
+        self.assertTrue(controller.working)
+        controller.future.set_result(None)
+        self.assertFalse(controller.working)    # done, though not yet collected by the loop
+        controller.gate_running = True
+        self.assertTrue(controller.working)

@@ -9,6 +9,25 @@ from .line_measurement import measurement_record, grading_checks
 
 log = logging.getLogger('flod.inspection')
 
+EDGE_REASON = 'line runs out of the photo — not fully in view'
+
+
+def cut_by_edge(result, size, margin):
+    """True when a measured line's glue reaches within ``margin`` px of the photo's border.
+
+    ``size`` is the photo's (height, width); the mask lies at ``result['origin']``
+    in it. A margin of 0 or less turns the check off.
+    """
+    if margin <= 0:
+        return False
+    ys, xs = np.nonzero(result['mask'])
+    if not len(xs):
+        return False
+    left, top = result.get('origin', (0, 0))
+    height, width = size
+    return bool(xs.min() + left <= margin or ys.min() + top <= margin
+                or xs.max() + left >= width - 1 - margin or ys.max() + top >= height - 1 - margin)
+
 
 def describe(measurement):
     """One log line for a measured glue line."""
@@ -209,6 +228,7 @@ class InspectionPipeline:
                 warnings.append(f'Millimetre calibration unavailable: {error}')
                 log.warning('Millimetre calibration unavailable: %s', error)
             checks = grading_checks(self.config['inspection'])
+            edge_margin = self.config.get('local_inspection', {}).get('board_edge_margin_px', 20)
             try:
                 source, lines = self.inspector.find_lines(undistorted, sideways=True)
             except NoSourceLinesError:
@@ -242,6 +262,13 @@ class InspectionPipeline:
                 if short:
                     failed_line(line_id, short)
                     continue
+                if measurement['status'] == 'FAIL' and cut_by_edge(result, (height, width), edge_margin):
+                    # Part of the line lies outside the photo, so coverage and the
+                    # end beside the edge read short: it cannot be graded, as an
+                    # ungradeable segment is WARNING (line_measurement._grade).
+                    measurement['cut_by_edge'] = True
+                    measurement['status'] = 'WARNING'
+                    measurement['fail_reasons'] = [EDGE_REASON] + list(measurement.get('fail_reasons') or [])
                 board.record(line_id, self._board_entry(undistorted, result, measurement, sequence))
                 new_lines.append(line_id)
                 record['lines'].append(measurement)

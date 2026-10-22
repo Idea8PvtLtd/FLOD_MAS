@@ -480,3 +480,67 @@ class SidewaysTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class CutByEdgeTests(unittest.TestCase):
+    def mask_at(self, x0, x1, y0, y1, shape=(100, 200)):
+        mask = np.zeros(shape, np.uint8)
+        mask[y0:y1, x0:x1] = 1
+        return {'mask': mask}
+
+    def test_a_line_well_inside_the_photo_is_not_cut(self):
+        from inspection.pipeline import cut_by_edge
+        self.assertFalse(cut_by_edge(self.mask_at(50, 60, 30, 70), (100, 200), 20))
+
+    def test_glue_near_any_border_is_cut(self):
+        from inspection.pipeline import cut_by_edge
+        for box in ((5, 15, 30, 70), (185, 195, 30, 70), (50, 60, 0, 40), (50, 60, 60, 100)):
+            self.assertTrue(cut_by_edge(self.mask_at(*box), (100, 200), 20), box)
+
+    def test_the_mask_origin_places_it_in_the_photo(self):
+        from inspection.pipeline import cut_by_edge
+        result = dict(self.mask_at(50, 60, 30, 70, shape=(100, 100)), origin=(930, 0))   # glue to x 989
+        self.assertTrue(cut_by_edge(result, (100, 1000), 20))
+        self.assertFalse(cut_by_edge(dict(result, origin=(400, 0)), (100, 1000), 20))
+
+    def test_a_margin_of_zero_turns_the_check_off(self):
+        from inspection.pipeline import cut_by_edge
+        self.assertFalse(cut_by_edge(self.mask_at(0, 10, 0, 100), (100, 200), 0))
+
+
+class EdgeOfPhotoTests(BoardCase):
+    """A line that runs out of the photo is WARNING, not FAIL (local_inspection.board_edge_margin_px)."""
+
+    def failing_board(self):
+        frame, inspector = board_inspection(xs=(750,))
+        def thin(flat):                 # 1 mm of glue against 3 +- 0.5 mm: every segment fails
+            mask = np.zeros(flat.shape[:2], np.uint8)
+            mask[45:55, 15:flat.shape[1]-15] = 255
+            return mask
+        inspector.glue = SimpleNamespace(width=1024, predict=thin)
+        return frame, inspector
+
+    def test_a_failing_line_within_the_margin_is_a_warning_with_its_reasons_kept(self):
+        frame, inspector = self.failing_board()
+        self.config['local_inspection']['board_edge_margin_px'] = 400    # reaches every line here
+        payload, _ = self.run_board(frame, inspector, BoardLines())
+        entry, = payload['lines']
+        self.assertEqual(entry['status'], 'WARNING')
+        self.assertTrue(entry['measurement']['cut_by_edge'])
+        reasons = entry['measurement']['fail_reasons']
+        self.assertEqual(reasons[0], 'line runs out of the photo — not fully in view')
+        self.assertEqual(payload['verdict'], 'WARNING')
+
+    def test_with_the_margin_off_the_same_line_fails(self):
+        frame, inspector = self.failing_board()
+        self.config['local_inspection']['board_edge_margin_px'] = 0
+        payload, _ = self.run_board(frame, inspector, BoardLines())
+        entry, = payload['lines']
+        self.assertEqual(entry['status'], 'FAIL')
+        self.assertNotIn('cut_by_edge', entry['measurement'])
+
+    def test_a_passing_line_at_the_edge_stays_pass(self):
+        frame, inspector = board_inspection(xs=(750,))
+        self.config['local_inspection']['board_edge_margin_px'] = 400
+        payload, _ = self.run_board(frame, inspector, BoardLines())
+        self.assertEqual(payload['lines'][0]['status'], 'PASS')

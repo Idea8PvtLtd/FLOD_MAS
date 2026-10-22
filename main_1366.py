@@ -38,6 +38,8 @@ LOG = logging.getLogger('flod.app')
 # ---------------- CONFIG ----------------
 WINDOW_WIDTH = 1366
 WINDOW_HEIGHT = 768
+# Closing waits this long at most for a running measurement (see _destroy_when_idle).
+CLOSE_WAIT_SECONDS = 30.0
 BOTTOM_PANEL_HEIGHT = 118
 TITLE_BAR_HEIGHT = 44
 
@@ -239,7 +241,36 @@ class IndustrialDashboard(AutomaticDashboard):
     def close_application(self):
         LOG.info('Application closing')
         self._shutdown_session()
-        self.root.destroy()
+        self._destroy_when_idle(self.root.destroy)
+
+    def _destroy_when_idle(self, finish, started=None):
+        """Run ``finish`` once no model is running on a worker thread.
+
+        A measurement cannot be stopped half way, and ending the process inside
+        one aborts it in native code ("terminate called without an active
+        exception", exit 134). The window stays open, saying why, for at most
+        CLOSE_WAIT_SECONDS; the monitor thread is then given a moment to end.
+        """
+        if started is None:
+            if getattr(self, '_close_pending', False):
+                return          # a second click while already waiting
+            self._close_pending = True
+        controller = getattr(self, 'auto_controller', None)
+        started = time.monotonic() if started is None else started
+        waited = time.monotonic() - started
+        if controller is not None and controller.working and waited < CLOSE_WAIT_SECONDS:
+            if not getattr(self, '_close_wait_logged', False):
+                self._close_wait_logged = True
+                LOG.info('Waiting for the running measurement to finish before closing')
+                self.update_progress(100, 'Finishing the measurement — closing after it…')
+            self.root.after(200, lambda: self._destroy_when_idle(finish, started))
+            return
+        if controller is not None:
+            if controller.working:
+                LOG.warning('Closing with a measurement still running after %.0f s', waited)
+            if controller.is_alive():
+                controller.join(timeout=2.0)
+        finish()
 
     def restart_application(self):
         """RESET: relaunch the process rather than only clearing the view.
@@ -249,10 +280,13 @@ class IndustrialDashboard(AutomaticDashboard):
         already chose settings for this session and a reset is not a new one.
         """
         self._shutdown_session()
-        script = os.path.abspath(__file__)
-        subprocess.Popen([sys.executable, script, NO_STARTUP_FLAG],
-                         cwd=os.path.dirname(script))
-        self.root.destroy()
+
+        def relaunch():
+            script = os.path.abspath(__file__)
+            subprocess.Popen([sys.executable, script, NO_STARTUP_FLAG],
+                             cwd=os.path.dirname(script))
+            self.root.destroy()
+        self._destroy_when_idle(relaunch)
 
     def minimize_window(self, target_win=None):
         win = target_win or self.root

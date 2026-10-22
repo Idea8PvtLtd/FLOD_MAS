@@ -182,6 +182,8 @@ settings tab replaces the old segmentation/SAM controls.
 | `inspection.strip_width_mm` | 4.0 | Target width for the new measurements |
 | `inspection.strip_width_tolerance_mm` | 1.0 | Allowed +/- width tolerance |
 | `result_view.show_live_preview` | true | Small live camera panel beside results |
+| `result_view.fill_screen` | true | true: the window grows to the whole screen while results are shown, as before. false: results stay inside the normal 1366x768 window |
+| `local_inspection.board_edge_margin_px` | 20 | Scene mode only. A line whose glue comes this close to the border of the photo runs out of view; if it would FAIL it is shown as WARNING, "line runs out of the photo — not fully in view", with its other reasons kept, because its coverage and the end beside the border cannot be read. 0: off, such a line is graded as any other |
 | `capture_storage.save_rejected_triggers` | false | Preserve sources for rejected/error triggers too |
 | `capture_storage.max_sets` | 200 | Whole capture sets retained; the oldest is deleted once a newer one is started |
 

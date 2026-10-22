@@ -256,6 +256,7 @@
     "smooth_logits": false,
     "ribbon_finish": false,
     "board_match_distance_px": 60.0,
+    "board_edge_margin_px": 20,
     "board_quarter_turn": "auto",
     "min_line_length_ratio": 0.0
   },
