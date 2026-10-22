@@ -21,10 +21,8 @@ def record(result, **ends):
 
 
 class EndZoneTests(unittest.TestCase):
-    def test_off_by_default_and_then_nothing_changes(self):
-        for key, value in (('end_exclusion_px', 0), ('end_trim_px', 0), ('segment_count', 10),
-                           ('min_line_length_mm', 0)):
-            self.assertEqual(CONFIG['inspection'][key], value)
+    def test_off_and_then_nothing_changes(self):
+        # Off is 0 or absent; the shipped config.json switches the end zones on for the site.
         _, _, result = synthetic_inspection()
         plain = record(result)
         self.assertEqual(record(result, end_exclusion_px=None, end_trim_px=7.0), plain)

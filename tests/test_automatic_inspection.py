@@ -357,8 +357,11 @@ class ControllerTests(unittest.TestCase):
                     controller.submit(np.full((20,20,3), value, np.uint8), seq,
                         SimpleNamespace(undistort=lambda f: f.copy()), {'size':'M','width':4,'tolerance':1})
                     time.sleep(.1)
-                deadline = time.monotonic() + 2
-                while time.monotonic() < deadline and not store._sets():
+                # The set's folder appears before its result.json is written, so wait
+                # for the file itself (a slow runner read it too early).
+                deadline = time.monotonic() + 5
+                while time.monotonic() < deadline and not (
+                        store._sets() and (store._sets()[0]/'result.json').is_file()):
                     time.sleep(.02)
                 controller.stop()
                 controller.join(2)

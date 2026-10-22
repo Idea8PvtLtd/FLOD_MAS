@@ -239,6 +239,8 @@ class BatchTests(unittest.TestCase):
         frame, inspector, _ = synthetic_inspection()
         config = copy.deepcopy(CONFIG)
         config['capture_storage']['max_sets'] = 1
+        # The synthetic edges are ~75 mm at this scale; length is tested separately.
+        config['inspection']['min_line_length_mm'] = 0
         with tempfile.TemporaryDirectory() as directory:
             store = CaptureStore(directory, config['capture_storage'])
             pipeline = InspectionPipeline(inspector, store, config)
@@ -258,11 +260,36 @@ class BatchTests(unittest.TestCase):
             store.begin(frame, frame, {})
             self.assertFalse(old.exists())
 
+    def test_glue_lines_shorter_than_the_minimum_are_reported_not_graded(self):
+        frame, inspector, _ = synthetic_inspection()
+        config = copy.deepcopy(CONFIG)
+        config['inspection']['min_line_length_mm'] = 150
+        with tempfile.TemporaryDirectory() as directory, \
+                patch('inspection.line_measurement.current_ratio', return_value=1.0):
+            pipeline = InspectionPipeline(inspector, CaptureStore(directory, config['capture_storage']),
+                                          config)
+            # ~720 px of glue per line: ~72 mm at 0.1 mm/px is too short, ~180 mm at 0.25 is not.
+            results, errors = [], []
+            with patch('inspection.pipeline.plane_scale.load_frame_scale',
+                       return_value=PlaneScale(np.diag([.1, .1, 1]), .1)):
+                pipeline.run_batch(frame, frame, {}, 10, .1,
+                                   on_result=results.append, on_error=errors.append)
+            self.assertEqual(results, [])
+            self.assertEqual(len(errors), 2)
+            self.assertTrue(all('shorter than the 150 mm minimum' in e for e in errors), errors)
+            with patch('inspection.pipeline.plane_scale.load_frame_scale',
+                       return_value=PlaneScale(np.diag([.25, .25, 1]), .25)):
+                pipeline.run_batch(frame, frame, {}, 10, .1, on_result=results.append)
+            self.assertEqual([r['measurement']['selected_line'] for r in results], [1, 2])
+            self.assertTrue(all(r['measurement']['length_mm'] >= 150 for r in results))
+
     def test_batch_overlay_shows_the_detected_adhesive_region(self):
         frame, inspector, _ = synthetic_inspection()
+        config = copy.deepcopy(CONFIG)
+        config['inspection']['min_line_length_mm'] = 0
         with tempfile.TemporaryDirectory() as directory:
-            pipeline = InspectionPipeline(inspector, CaptureStore(directory, CONFIG['capture_storage']),
-                                          CONFIG)
+            pipeline = InspectionPipeline(inspector, CaptureStore(directory, config['capture_storage']),
+                                          config)
             results = []
             with patch('inspection.pipeline.plane_scale.load_frame_scale',
                        return_value=PlaneScale(np.diag([.1,.1,1]), .1)):

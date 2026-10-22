@@ -90,6 +90,9 @@ class IndustrialDashboard(AutomaticDashboard):
         # Hand and bed-marker overlays on the live preview. Session-only: the
         # button below flips this, the config value is only the starting point.
         self.show_overlays = bool(CONFIG['preview'].get('show_overlay', True))
+        # Result tabs of passed lines are hidden while on. Unlike the overlays this
+        # is saved back to config.json, so the operator's choice survives a restart.
+        self.defects_only = bool(CONFIG.get('result_view', {}).get('defects_only', True))
 
         self.result_image_1 = None
         self.result_image_2 = None
@@ -105,9 +108,16 @@ class IndustrialDashboard(AutomaticDashboard):
             value=f"{float(CONFIG['inspection']['strip_width_mm']):g}")
         self.strip_width_tolerance_var = tk.StringVar(
             value=f"{float(CONFIG['inspection']['strip_width_tolerance_mm']):g}")
+        # The percentage is only the fallback when end_exclusion_px is absent, so it
+        # is no longer edited here, but each capture still carries it.
+        self.active_end_exclusion_percent = float(
+            CONFIG['inspection'].get('end_exclusion_percent', 5.0))
         self.end_exclusion_var = tk.StringVar(
-            value=f"{float(CONFIG['inspection'].get('end_exclusion_percent', 5.0)):g}")
-        self.active_end_exclusion_percent = float(self.end_exclusion_var.get())
+            value=f"{float(CONFIG['inspection'].get('end_exclusion_px', 0)):g}")
+        self.segment_count_var = tk.StringVar(
+            value=str(int(CONFIG['inspection'].get('segment_count', 10))))
+        self.end_trim_var = tk.StringVar(
+            value=f"{float(CONFIG['inspection'].get('end_trim_px', 0)):g}")
         self.result_display_seconds_var = tk.StringVar(
             value=f"{float(CONFIG['inspection'].get('result_display_seconds', 5.0)):g}")
 
@@ -201,6 +211,10 @@ class IndustrialDashboard(AutomaticDashboard):
             self.action_overlay, "", self._toggle_overlays, role="secondary", padx=16, pady=6)
         self.overlay_button.pack(side=tk.RIGHT, fill=tk.Y)
         self._refresh_overlay_button()
+        self.defects_button = themed_button(
+            self.action_overlay, "", self._toggle_defects_only, role="secondary", padx=16, pady=6)
+        self.defects_button.pack(side=tk.RIGHT, fill=tk.Y)
+        self._refresh_defects_button()
         self.inspection_queue_label = tk.Label(
             self.root, text="Queue: 0 checking | 0 waiting | 0 inspecting",
             bg=C["surface"], fg=C["text"], font=(FONT, 10), anchor="w", padx=16)
@@ -221,6 +235,25 @@ class IndustrialDashboard(AutomaticDashboard):
             view = getattr(self, 'result_view', None)
             if view is not None:
                 view.clear_live_overlay()
+
+    def _refresh_defects_button(self):
+        self.defects_button.configure(text="DEFECTS ONLY" if self.defects_only else "ALL RESULTS")
+        set_button_role(self.defects_button, "selected" if self.defects_only else "secondary")
+
+    def _toggle_defects_only(self):
+        self.defects_only = not self.defects_only
+        self._refresh_defects_button()
+        self._sync_result_view()
+        from startup_settings import save_config
+        candidate = copy.deepcopy(CONFIG)
+        candidate.setdefault('result_view', {})['defects_only'] = self.defects_only
+        try:
+            save_config(candidate)
+        except (ValueError, OSError) as error:
+            # The filter still applies for this session; only the saved default is stale.
+            self.update_progress(100, f'Result filter not saved: {error}')
+            return
+        CONFIG.setdefault('result_view', {})['defects_only'] = self.defects_only
 
     def _shutdown_session(self):
         """Stop every worker and hand the cameras back to the driver."""
@@ -556,16 +589,33 @@ class IndustrialDashboard(AutomaticDashboard):
         self.strip_width_tolerance_entry.grid(
             row=2, column=1, padx=20, pady=(7, 20), sticky="ew", ipady=8)
 
-        tk.Label(settings, text="Exclude from EACH end (%)", **label_options).grid(
+        tk.Label(settings, text="End zone at EACH end (px)", **label_options).grid(
             row=3, column=0, sticky="w", padx=20)
         self.end_exclusion_entry = tk.Entry(
             settings, textvariable=self.end_exclusion_var, bg=C["surface_2"],
             fg=C["text"], insertbackground=C["text"], font=(FONT, 12),
             relief=tk.FLAT, highlightthickness=1, highlightbackground=C["border"], justify=tk.CENTER)
-        self.end_exclusion_entry.grid(row=4, column=0, padx=20, pady=(7, 16), sticky="ew", ipady=8)
-        tk.Label(settings, text="5% per end keeps the middle 90%.\n0 disables exclusion; must be below 50%.",
+        self.end_exclusion_entry.grid(row=4, column=0, padx=20, pady=(7, 8), sticky="ew", ipady=8)
+
+        tk.Label(settings, text="Number of segments", **label_options).grid(
+            row=3, column=1, sticky="w", padx=20)
+        self.segment_count_entry = tk.Entry(
+            settings, textvariable=self.segment_count_var, bg=C["surface_2"],
+            fg=C["text"], insertbackground=C["text"], font=(FONT, 12),
+            relief=tk.FLAT, highlightthickness=1, highlightbackground=C["border"], justify=tk.CENTER)
+        self.segment_count_entry.grid(row=4, column=1, padx=20, pady=(7, 8), sticky="ew", ipady=8)
+        tk.Label(settings, text="End bar distance from tip (px)", **label_options).grid(
+            row=5, column=0, sticky="w", padx=20, pady=(8, 0))
+        self.end_trim_entry = tk.Entry(
+            settings, textvariable=self.end_trim_var, bg=C["surface_2"],
+            fg=C["text"], insertbackground=C["text"], font=(FONT, 12),
+            relief=tk.FLAT, highlightthickness=1, highlightbackground=C["border"], justify=tk.CENTER)
+        self.end_trim_entry.grid(row=6, column=0, padx=20, pady=(7, 16), sticky="ew", ipady=8)
+        tk.Label(settings, text="Glue closer to the tip than the end bar is ignored.\n"
+                                "End zones run from the end bar to the end-zone distance and are\n"
+                                "graded on their own; the rest is split into equal segments.",
                  fg=C["muted"], bg=C["card"], font=(FONT, 10), justify=tk.LEFT).grid(
-            row=4, column=1, sticky="w", padx=20)
+            row=6, column=1, sticky="w", padx=20, pady=(0, 16))
 
         footer = tk.Frame(content, bg=C["bg"])
         footer.pack(fill=tk.X, pady=(4, 0))
@@ -583,18 +633,40 @@ class IndustrialDashboard(AutomaticDashboard):
     def save_settings(self):
         try:
             trim = float(self.end_exclusion_var.get())
-            if not math.isfinite(trim) or not 0 <= trim < 50:
-                raise ValueError('End exclusion must be at least 0 and less than 50 percent.')
+            if not math.isfinite(trim) or trim < 0:
+                raise ValueError('End zone must be a number of pixels, 0 or more.')
+            try:
+                segments = int(self.segment_count_var.get())
+            except ValueError:
+                raise ValueError('Number of segments must be a whole number, 1 or more.') from None
+            if segments < 1:
+                raise ValueError('Number of segments must be a whole number, 1 or more.')
+            tip = float(self.end_trim_var.get())
+            if not math.isfinite(tip) or tip < 0:
+                raise ValueError('End bar distance must be a number of pixels, 0 or more.')
+            if trim > 0 and tip >= trim:
+                raise ValueError('End bar distance must be smaller than the end zone, '
+                                 'or the end zones would be empty.')
             from startup_settings import save_config
             candidate = copy.deepcopy(CONFIG)
-            candidate['inspection']['end_exclusion_percent'] = trim
+            candidate['inspection']['end_exclusion_px'] = trim
+            candidate['inspection']['end_trim_px'] = tip
+            candidate['inspection']['segment_count'] = segments
             save_config(candidate)
         except (ValueError, OSError) as error:
             messagebox.showerror('Settings not saved', str(error), parent=self.size_win)
             return
-        CONFIG['inspection']['end_exclusion_percent'] = trim
-        self.active_end_exclusion_percent = trim
+        # The pipeline reads CONFIG at each measurement, so the end zone applies
+        # to the next capture. The segment count lives on the loaded inspector.
+        CONFIG['inspection']['end_exclusion_px'] = trim
+        CONFIG['inspection']['end_trim_px'] = tip
+        CONFIG['inspection']['segment_count'] = segments
+        self.end_trim_var.set(f'{tip:g}')
+        pipeline = getattr(getattr(self, 'auto_controller', None), 'pipeline', None)
+        if pipeline is not None:
+            pipeline.inspector.segments = segments
         self.end_exclusion_var.set(f'{trim:g}')
+        self.segment_count_var.set(str(segments))
         strip_value = self.strip_width_var.get()
         validated_width = self._validate_strip_width(strip_value)
         tolerance_value = self.strip_width_tolerance_var.get()
