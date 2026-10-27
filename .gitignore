@@ -58,3 +58,6 @@ train_segemnt_crop_part/red_ones/
 train_segemnt_crop_part/data/
 train_segemnt_crop_part/runs/
 train_segemnt_crop_part/review/
+
+# Mac benchmark output (benchmark_mac.py)
+benchmark_results/

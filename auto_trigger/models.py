@@ -10,13 +10,22 @@ MODEL_DIR = Path(__file__).resolve().parent / 'models'
 
 class HandPresence:
     def __init__(self, settings):
+        import os
+        os.environ.setdefault('MEDIAPIPE_DISABLE_GPU', '1')
+        os.environ.setdefault('CUDA_VISIBLE_DEVICES', '-1')
         from mediapipe.tasks import python
         from mediapipe.tasks.python import vision
         self.width = settings['detect_width']
         self.last_timestamp = -1
+        try:
+            base_options = python.BaseOptions(
+                model_asset_path=str(MODEL_DIR / 'hand_landmarker.task'),
+                delegate=python.BaseOptions.Delegate.CPU)
+        except Exception:
+            base_options = python.BaseOptions(model_asset_path=str(MODEL_DIR / 'hand_landmarker.task'))
         self.landmarker = vision.HandLandmarker.create_from_options(
             vision.HandLandmarkerOptions(
-                base_options=python.BaseOptions(model_asset_path=str(MODEL_DIR / 'hand_landmarker.task')),
+                base_options=base_options,
                 running_mode=vision.RunningMode.VIDEO,
                 num_hands=settings['max_hands'],
                 min_hand_detection_confidence=settings['hand_confidence'],
@@ -54,7 +63,10 @@ class FabricGate:
     def __init__(self, settings):
         self.settings = settings
         self.labels = load_labels(MODEL_DIR / 'labels_2c.txt')
-        self.model = _keras_models().load_model(str(MODEL_DIR / 'keras_model_2c.h5'), compile=False)
+        from mac_coreml import CoreMLKeras, coreml_package
+        package = coreml_package(MODEL_DIR / 'keras_model_2c.h5')
+        self.model = (CoreMLKeras(package) if package else
+                      _keras_models().load_model(str(MODEL_DIR / 'keras_model_2c.h5'), compile=False))
         if self.labels != ['full_fabric', 'no_fabric']:
             raise ValueError('Fabric labels must be 0 full_fabric and 1 no_fabric')
 

@@ -87,7 +87,7 @@
     "max_height": 540,
     "interval_ms": 100,
     "show_overlay": true,
-    "marker_detect_width": 1280
+    "marker_detect_width": 1152
   },
   "crop_setup": {
     "definitions_file": "Files/crop_regions.json",

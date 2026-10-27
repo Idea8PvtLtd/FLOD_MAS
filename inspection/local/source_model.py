@@ -26,7 +26,10 @@ class SourceMaskOnnx:
         self.reference=load_reference()
         self.reference.MODEL=self.path;self.reference.TRAIN_WIDTH=self.width
         self.reference.THRESHOLD=self.threshold;self.reference.MIN_REGION=self.min_region
-        self.session=self.reference.load_session('cpu')
+        from mac_coreml import CoreMLSession,coreml_package
+        package=coreml_package(self.path)
+        self.session=(CoreMLSession(package,lambda:self.reference.load_session('cpu')) if package
+                      else self.reference.load_session('cpu'))
 
     def predict(self,image):
         if image.ndim!=3 or image.shape[2]!=3:raise ValueError('Source model needs a BGR photo.')
@@ -40,4 +43,4 @@ class SourceMaskOnnx:
                     minimum_region_fraction=self.min_region,mirrored_pass=self.flip,
                     preprocessing='aspect-preserving resize; reflected padding to multiple of 32; RGB ImageNet normalization',
                     postprocessing='sigmoid; optional mirrored probability average; full-size resize; area filter; hole fill',
-                    inference_script=str(ROOT/'source_reference.py'),provider='CPUExecutionProvider')
+                    inference_script=str(ROOT/'source_reference.py'),provider=self.session.get_providers()[0])

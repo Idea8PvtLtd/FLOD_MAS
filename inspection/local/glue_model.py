@@ -23,7 +23,10 @@ class SegformerOnnx:
         if min(self.width,self.height)<2:raise ValueError('Invalid model input dimensions.')
         try:import onnxruntime as ort
         except ImportError as exc:raise ValueError('ONNX Runtime is missing. Install requirements.txt into the application environment.') from exc
-        self.session=ort.InferenceSession(self.path,providers=['CPUExecutionProvider'])
+        from mac_coreml import CoreMLSession,coreml_package
+        package=coreml_package(self.path)
+        cpu=lambda:ort.InferenceSession(self.path,providers=['CPUExecutionProvider'])
+        self.session=CoreMLSession(package,cpu) if package else cpu()
         inputs=self.session.get_inputs();outputs=self.session.get_outputs()
         if len(inputs)!=1 or not outputs:raise ValueError('Expected one SegFormer input and at least one output.')
         self.input_name=inputs[0].name;self.output_name=outputs[0].name

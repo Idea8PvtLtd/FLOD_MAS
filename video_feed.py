@@ -12,10 +12,12 @@ import cv2
 import camera_handler
 from camera_handler import CameraStream
 
-VIDEO_FILES = [
-    r"C:\Users\USER\Desktop\video_testcases\capture_20261007_223831.mp4",
-    r"C:\Users\USER\Desktop\video_testcases\capture_20261007_223948.mp4",
-]
+VIDEO_DIR = Path(__file__).resolve().parent / 'video_testcases'
+# Replay every recording in the test directory, in filename order. Set
+# VIDEO_FILES explicitly to choose a specific subset or an outside folder.
+VIDEO_FILES = [str(path) for path in sorted(VIDEO_DIR.glob('*.mp4'))]
+if not VIDEO_FILES:
+    raise RuntimeError(f'No test videos found in {VIDEO_DIR}')
 
 # None applies the camera's configured rotation (config.json), as a live feed
 # would. Set 0, 90, 180 or 270 if the recording is already rotated.
@@ -90,7 +92,28 @@ class VideoFileStream(CameraStream):
                 self.cap.release()
 
 
+class IdentityUndistorter:
+    """Stand-in when no calibration file exists: frames pass through unchanged."""
+    def undistort(self, frame):
+        return frame
+
+
 def install():
     """Make every CameraHandler created from now on play the test videos."""
     camera_handler.CameraStream = VideoFileStream
     print('[video_feed] TEST MODE: camera replaced by', len(VIDEO_FILES), 'looping video file(s)')
+
+    # A machine that never ran Camera Setup (e.g. a development Mac) has no
+    # calibration, and the app refuses to measure without one. Recordings are
+    # then inspected uncorrected: widths are reported in pixels, not millimetres.
+    reload_calibration = camera_handler.CameraHandler.reload_calibration
+
+    def reload_or_identity(handler):
+        if reload_calibration(handler):
+            return True
+        print(f'[video_feed] no calibration ({handler.calibration_error}); '
+              'inspecting uncorrected frames, pixel widths only')
+        handler.undistorter = IdentityUndistorter()
+        handler.calibration_available = True
+        return True
+    camera_handler.CameraHandler.reload_calibration = reload_or_identity

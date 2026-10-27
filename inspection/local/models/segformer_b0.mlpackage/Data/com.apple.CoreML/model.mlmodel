@@ -1,0 +1,16251 @@
+£
+
+input*
+@Ä†ÄR
+output*
+@Ä†Ä¢Ó
+4segformer_b0.onnx converted for Apple silicon (fp32)¢ 
+source_filesegformer_b0.onnx¢
+	precisionfp32¢:
+,com.github.apple.coremltools.conversion_date
+2026-10-26¢
+input_shape[1, 3, 64, 1024]¢:
++com.github.apple.coremltools.source_dialectTorchScript¢+
+$com.github.apple.coremltools.version9.0¢4
+#com.github.apple.coremltools.sourcetorch==2.14.1≤™
+ªÓ
+
+main±Ó
+
+(
+input
+
+
+
+@
+ÄCoreML7˙Ì
+
+CoreML7ÌÌ
+outputﬁ
+constI
+9model_segformer_encoder_patch_embeddings_0_proj_Conv_bias
+
+
+ *9
+val2
+
+
+ *"
+@model_path/weights/weight.bin@*O
+nameG
+?
+=";
+9model_segformer_encoder_patch_embeddings_0_proj_Conv_biasá
+const]
+;model_segformer_encoder_patch_embeddings_0_proj_Conv_weight
+
+ 
+
+
+*L
+valE
+
+ 
+
+
+*#
+@model_path/weights/weight.binÄ*Q
+nameI
+A
+?"=
+;model_segformer_encoder_patch_embeddings_0_proj_Conv_weightà
+const]
+Mmodel_segformer_encoder_patch_embeddings_0_layer_norm_LayerNormalization_bias
+
+
+ *;
+val4
+
+
+ *$
+@model_path/weights/weight.bin¿ï*c
+name[
+S
+Q"O
+Mmodel_segformer_encoder_patch_embeddings_0_layer_norm_LayerNormalization_biaså
+const_
+Omodel_segformer_encoder_patch_embeddings_0_layer_norm_LayerNormalization_weight
+
+
+ *;
+val4
+
+
+ *$
+@model_path/weights/weight.binÄó*e
+name]
+U
+S"Q
+Omodel_segformer_encoder_patch_embeddings_0_layer_norm_LayerNormalization_weight˙
+constV
+Fmodel_segformer_encoder_block_0_0_layer_norm_1_LayerNormalization_bias
+
+
+ *;
+val4
+
+
+ *$
+@model_path/weights/weight.bin¿ò*\
+nameT
+L
+J"H
+Fmodel_segformer_encoder_block_0_0_layer_norm_1_LayerNormalization_bias˛
+constX
+Hmodel_segformer_encoder_block_0_0_layer_norm_1_LayerNormalization_weight
+
+
+ *;
+val4
+
+
+ *$
+@model_path/weights/weight.binÄö*^
+nameV
+N
+L"J
+Hmodel_segformer_encoder_block_0_0_layer_norm_1_LayerNormalization_weightË
+constM
+=model_segformer_encoder_block_0_0_attention_self_sr_Conv_bias
+
+
+ *;
+val4
+
+
+ *$
+@model_path/weights/weight.bin¿õ*S
+nameK
+C
+A"?
+=model_segformer_encoder_block_0_0_attention_self_sr_Conv_biasê
+consta
+?model_segformer_encoder_block_0_0_attention_self_sr_Conv_weight
+
+ 
+ 
+
+*M
+valF
+
+ 
+ 
+
+*$
+@model_path/weights/weight.binÄù*U
+nameM
+E
+C"A
+?model_segformer_encoder_block_0_0_attention_self_sr_Conv_weightî
+constc
+Smodel_segformer_encoder_block_0_0_attention_self_layer_norm_LayerNormalization_bias
+
+
+ *;
+val4
+
+
+ *$
+@model_path/weights/weight.bin¿ù*i
+namea
+Y
+W"U
+Smodel_segformer_encoder_block_0_0_attention_self_layer_norm_LayerNormalization_biasò
+conste
+Umodel_segformer_encoder_block_0_0_attention_self_layer_norm_LayerNormalization_weight
+
+
+ *;
+val4
+
+
+ *$
+@model_path/weights/weight.binÄü*k
+namec
+[
+Y"W
+Umodel_segformer_encoder_block_0_0_attention_self_layer_norm_LayerNormalization_weighté
+const`
+Pmodel_segformer_encoder_block_0_0_attention_self_key_MatMul_MatMulAddFusion_bias
+
+
+ *;
+val4
+
+
+ *$
+@model_path/weights/weight.bin¿†*f
+name^
+V
+T"R
+Pmodel_segformer_encoder_block_0_0_attention_self_key_MatMul_MatMulAddFusion_biasû
+consth
+Rmodel_segformer_encoder_block_0_0_attention_self_key_MatMul_MatMulAddFusion_weight
+
+ 
+ *A
+val:
+
+ 
+ *$
+@model_path/weights/weight.binÄ¢*h
+name`
+X
+V"T
+Rmodel_segformer_encoder_block_0_0_attention_self_key_MatMul_MatMulAddFusion_weightí
+constb
+Rmodel_segformer_encoder_block_0_0_attention_self_query_MatMul_MatMulAddFusion_bias
+
+
+ *;
+val4
+
+
+ *$
+@model_path/weights/weight.bin¿¬*h
+name`
+X
+V"T
+Rmodel_segformer_encoder_block_0_0_attention_self_query_MatMul_MatMulAddFusion_bias¢
+constj
+Tmodel_segformer_encoder_block_0_0_attention_self_query_MatMul_MatMulAddFusion_weight
+
+ 
+ *A
+val:
+
+ 
+ *$
+@model_path/weights/weight.binÄƒ*j
+nameb
+Z
+X"V
+Tmodel_segformer_encoder_block_0_0_attention_self_query_MatMul_MatMulAddFusion_weightí
+constb
+Rmodel_segformer_encoder_block_0_0_attention_self_value_MatMul_MatMulAddFusion_bias
+
+
+ *;
+val4
+
+
+ *$
+@model_path/weights/weight.bin¿‰*h
+name`
+X
+V"T
+Rmodel_segformer_encoder_block_0_0_attention_self_value_MatMul_MatMulAddFusion_bias¢
+constj
+Tmodel_segformer_encoder_block_0_0_attention_self_value_MatMul_MatMulAddFusion_weight
+
+ 
+ *A
+val:
+
+ 
+ *$
+@model_path/weights/weight.binÄÊ*j
+nameb
+Z
+X"V
+Tmodel_segformer_encoder_block_0_0_attention_self_value_MatMul_MatMulAddFusion_weightñ
+constd
+Tmodel_segformer_encoder_block_0_0_attention_output_dense_MatMul_MatMulAddFusion_bias
+
+
+ *;
+val4
+
+
+ *$
+@model_path/weights/weight.bin¿Ü*j
+nameb
+Z
+X"V
+Tmodel_segformer_encoder_block_0_0_attention_output_dense_MatMul_MatMulAddFusion_bias¶
+constl
+Vmodel_segformer_encoder_block_0_0_attention_output_dense_MatMul_MatMulAddFusion_weight
+
+ 
+ *A
+val:
+
+ 
+ *$
+@model_path/weights/weight.binÄà*l
+named
+\
+Z"X
+Vmodel_segformer_encoder_block_0_0_attention_output_dense_MatMul_MatMulAddFusion_weight˙
+constV
+Fmodel_segformer_encoder_block_0_0_layer_norm_2_LayerNormalization_bias
+
+
+ *;
+val4
+
+
+ *$
+@model_path/weights/weight.bin¿®*\
+nameT
+L
+J"H
+Fmodel_segformer_encoder_block_0_0_layer_norm_2_LayerNormalization_bias˛
+constX
+Hmodel_segformer_encoder_block_0_0_layer_norm_2_LayerNormalization_weight
+
+
+ *;
+val4
+
+
+ *$
+@model_path/weights/weight.binÄ™*^
+nameV
+N
+L"J
+Hmodel_segformer_encoder_block_0_0_layer_norm_2_LayerNormalization_weightÄ
+constY
+Hmodel_segformer_encoder_block_0_0_mlp_dense1_MatMul_MatMulAddFusion_bias
+
+Ä*<
+val5
+
+Ä*$
+@model_path/weights/weight.bin¿´*^
+nameV
+N
+L"J
+Hmodel_segformer_encoder_block_0_0_mlp_dense1_MatMul_MatMulAddFusion_biasê
+consta
+Jmodel_segformer_encoder_block_0_0_mlp_dense1_MatMul_MatMulAddFusion_weight
+
+Ä
+ *B
+val;
+
+Ä
+ *$
+@model_path/weights/weight.binÄ∞*`
+nameX
+P
+N"L
+Jmodel_segformer_encoder_block_0_0_mlp_dense1_MatMul_MatMulAddFusion_weightÍ
+constN
+=model_segformer_encoder_block_0_0_mlp_dwconv_dwconv_Conv_bias
+
+Ä*<
+val5
+
+Ä*$
+@model_path/weights/weight.bin¿∞*S
+nameK
+C
+A"?
+=model_segformer_encoder_block_0_0_mlp_dwconv_dwconv_Conv_biasí
+constb
+?model_segformer_encoder_block_0_0_mlp_dwconv_dwconv_Conv_weight
+
+Ä
+
+
+*N
+valG
+
+Ä
+
+
+*$
+@model_path/weights/weight.binÄµ*U
+nameM
+E
+C"A
+?model_segformer_encoder_block_0_0_mlp_dwconv_dwconv_Conv_weight˛
+constX
+Hmodel_segformer_encoder_block_0_0_mlp_dense2_MatMul_MatMulAddFusion_bias
+
+
+ *;
+val4
+
+
+ *$
+@model_path/weights/weight.bin¿Ÿ*^
+nameV
+N
+L"J
+Hmodel_segformer_encoder_block_0_0_mlp_dense2_MatMul_MatMulAddFusion_biasê
+consta
+Jmodel_segformer_encoder_block_0_0_mlp_dense2_MatMul_MatMulAddFusion_weight
+
+ 
+Ä*B
+val;
+
+ 
+Ä*$
+@model_path/weights/weight.binÄ€*`
+nameX
+P
+N"L
+Jmodel_segformer_encoder_block_0_0_mlp_dense2_MatMul_MatMulAddFusion_weight˙
+constV
+Fmodel_segformer_encoder_block_0_1_layer_norm_1_LayerNormalization_bias
+
+
+ *;
+val4
+
+
+ *$
+@model_path/weights/weight.bin¿€*\
+nameT
+L
+J"H
+Fmodel_segformer_encoder_block_0_1_layer_norm_1_LayerNormalization_bias˛
+constX
+Hmodel_segformer_encoder_block_0_1_layer_norm_1_LayerNormalization_weight
+
+
+ *;
+val4
+
+
+ *$
+@model_path/weights/weight.binÄ›*^
+nameV
+N
+L"J
+Hmodel_segformer_encoder_block_0_1_layer_norm_1_LayerNormalization_weightË
+constM
+=model_segformer_encoder_block_0_1_attention_self_sr_Conv_bias
+
+
+ *;
+val4
+
+
+ *$
+@model_path/weights/weight.bin¿ﬁ*S
+nameK
+C
+A"?
+=model_segformer_encoder_block_0_1_attention_self_sr_Conv_biasê
+consta
+?model_segformer_encoder_block_0_1_attention_self_sr_Conv_weight
+
+ 
+ 
+
+*M
+valF
+
+ 
+ 
+
+*$
+@model_path/weights/weight.binÄ‡*U
+nameM
+E
+C"A
+?model_segformer_encoder_block_0_1_attention_self_sr_Conv_weightî
+constc
+Smodel_segformer_encoder_block_0_1_attention_self_layer_norm_LayerNormalization_bias
+
+
+ *;
+val4
+
+
+ *$
+@model_path/weights/weight.bin¿‡$*i
+namea
+Y
+W"U
+Smodel_segformer_encoder_block_0_1_attention_self_layer_norm_LayerNormalization_biasò
+conste
+Umodel_segformer_encoder_block_0_1_attention_self_layer_norm_LayerNormalization_weight
+
+
+ *;
+val4
+
+
+ *$
+@model_path/weights/weight.binÄ‚$*k
+namec
+[
+Y"W
+Umodel_segformer_encoder_block_0_1_attention_self_layer_norm_LayerNormalization_weighté
+const`
+Pmodel_segformer_encoder_block_0_1_attention_self_key_MatMul_MatMulAddFusion_bias
+
+
+ *;
+val4
+
+
+ *$
+@model_path/weights/weight.bin¿„$*f
+name^
+V
+T"R
+Pmodel_segformer_encoder_block_0_1_attention_self_key_MatMul_MatMulAddFusion_biasû
+consth
+Rmodel_segformer_encoder_block_0_1_attention_self_key_MatMul_MatMulAddFusion_weight
+
+ 
+ *A
+val:
+
+ 
+ *$
+@model_path/weights/weight.binÄÂ$*h
+name`
+X
+V"T
+Rmodel_segformer_encoder_block_0_1_attention_self_key_MatMul_MatMulAddFusion_weightí
+constb
+Rmodel_segformer_encoder_block_0_1_attention_self_query_MatMul_MatMulAddFusion_bias
+
+
+ *;
+val4
+
+
+ *$
+@model_path/weights/weight.bin¿Ö%*h
+name`
+X
+V"T
+Rmodel_segformer_encoder_block_0_1_attention_self_query_MatMul_MatMulAddFusion_bias¢
+constj
+Tmodel_segformer_encoder_block_0_1_attention_self_query_MatMul_MatMulAddFusion_weight
+
+ 
+ *A
+val:
+
+ 
+ *$
+@model_path/weights/weight.binÄá%*j
+nameb
+Z
+X"V
+Tmodel_segformer_encoder_block_0_1_attention_self_query_MatMul_MatMulAddFusion_weightí
+constb
+Rmodel_segformer_encoder_block_0_1_attention_self_value_MatMul_MatMulAddFusion_bias
+
+
+ *;
+val4
+
+
+ *$
+@model_path/weights/weight.bin¿ß%*h
+name`
+X
+V"T
+Rmodel_segformer_encoder_block_0_1_attention_self_value_MatMul_MatMulAddFusion_bias¢
+constj
+Tmodel_segformer_encoder_block_0_1_attention_self_value_MatMul_MatMulAddFusion_weight
+
+ 
+ *A
+val:
+
+ 
+ *$
+@model_path/weights/weight.binÄ©%*j
+nameb
+Z
+X"V
+Tmodel_segformer_encoder_block_0_1_attention_self_value_MatMul_MatMulAddFusion_weightñ
+constd
+Tmodel_segformer_encoder_block_0_1_attention_output_dense_MatMul_MatMulAddFusion_bias
+
+
+ *;
+val4
+
+
+ *$
+@model_path/weights/weight.bin¿…%*j
+nameb
+Z
+X"V
+Tmodel_segformer_encoder_block_0_1_attention_output_dense_MatMul_MatMulAddFusion_bias¶
+constl
+Vmodel_segformer_encoder_block_0_1_attention_output_dense_MatMul_MatMulAddFusion_weight
+
+ 
+ *A
+val:
+
+ 
+ *$
+@model_path/weights/weight.binÄÀ%*l
+named
+\
+Z"X
+Vmodel_segformer_encoder_block_0_1_attention_output_dense_MatMul_MatMulAddFusion_weight˙
+constV
+Fmodel_segformer_encoder_block_0_1_layer_norm_2_LayerNormalization_bias
+
+
+ *;
+val4
+
+
+ *$
+@model_path/weights/weight.bin¿Î%*\
+nameT
+L
+J"H
+Fmodel_segformer_encoder_block_0_1_layer_norm_2_LayerNormalization_bias˛
+constX
+Hmodel_segformer_encoder_block_0_1_layer_norm_2_LayerNormalization_weight
+
+
+ *;
+val4
+
+
+ *$
+@model_path/weights/weight.binÄÌ%*^
+nameV
+N
+L"J
+Hmodel_segformer_encoder_block_0_1_layer_norm_2_LayerNormalization_weightÄ
+constY
+Hmodel_segformer_encoder_block_0_1_mlp_dense1_MatMul_MatMulAddFusion_bias
+
+Ä*<
+val5
+
+Ä*$
+@model_path/weights/weight.bin¿Ó%*^
+nameV
+N
+L"J
+Hmodel_segformer_encoder_block_0_1_mlp_dense1_MatMul_MatMulAddFusion_biasê
+consta
+Jmodel_segformer_encoder_block_0_1_mlp_dense1_MatMul_MatMulAddFusion_weight
+
+Ä
+ *B
+val;
+
+Ä
+ *$
+@model_path/weights/weight.binÄÛ%*`
+nameX
+P
+N"L
+Jmodel_segformer_encoder_block_0_1_mlp_dense1_MatMul_MatMulAddFusion_weightÍ
+constN
+=model_segformer_encoder_block_0_1_mlp_dwconv_dwconv_Conv_bias
+
+Ä*<
+val5
+
+Ä*$
+@model_path/weights/weight.bin¿Û&*S
+nameK
+C
+A"?
+=model_segformer_encoder_block_0_1_mlp_dwconv_dwconv_Conv_biasí
+constb
+?model_segformer_encoder_block_0_1_mlp_dwconv_dwconv_Conv_weight
+
+Ä
+
+
+*N
+valG
+
+Ä
+
+
+*$
+@model_path/weights/weight.binÄ¯&*U
+nameM
+E
+C"A
+?model_segformer_encoder_block_0_1_mlp_dwconv_dwconv_Conv_weight˛
+constX
+Hmodel_segformer_encoder_block_0_1_mlp_dense2_MatMul_MatMulAddFusion_bias
+
+
+ *;
+val4
+
+
+ *$
+@model_path/weights/weight.bin¿ú'*^
+nameV
+N
+L"J
+Hmodel_segformer_encoder_block_0_1_mlp_dense2_MatMul_MatMulAddFusion_biasê
+consta
+Jmodel_segformer_encoder_block_0_1_mlp_dense2_MatMul_MatMulAddFusion_weight
+
+ 
+Ä*B
+val;
+
+ 
+Ä*$
+@model_path/weights/weight.binÄû'*`
+nameX
+P
+N"L
+Jmodel_segformer_encoder_block_0_1_mlp_dense2_MatMul_MatMulAddFusion_weightÊ
+constL
+<model_segformer_encoder_layer_norm_0_LayerNormalization_bias
+
+
+ *;
+val4
+
+
+ *$
+@model_path/weights/weight.bin¿û(*R
+nameJ
+B
+@">
+<model_segformer_encoder_layer_norm_0_LayerNormalization_biasÍ
+constN
+>model_segformer_encoder_layer_norm_0_LayerNormalization_weight
+
+
+ *;
+val4
+
+
+ *$
+@model_path/weights/weight.binÄ†(*T
+nameL
+D
+B"@
+>model_segformer_encoder_layer_norm_0_LayerNormalization_weight‡
+constI
+9model_segformer_encoder_patch_embeddings_1_proj_Conv_bias
+
+
+@*;
+val4
+
+
+@*$
+@model_path/weights/weight.bin¿°(*O
+nameG
+?
+=";
+9model_segformer_encoder_patch_embeddings_1_proj_Conv_biasà
+const]
+;model_segformer_encoder_patch_embeddings_1_proj_Conv_weight
+
+@
+ 
+
+*M
+valF
+
+@
+ 
+
+*$
+@model_path/weights/weight.binÄ§(*Q
+nameI
+A
+?"=
+;model_segformer_encoder_patch_embeddings_1_proj_Conv_weightà
+const]
+Mmodel_segformer_encoder_patch_embeddings_1_layer_norm_LayerNormalization_bias
+
+
+@*;
+val4
+
+
+@*$
+@model_path/weights/weight.bin¿‰,*c
+name[
+S
+Q"O
+Mmodel_segformer_encoder_patch_embeddings_1_layer_norm_LayerNormalization_biaså
+const_
+Omodel_segformer_encoder_patch_embeddings_1_layer_norm_LayerNormalization_weight
+
+
+@*;
+val4
+
+
+@*$
+@model_path/weights/weight.binÄÁ,*e
+name]
+U
+S"Q
+Omodel_segformer_encoder_patch_embeddings_1_layer_norm_LayerNormalization_weight˙
+constV
+Fmodel_segformer_encoder_block_1_0_layer_norm_1_LayerNormalization_bias
+
+
+@*;
+val4
+
+
+@*$
+@model_path/weights/weight.bin¿È,*\
+nameT
+L
+J"H
+Fmodel_segformer_encoder_block_1_0_layer_norm_1_LayerNormalization_bias˛
+constX
+Hmodel_segformer_encoder_block_1_0_layer_norm_1_LayerNormalization_weight
+
+
+@*;
+val4
+
+
+@*$
+@model_path/weights/weight.binÄÏ,*^
+nameV
+N
+L"J
+Hmodel_segformer_encoder_block_1_0_layer_norm_1_LayerNormalization_weightË
+constM
+=model_segformer_encoder_block_1_0_attention_self_sr_Conv_bias
+
+
+@*;
+val4
+
+
+@*$
+@model_path/weights/weight.bin¿Ó,*S
+nameK
+C
+A"?
+=model_segformer_encoder_block_1_0_attention_self_sr_Conv_biasê
+consta
+?model_segformer_encoder_block_1_0_attention_self_sr_Conv_weight
+
+@
+@
+
+*M
+valF
+
+@
+@
+
+*$
+@model_path/weights/weight.binÄÒ,*U
+nameM
+E
+C"A
+?model_segformer_encoder_block_1_0_attention_self_sr_Conv_weightî
+constc
+Smodel_segformer_encoder_block_1_0_attention_self_layer_norm_LayerNormalization_bias
+
+
+@*;
+val4
+
+
+@*$
+@model_path/weights/weight.bin¿Ò<*i
+namea
+Y
+W"U
+Smodel_segformer_encoder_block_1_0_attention_self_layer_norm_LayerNormalization_biasò
+conste
+Umodel_segformer_encoder_block_1_0_attention_self_layer_norm_LayerNormalization_weight
+
+
+@*;
+val4
+
+
+@*$
+@model_path/weights/weight.binÄÙ<*k
+namec
+[
+Y"W
+Umodel_segformer_encoder_block_1_0_attention_self_layer_norm_LayerNormalization_weighté
+const`
+Pmodel_segformer_encoder_block_1_0_attention_self_key_MatMul_MatMulAddFusion_bias
+
+
+@*;
+val4
+
+
+@*$
+@model_path/weights/weight.bin¿ˆ<*f
+name^
+V
+T"R
+Pmodel_segformer_encoder_block_1_0_attention_self_key_MatMul_MatMulAddFusion_biasû
+consth
+Rmodel_segformer_encoder_block_1_0_attention_self_key_MatMul_MatMulAddFusion_weight
+
+@
+@*A
+val:
+
+@
+@*$
+@model_path/weights/weight.binÄ˘<*h
+name`
+X
+V"T
+Rmodel_segformer_encoder_block_1_0_attention_self_key_MatMul_MatMulAddFusion_weightí
+constb
+Rmodel_segformer_encoder_block_1_0_attention_self_query_MatMul_MatMulAddFusion_bias
+
+
+@*;
+val4
+
+
+@*$
+@model_path/weights/weight.bin¿˘=*h
+name`
+X
+V"T
+Rmodel_segformer_encoder_block_1_0_attention_self_query_MatMul_MatMulAddFusion_bias¢
+constj
+Tmodel_segformer_encoder_block_1_0_attention_self_query_MatMul_MatMulAddFusion_weight
+
+@
+@*A
+val:
+
+@
+@*$
+@model_path/weights/weight.binÄ¸=*j
+nameb
+Z
+X"V
+Tmodel_segformer_encoder_block_1_0_attention_self_query_MatMul_MatMulAddFusion_weightí
+constb
+Rmodel_segformer_encoder_block_1_0_attention_self_value_MatMul_MatMulAddFusion_bias
+
+
+@*;
+val4
+
+
+@*$
+@model_path/weights/weight.bin¿¸>*h
+name`
+X
+V"T
+Rmodel_segformer_encoder_block_1_0_attention_self_value_MatMul_MatMulAddFusion_bias¢
+constj
+Tmodel_segformer_encoder_block_1_0_attention_self_value_MatMul_MatMulAddFusion_weight
+
+@
+@*A
+val:
+
+@
+@*$
+@model_path/weights/weight.binÄˇ>*j
+nameb
+Z
+X"V
+Tmodel_segformer_encoder_block_1_0_attention_self_value_MatMul_MatMulAddFusion_weightñ
+constd
+Tmodel_segformer_encoder_block_1_0_attention_output_dense_MatMul_MatMulAddFusion_bias
+
+
+@*;
+val4
+
+
+@*$
+@model_path/weights/weight.bin¿ˇ?*j
+nameb
+Z
+X"V
+Tmodel_segformer_encoder_block_1_0_attention_output_dense_MatMul_MatMulAddFusion_bias¶
+constl
+Vmodel_segformer_encoder_block_1_0_attention_output_dense_MatMul_MatMulAddFusion_weight
+
+@
+@*A
+val:
+
+@
+@*$
+@model_path/weights/weight.binÄÇ@*l
+named
+\
+Z"X
+Vmodel_segformer_encoder_block_1_0_attention_output_dense_MatMul_MatMulAddFusion_weight˙
+constV
+Fmodel_segformer_encoder_block_1_0_layer_norm_2_LayerNormalization_bias
+
+
+@*;
+val4
+
+
+@*$
+@model_path/weights/weight.bin¿ÇA*\
+nameT
+L
+J"H
+Fmodel_segformer_encoder_block_1_0_layer_norm_2_LayerNormalization_bias˛
+constX
+Hmodel_segformer_encoder_block_1_0_layer_norm_2_LayerNormalization_weight
+
+
+@*;
+val4
+
+
+@*$
+@model_path/weights/weight.binÄÖA*^
+nameV
+N
+L"J
+Hmodel_segformer_encoder_block_1_0_layer_norm_2_LayerNormalization_weightÄ
+constY
+Hmodel_segformer_encoder_block_1_0_mlp_dense1_MatMul_MatMulAddFusion_bias
+
+Ä*<
+val5
+
+Ä*$
+@model_path/weights/weight.bin¿áA*^
+nameV
+N
+L"J
+Hmodel_segformer_encoder_block_1_0_mlp_dense1_MatMul_MatMulAddFusion_biasê
+consta
+Jmodel_segformer_encoder_block_1_0_mlp_dense1_MatMul_MatMulAddFusion_weight
+
+Ä
+@*B
+val;
+
+Ä
+@*$
+@model_path/weights/weight.binÄêA*`
+nameX
+P
+N"L
+Jmodel_segformer_encoder_block_1_0_mlp_dense1_MatMul_MatMulAddFusion_weightÍ
+constN
+=model_segformer_encoder_block_1_0_mlp_dwconv_dwconv_Conv_bias
+
+Ä*<
+val5
+
+Ä*$
+@model_path/weights/weight.bin¿êE*S
+nameK
+C
+A"?
+=model_segformer_encoder_block_1_0_mlp_dwconv_dwconv_Conv_biasí
+constb
+?model_segformer_encoder_block_1_0_mlp_dwconv_dwconv_Conv_weight
+
+Ä
+
+
+*N
+valG
+
+Ä
+
+
+*$
+@model_path/weights/weight.binÄôE*U
+nameM
+E
+C"A
+?model_segformer_encoder_block_1_0_mlp_dwconv_dwconv_Conv_weight˛
+constX
+Hmodel_segformer_encoder_block_1_0_mlp_dense2_MatMul_MatMulAddFusion_bias
+
+
+@*;
+val4
+
+
+@*$
+@model_path/weights/weight.bin¿·E*^
+nameV
+N
+L"J
+Hmodel_segformer_encoder_block_1_0_mlp_dense2_MatMul_MatMulAddFusion_biasê
+consta
+Jmodel_segformer_encoder_block_1_0_mlp_dense2_MatMul_MatMulAddFusion_weight
+
+@
+Ä*B
+val;
+
+@
+Ä*$
+@model_path/weights/weight.binÄ‰E*`
+nameX
+P
+N"L
+Jmodel_segformer_encoder_block_1_0_mlp_dense2_MatMul_MatMulAddFusion_weight˙
+constV
+Fmodel_segformer_encoder_block_1_1_layer_norm_1_LayerNormalization_bias
+
+
+@*;
+val4
+
+
+@*$
+@model_path/weights/weight.bin¿‰I*\
+nameT
+L
+J"H
+Fmodel_segformer_encoder_block_1_1_layer_norm_1_LayerNormalization_bias˛
+constX
+Hmodel_segformer_encoder_block_1_1_layer_norm_1_LayerNormalization_weight
+
+
+@*;
+val4
+
+
+@*$
+@model_path/weights/weight.binÄÁI*^
+nameV
+N
+L"J
+Hmodel_segformer_encoder_block_1_1_layer_norm_1_LayerNormalization_weightË
+constM
+=model_segformer_encoder_block_1_1_attention_self_sr_Conv_bias
+
+
+@*;
+val4
+
+
+@*$
+@model_path/weights/weight.bin¿ÈI*S
+nameK
+C
+A"?
+=model_segformer_encoder_block_1_1_attention_self_sr_Conv_biasê
+consta
+?model_segformer_encoder_block_1_1_attention_self_sr_Conv_weight
+
+@
+@
+
+*M
+valF
+
+@
+@
+
+*$
+@model_path/weights/weight.binÄÏI*U
+nameM
+E
+C"A
+?model_segformer_encoder_block_1_1_attention_self_sr_Conv_weightî
+constc
+Smodel_segformer_encoder_block_1_1_attention_self_layer_norm_LayerNormalization_bias
+
+
+@*;
+val4
+
+
+@*$
+@model_path/weights/weight.bin¿ÏY*i
+namea
+Y
+W"U
+Smodel_segformer_encoder_block_1_1_attention_self_layer_norm_LayerNormalization_biasò
+conste
+Umodel_segformer_encoder_block_1_1_attention_self_layer_norm_LayerNormalization_weight
+
+
+@*;
+val4
+
+
+@*$
+@model_path/weights/weight.binÄÔY*k
+namec
+[
+Y"W
+Umodel_segformer_encoder_block_1_1_attention_self_layer_norm_LayerNormalization_weighté
+const`
+Pmodel_segformer_encoder_block_1_1_attention_self_key_MatMul_MatMulAddFusion_bias
+
+
+@*;
+val4
+
+
+@*$
+@model_path/weights/weight.bin¿ÒY*f
+name^
+V
+T"R
+Pmodel_segformer_encoder_block_1_1_attention_self_key_MatMul_MatMulAddFusion_biasû
+consth
+Rmodel_segformer_encoder_block_1_1_attention_self_key_MatMul_MatMulAddFusion_weight
+
+@
+@*A
+val:
+
+@
+@*$
+@model_path/weights/weight.binÄÙY*h
+name`
+X
+V"T
+Rmodel_segformer_encoder_block_1_1_attention_self_key_MatMul_MatMulAddFusion_weightí
+constb
+Rmodel_segformer_encoder_block_1_1_attention_self_query_MatMul_MatMulAddFusion_bias
+
+
+@*;
+val4
+
+
+@*$
+@model_path/weights/weight.bin¿ÙZ*h
+name`
+X
+V"T
+Rmodel_segformer_encoder_block_1_1_attention_self_query_MatMul_MatMulAddFusion_bias¢
+constj
+Tmodel_segformer_encoder_block_1_1_attention_self_query_MatMul_MatMulAddFusion_weight
+
+@
+@*A
+val:
+
+@
+@*$
+@model_path/weights/weight.binÄ˜Z*j
+nameb
+Z
+X"V
+Tmodel_segformer_encoder_block_1_1_attention_self_query_MatMul_MatMulAddFusion_weightí
+constb
+Rmodel_segformer_encoder_block_1_1_attention_self_value_MatMul_MatMulAddFusion_bias
+
+
+@*;
+val4
+
+
+@*$
+@model_path/weights/weight.bin¿˜[*h
+name`
+X
+V"T
+Rmodel_segformer_encoder_block_1_1_attention_self_value_MatMul_MatMulAddFusion_bias¢
+constj
+Tmodel_segformer_encoder_block_1_1_attention_self_value_MatMul_MatMulAddFusion_weight
+
+@
+@*A
+val:
+
+@
+@*$
+@model_path/weights/weight.binÄ˙[*j
+nameb
+Z
+X"V
+Tmodel_segformer_encoder_block_1_1_attention_self_value_MatMul_MatMulAddFusion_weightñ
+constd
+Tmodel_segformer_encoder_block_1_1_attention_output_dense_MatMul_MatMulAddFusion_bias
+
+
+@*;
+val4
+
+
+@*$
+@model_path/weights/weight.bin¿˙\*j
+nameb
+Z
+X"V
+Tmodel_segformer_encoder_block_1_1_attention_output_dense_MatMul_MatMulAddFusion_bias¶
+constl
+Vmodel_segformer_encoder_block_1_1_attention_output_dense_MatMul_MatMulAddFusion_weight
+
+@
+@*A
+val:
+
+@
+@*$
+@model_path/weights/weight.binÄ˝\*l
+named
+\
+Z"X
+Vmodel_segformer_encoder_block_1_1_attention_output_dense_MatMul_MatMulAddFusion_weight˙
+constV
+Fmodel_segformer_encoder_block_1_1_layer_norm_2_LayerNormalization_bias
+
+
+@*;
+val4
+
+
+@*$
+@model_path/weights/weight.bin¿˝]*\
+nameT
+L
+J"H
+Fmodel_segformer_encoder_block_1_1_layer_norm_2_LayerNormalization_bias˛
+constX
+Hmodel_segformer_encoder_block_1_1_layer_norm_2_LayerNormalization_weight
+
+
+@*;
+val4
+
+
+@*$
+@model_path/weights/weight.binÄÄ^*^
+nameV
+N
+L"J
+Hmodel_segformer_encoder_block_1_1_layer_norm_2_LayerNormalization_weightÄ
+constY
+Hmodel_segformer_encoder_block_1_1_mlp_dense1_MatMul_MatMulAddFusion_bias
+
+Ä*<
+val5
+
+Ä*$
+@model_path/weights/weight.bin¿Ç^*^
+nameV
+N
+L"J
+Hmodel_segformer_encoder_block_1_1_mlp_dense1_MatMul_MatMulAddFusion_biasê
+consta
+Jmodel_segformer_encoder_block_1_1_mlp_dense1_MatMul_MatMulAddFusion_weight
+
+Ä
+@*B
+val;
+
+Ä
+@*$
+@model_path/weights/weight.binÄã^*`
+nameX
+P
+N"L
+Jmodel_segformer_encoder_block_1_1_mlp_dense1_MatMul_MatMulAddFusion_weightÍ
+constN
+=model_segformer_encoder_block_1_1_mlp_dwconv_dwconv_Conv_bias
+
+Ä*<
+val5
+
+Ä*$
+@model_path/weights/weight.bin¿ãb*S
+nameK
+C
+A"?
+=model_segformer_encoder_block_1_1_mlp_dwconv_dwconv_Conv_biasí
+constb
+?model_segformer_encoder_block_1_1_mlp_dwconv_dwconv_Conv_weight
+
+Ä
+
+
+*N
+valG
+
+Ä
+
+
+*$
+@model_path/weights/weight.binÄîb*U
+nameM
+E
+C"A
+?model_segformer_encoder_block_1_1_mlp_dwconv_dwconv_Conv_weight˛
+constX
+Hmodel_segformer_encoder_block_1_1_mlp_dense2_MatMul_MatMulAddFusion_bias
+
+
+@*;
+val4
+
+
+@*$
+@model_path/weights/weight.bin¿‹b*^
+nameV
+N
+L"J
+Hmodel_segformer_encoder_block_1_1_mlp_dense2_MatMul_MatMulAddFusion_biasê
+consta
+Jmodel_segformer_encoder_block_1_1_mlp_dense2_MatMul_MatMulAddFusion_weight
+
+@
+Ä*B
+val;
+
+@
+Ä*$
+@model_path/weights/weight.binÄﬂb*`
+nameX
+P
+N"L
+Jmodel_segformer_encoder_block_1_1_mlp_dense2_MatMul_MatMulAddFusion_weightÊ
+constL
+<model_segformer_encoder_layer_norm_1_LayerNormalization_bias
+
+
+@*;
+val4
+
+
+@*$
+@model_path/weights/weight.bin¿ﬂf*R
+nameJ
+B
+@">
+<model_segformer_encoder_layer_norm_1_LayerNormalization_biasÍ
+constN
+>model_segformer_encoder_layer_norm_1_LayerNormalization_weight
+
+
+@*;
+val4
+
+
+@*$
+@model_path/weights/weight.binÄ‚f*T
+nameL
+D
+B"@
+>model_segformer_encoder_layer_norm_1_LayerNormalization_weight‚
+constJ
+9model_segformer_encoder_patch_embeddings_2_proj_Conv_bias
+
+†*<
+val5
+
+†*$
+@model_path/weights/weight.bin¿‰f*O
+nameG
+?
+=";
+9model_segformer_encoder_patch_embeddings_2_proj_Conv_biasä
+const^
+;model_segformer_encoder_patch_embeddings_2_proj_Conv_weight
+
+†
+@
+
+*N
+valG
+
+†
+@
+
+*$
+@model_path/weights/weight.binÄÍf*Q
+nameI
+A
+?"=
+;model_segformer_encoder_patch_embeddings_2_proj_Conv_weightä
+const^
+Mmodel_segformer_encoder_patch_embeddings_2_layer_norm_LayerNormalization_bias
+
+†*<
+val5
+
+†*$
+@model_path/weights/weight.bin¿™}*c
+name[
+S
+Q"O
+Mmodel_segformer_encoder_patch_embeddings_2_layer_norm_LayerNormalization_biasé
+const`
+Omodel_segformer_encoder_patch_embeddings_2_layer_norm_LayerNormalization_weight
+
+†*<
+val5
+
+†*$
+@model_path/weights/weight.binÄ∞}*e
+name]
+U
+S"Q
+Omodel_segformer_encoder_patch_embeddings_2_layer_norm_LayerNormalization_weight¸
+constW
+Fmodel_segformer_encoder_block_2_0_layer_norm_1_LayerNormalization_bias
+
+†*<
+val5
+
+†*$
+@model_path/weights/weight.bin¿µ}*\
+nameT
+L
+J"H
+Fmodel_segformer_encoder_block_2_0_layer_norm_1_LayerNormalization_biasÄ
+constY
+Hmodel_segformer_encoder_block_2_0_layer_norm_1_LayerNormalization_weight
+
+†*<
+val5
+
+†*$
+@model_path/weights/weight.binÄª}*^
+nameV
+N
+L"J
+Hmodel_segformer_encoder_block_2_0_layer_norm_1_LayerNormalization_weightÍ
+constN
+=model_segformer_encoder_block_2_0_attention_self_sr_Conv_bias
+
+†*<
+val5
+
+†*$
+@model_path/weights/weight.bin¿¿}*S
+nameK
+C
+A"?
+=model_segformer_encoder_block_2_0_attention_self_sr_Conv_biasî
+constc
+?model_segformer_encoder_block_2_0_attention_self_sr_Conv_weight 
+
+†
+†
+
+*O
+valH 
+
+†
+†
+
+*$
+@model_path/weights/weight.binÄ∆}*U
+nameM
+E
+C"A
+?model_segformer_encoder_block_2_0_attention_self_sr_Conv_weightó
+constd
+Smodel_segformer_encoder_block_2_0_attention_self_layer_norm_LayerNormalization_bias
+
+†*=
+val6
+
+†*%
+@model_path/weights/weight.bin¿∆ñ*i
+namea
+Y
+W"U
+Smodel_segformer_encoder_block_2_0_attention_self_layer_norm_LayerNormalization_biasõ
+constf
+Umodel_segformer_encoder_block_2_0_attention_self_layer_norm_LayerNormalization_weight
+
+†*=
+val6
+
+†*%
+@model_path/weights/weight.binÄÃñ*k
+namec
+[
+Y"W
+Umodel_segformer_encoder_block_2_0_attention_self_layer_norm_LayerNormalization_weightë
+consta
+Pmodel_segformer_encoder_block_2_0_attention_self_key_MatMul_MatMulAddFusion_bias
+
+†*=
+val6
+
+†*%
+@model_path/weights/weight.bin¿—ñ*f
+name^
+V
+T"R
+Pmodel_segformer_encoder_block_2_0_attention_self_key_MatMul_MatMulAddFusion_bias£
+constj
+Rmodel_segformer_encoder_block_2_0_attention_self_key_MatMul_MatMulAddFusion_weight
+
+†
+†*D
+val=
+
+†
+†*%
+@model_path/weights/weight.binÄ◊ñ*h
+name`
+X
+V"T
+Rmodel_segformer_encoder_block_2_0_attention_self_key_MatMul_MatMulAddFusion_weightï
+constc
+Rmodel_segformer_encoder_block_2_0_attention_self_query_MatMul_MatMulAddFusion_bias
+
+†*=
+val6
+
+†*%
+@model_path/weights/weight.bin¿˜ú*h
+name`
+X
+V"T
+Rmodel_segformer_encoder_block_2_0_attention_self_query_MatMul_MatMulAddFusion_biasß
+constl
+Tmodel_segformer_encoder_block_2_0_attention_self_query_MatMul_MatMulAddFusion_weight
+
+†
+†*D
+val=
+
+†
+†*%
+@model_path/weights/weight.binÄ˝ú*j
+nameb
+Z
+X"V
+Tmodel_segformer_encoder_block_2_0_attention_self_query_MatMul_MatMulAddFusion_weightï
+constc
+Rmodel_segformer_encoder_block_2_0_attention_self_value_MatMul_MatMulAddFusion_bias
+
+†*=
+val6
+
+†*%
+@model_path/weights/weight.bin¿ù£*h
+name`
+X
+V"T
+Rmodel_segformer_encoder_block_2_0_attention_self_value_MatMul_MatMulAddFusion_biasß
+constl
+Tmodel_segformer_encoder_block_2_0_attention_self_value_MatMul_MatMulAddFusion_weight
+
+†
+†*D
+val=
+
+†
+†*%
+@model_path/weights/weight.binÄ££*j
+nameb
+Z
+X"V
+Tmodel_segformer_encoder_block_2_0_attention_self_value_MatMul_MatMulAddFusion_weightô
+conste
+Tmodel_segformer_encoder_block_2_0_attention_output_dense_MatMul_MatMulAddFusion_bias
+
+†*=
+val6
+
+†*%
+@model_path/weights/weight.bin¿√©*j
+nameb
+Z
+X"V
+Tmodel_segformer_encoder_block_2_0_attention_output_dense_MatMul_MatMulAddFusion_bias´
+constn
+Vmodel_segformer_encoder_block_2_0_attention_output_dense_MatMul_MatMulAddFusion_weight
+
+†
+†*D
+val=
+
+†
+†*%
+@model_path/weights/weight.binÄ…©*l
+named
+\
+Z"X
+Vmodel_segformer_encoder_block_2_0_attention_output_dense_MatMul_MatMulAddFusion_weight˝
+constW
+Fmodel_segformer_encoder_block_2_0_layer_norm_2_LayerNormalization_bias
+
+†*=
+val6
+
+†*%
+@model_path/weights/weight.bin¿ÈØ*\
+nameT
+L
+J"H
+Fmodel_segformer_encoder_block_2_0_layer_norm_2_LayerNormalization_biasÅ
+constY
+Hmodel_segformer_encoder_block_2_0_layer_norm_2_LayerNormalization_weight
+
+†*=
+val6
+
+†*%
+@model_path/weights/weight.binÄÔØ*^
+nameV
+N
+L"J
+Hmodel_segformer_encoder_block_2_0_layer_norm_2_LayerNormalization_weightÅ
+constY
+Hmodel_segformer_encoder_block_2_0_mlp_dense1_MatMul_MatMulAddFusion_bias
+
+Ä*=
+val6
+
+Ä*%
+@model_path/weights/weight.bin¿ÙØ*^
+nameV
+N
+L"J
+Hmodel_segformer_encoder_block_2_0_mlp_dense1_MatMul_MatMulAddFusion_biasì
+constb
+Jmodel_segformer_encoder_block_2_0_mlp_dense1_MatMul_MatMulAddFusion_weight
+
+Ä
+†*D
+val=
+
+Ä
+†*%
+@model_path/weights/weight.binÄâ∞*`
+nameX
+P
+N"L
+Jmodel_segformer_encoder_block_2_0_mlp_dense1_MatMul_MatMulAddFusion_weightÎ
+constN
+=model_segformer_encoder_block_2_0_mlp_dwconv_dwconv_Conv_bias
+
+Ä*=
+val6
+
+Ä*%
+@model_path/weights/weight.bin¿â…*S
+nameK
+C
+A"?
+=model_segformer_encoder_block_2_0_mlp_dwconv_dwconv_Conv_biasì
+constb
+?model_segformer_encoder_block_2_0_mlp_dwconv_dwconv_Conv_weight
+
+Ä
+
+
+*O
+valH
+
+Ä
+
+
+*%
+@model_path/weights/weight.binÄû…*U
+nameM
+E
+C"A
+?model_segformer_encoder_block_2_0_mlp_dwconv_dwconv_Conv_weightÅ
+constY
+Hmodel_segformer_encoder_block_2_0_mlp_dense2_MatMul_MatMulAddFusion_bias
+
+†*=
+val6
+
+†*%
+@model_path/weights/weight.bin¿“ *^
+nameV
+N
+L"J
+Hmodel_segformer_encoder_block_2_0_mlp_dense2_MatMul_MatMulAddFusion_biasì
+constb
+Jmodel_segformer_encoder_block_2_0_mlp_dense2_MatMul_MatMulAddFusion_weight
+
+†
+Ä*D
+val=
+
+†
+Ä*%
+@model_path/weights/weight.binÄÿ *`
+nameX
+P
+N"L
+Jmodel_segformer_encoder_block_2_0_mlp_dense2_MatMul_MatMulAddFusion_weight˝
+constW
+Fmodel_segformer_encoder_block_2_1_layer_norm_1_LayerNormalization_bias
+
+†*=
+val6
+
+†*%
+@model_path/weights/weight.bin¿ÿ„*\
+nameT
+L
+J"H
+Fmodel_segformer_encoder_block_2_1_layer_norm_1_LayerNormalization_biasÅ
+constY
+Hmodel_segformer_encoder_block_2_1_layer_norm_1_LayerNormalization_weight
+
+†*=
+val6
+
+†*%
+@model_path/weights/weight.binÄﬁ„*^
+nameV
+N
+L"J
+Hmodel_segformer_encoder_block_2_1_layer_norm_1_LayerNormalization_weightÎ
+constN
+=model_segformer_encoder_block_2_1_attention_self_sr_Conv_bias
+
+†*=
+val6
+
+†*%
+@model_path/weights/weight.bin¿„„*S
+nameK
+C
+A"?
+=model_segformer_encoder_block_2_1_attention_self_sr_Conv_biasï
+constc
+?model_segformer_encoder_block_2_1_attention_self_sr_Conv_weight 
+
+†
+†
+
+*P
+valI 
+
+†
+†
+
+*%
+@model_path/weights/weight.binÄÈ„*U
+nameM
+E
+C"A
+?model_segformer_encoder_block_2_1_attention_self_sr_Conv_weightó
+constd
+Smodel_segformer_encoder_block_2_1_attention_self_layer_norm_LayerNormalization_bias
+
+†*=
+val6
+
+†*%
+@model_path/weights/weight.bin¿È¸*i
+namea
+Y
+W"U
+Smodel_segformer_encoder_block_2_1_attention_self_layer_norm_LayerNormalization_biasõ
+constf
+Umodel_segformer_encoder_block_2_1_attention_self_layer_norm_LayerNormalization_weight
+
+†*=
+val6
+
+†*%
+@model_path/weights/weight.binÄÔ¸*k
+namec
+[
+Y"W
+Umodel_segformer_encoder_block_2_1_attention_self_layer_norm_LayerNormalization_weightë
+consta
+Pmodel_segformer_encoder_block_2_1_attention_self_key_MatMul_MatMulAddFusion_bias
+
+†*=
+val6
+
+†*%
+@model_path/weights/weight.bin¿Ù¸*f
+name^
+V
+T"R
+Pmodel_segformer_encoder_block_2_1_attention_self_key_MatMul_MatMulAddFusion_bias£
+constj
+Rmodel_segformer_encoder_block_2_1_attention_self_key_MatMul_MatMulAddFusion_weight
+
+†
+†*D
+val=
+
+†
+†*%
+@model_path/weights/weight.binÄ˙¸*h
+name`
+X
+V"T
+Rmodel_segformer_encoder_block_2_1_attention_self_key_MatMul_MatMulAddFusion_weightï
+constc
+Rmodel_segformer_encoder_block_2_1_attention_self_query_MatMul_MatMulAddFusion_bias
+
+†*=
+val6
+
+†*%
+@model_path/weights/weight.bin¿öÉ*h
+name`
+X
+V"T
+Rmodel_segformer_encoder_block_2_1_attention_self_query_MatMul_MatMulAddFusion_biasß
+constl
+Tmodel_segformer_encoder_block_2_1_attention_self_query_MatMul_MatMulAddFusion_weight
+
+†
+†*D
+val=
+
+†
+†*%
+@model_path/weights/weight.binÄ†É*j
+nameb
+Z
+X"V
+Tmodel_segformer_encoder_block_2_1_attention_self_query_MatMul_MatMulAddFusion_weightï
+constc
+Rmodel_segformer_encoder_block_2_1_attention_self_value_MatMul_MatMulAddFusion_bias
+
+†*=
+val6
+
+†*%
+@model_path/weights/weight.bin¿¿â*h
+name`
+X
+V"T
+Rmodel_segformer_encoder_block_2_1_attention_self_value_MatMul_MatMulAddFusion_biasß
+constl
+Tmodel_segformer_encoder_block_2_1_attention_self_value_MatMul_MatMulAddFusion_weight
+
+†
+†*D
+val=
+
+†
+†*%
+@model_path/weights/weight.binÄ∆â*j
+nameb
+Z
+X"V
+Tmodel_segformer_encoder_block_2_1_attention_self_value_MatMul_MatMulAddFusion_weightô
+conste
+Tmodel_segformer_encoder_block_2_1_attention_output_dense_MatMul_MatMulAddFusion_bias
+
+†*=
+val6
+
+†*%
+@model_path/weights/weight.bin¿Êè*j
+nameb
+Z
+X"V
+Tmodel_segformer_encoder_block_2_1_attention_output_dense_MatMul_MatMulAddFusion_bias´
+constn
+Vmodel_segformer_encoder_block_2_1_attention_output_dense_MatMul_MatMulAddFusion_weight
+
+†
+†*D
+val=
+
+†
+†*%
+@model_path/weights/weight.binÄÏè*l
+named
+\
+Z"X
+Vmodel_segformer_encoder_block_2_1_attention_output_dense_MatMul_MatMulAddFusion_weight˝
+constW
+Fmodel_segformer_encoder_block_2_1_layer_norm_2_LayerNormalization_bias
+
+†*=
+val6
+
+†*%
+@model_path/weights/weight.bin¿åñ*\
+nameT
+L
+J"H
+Fmodel_segformer_encoder_block_2_1_layer_norm_2_LayerNormalization_biasÅ
+constY
+Hmodel_segformer_encoder_block_2_1_layer_norm_2_LayerNormalization_weight
+
+†*=
+val6
+
+†*%
+@model_path/weights/weight.binÄíñ*^
+nameV
+N
+L"J
+Hmodel_segformer_encoder_block_2_1_layer_norm_2_LayerNormalization_weightÅ
+constY
+Hmodel_segformer_encoder_block_2_1_mlp_dense1_MatMul_MatMulAddFusion_bias
+
+Ä*=
+val6
+
+Ä*%
+@model_path/weights/weight.bin¿óñ*^
+nameV
+N
+L"J
+Hmodel_segformer_encoder_block_2_1_mlp_dense1_MatMul_MatMulAddFusion_biasì
+constb
+Jmodel_segformer_encoder_block_2_1_mlp_dense1_MatMul_MatMulAddFusion_weight
+
+Ä
+†*D
+val=
+
+Ä
+†*%
+@model_path/weights/weight.binÄ¨ñ*`
+nameX
+P
+N"L
+Jmodel_segformer_encoder_block_2_1_mlp_dense1_MatMul_MatMulAddFusion_weightÎ
+constN
+=model_segformer_encoder_block_2_1_mlp_dwconv_dwconv_Conv_bias
+
+Ä*=
+val6
+
+Ä*%
+@model_path/weights/weight.bin¿¨Ø*S
+nameK
+C
+A"?
+=model_segformer_encoder_block_2_1_mlp_dwconv_dwconv_Conv_biasì
+constb
+?model_segformer_encoder_block_2_1_mlp_dwconv_dwconv_Conv_weight
+
+Ä
+
+
+*O
+valH
+
+Ä
+
+
+*%
+@model_path/weights/weight.binÄ¡Ø*U
+nameM
+E
+C"A
+?model_segformer_encoder_block_2_1_mlp_dwconv_dwconv_Conv_weightÅ
+constY
+Hmodel_segformer_encoder_block_2_1_mlp_dense2_MatMul_MatMulAddFusion_bias
+
+†*=
+val6
+
+†*%
+@model_path/weights/weight.bin¿ı∞*^
+nameV
+N
+L"J
+Hmodel_segformer_encoder_block_2_1_mlp_dense2_MatMul_MatMulAddFusion_biasì
+constb
+Jmodel_segformer_encoder_block_2_1_mlp_dense2_MatMul_MatMulAddFusion_weight
+
+†
+Ä*D
+val=
+
+†
+Ä*%
+@model_path/weights/weight.binÄ˚∞*`
+nameX
+P
+N"L
+Jmodel_segformer_encoder_block_2_1_mlp_dense2_MatMul_MatMulAddFusion_weightÈ
+constM
+<model_segformer_encoder_layer_norm_2_LayerNormalization_bias
+
+†*=
+val6
+
+†*%
+@model_path/weights/weight.bin¿˚…*R
+nameJ
+B
+@">
+<model_segformer_encoder_layer_norm_2_LayerNormalization_biasÌ
+constO
+>model_segformer_encoder_layer_norm_2_LayerNormalization_weight
+
+†*=
+val6
+
+†*%
+@model_path/weights/weight.binÄÅ *T
+nameL
+D
+B"@
+>model_segformer_encoder_layer_norm_2_LayerNormalization_weight„
+constJ
+9model_segformer_encoder_patch_embeddings_3_proj_Conv_bias
+
+Ä*=
+val6
+
+Ä*%
+@model_path/weights/weight.bin¿Ü *O
+nameG
+?
+=";
+9model_segformer_encoder_patch_embeddings_3_proj_Conv_biasç
+const_
+;model_segformer_encoder_patch_embeddings_3_proj_Conv_weight 
+
+Ä
+†
+
+*P
+valI 
+
+Ä
+†
+
+*%
+@model_path/weights/weight.binÄè *Q
+nameI
+A
+?"=
+;model_segformer_encoder_patch_embeddings_3_proj_Conv_weightã
+const^
+Mmodel_segformer_encoder_patch_embeddings_3_layer_norm_LayerNormalization_bias
+
+Ä*=
+val6
+
+Ä*%
+@model_path/weights/weight.bin¿è§*c
+name[
+S
+Q"O
+Mmodel_segformer_encoder_patch_embeddings_3_layer_norm_LayerNormalization_biasè
+const`
+Omodel_segformer_encoder_patch_embeddings_3_layer_norm_LayerNormalization_weight
+
+Ä*=
+val6
+
+Ä*%
+@model_path/weights/weight.binÄò§*e
+name]
+U
+S"Q
+Omodel_segformer_encoder_patch_embeddings_3_layer_norm_LayerNormalization_weight˝
+constW
+Fmodel_segformer_encoder_block_3_0_layer_norm_1_LayerNormalization_bias
+
+Ä*=
+val6
+
+Ä*%
+@model_path/weights/weight.bin¿†§*\
+nameT
+L
+J"H
+Fmodel_segformer_encoder_block_3_0_layer_norm_1_LayerNormalization_biasÅ
+constY
+Hmodel_segformer_encoder_block_3_0_layer_norm_1_LayerNormalization_weight
+
+Ä*=
+val6
+
+Ä*%
+@model_path/weights/weight.binÄ©§*^
+nameV
+N
+L"J
+Hmodel_segformer_encoder_block_3_0_layer_norm_1_LayerNormalization_weightë
+consta
+Pmodel_segformer_encoder_block_3_0_attention_self_key_MatMul_MatMulAddFusion_bias
+
+Ä*=
+val6
+
+Ä*%
+@model_path/weights/weight.bin¿±§*f
+name^
+V
+T"R
+Pmodel_segformer_encoder_block_3_0_attention_self_key_MatMul_MatMulAddFusion_bias£
+constj
+Rmodel_segformer_encoder_block_3_0_attention_self_key_MatMul_MatMulAddFusion_weight
+
+Ä
+Ä*D
+val=
+
+Ä
+Ä*%
+@model_path/weights/weight.binÄ∫§*h
+name`
+X
+V"T
+Rmodel_segformer_encoder_block_3_0_attention_self_key_MatMul_MatMulAddFusion_weightï
+constc
+Rmodel_segformer_encoder_block_3_0_attention_self_query_MatMul_MatMulAddFusion_bias
+
+Ä*=
+val6
+
+Ä*%
+@model_path/weights/weight.bin¿∫¥*h
+name`
+X
+V"T
+Rmodel_segformer_encoder_block_3_0_attention_self_query_MatMul_MatMulAddFusion_biasß
+constl
+Tmodel_segformer_encoder_block_3_0_attention_self_query_MatMul_MatMulAddFusion_weight
+
+Ä
+Ä*D
+val=
+
+Ä
+Ä*%
+@model_path/weights/weight.binÄ√¥*j
+nameb
+Z
+X"V
+Tmodel_segformer_encoder_block_3_0_attention_self_query_MatMul_MatMulAddFusion_weightï
+constc
+Rmodel_segformer_encoder_block_3_0_attention_self_value_MatMul_MatMulAddFusion_bias
+
+Ä*=
+val6
+
+Ä*%
+@model_path/weights/weight.bin¿√ƒ*h
+name`
+X
+V"T
+Rmodel_segformer_encoder_block_3_0_attention_self_value_MatMul_MatMulAddFusion_biasß
+constl
+Tmodel_segformer_encoder_block_3_0_attention_self_value_MatMul_MatMulAddFusion_weight
+
+Ä
+Ä*D
+val=
+
+Ä
+Ä*%
+@model_path/weights/weight.binÄÃƒ*j
+nameb
+Z
+X"V
+Tmodel_segformer_encoder_block_3_0_attention_self_value_MatMul_MatMulAddFusion_weightô
+conste
+Tmodel_segformer_encoder_block_3_0_attention_output_dense_MatMul_MatMulAddFusion_bias
+
+Ä*=
+val6
+
+Ä*%
+@model_path/weights/weight.bin¿Ã‘*j
+nameb
+Z
+X"V
+Tmodel_segformer_encoder_block_3_0_attention_output_dense_MatMul_MatMulAddFusion_bias´
+constn
+Vmodel_segformer_encoder_block_3_0_attention_output_dense_MatMul_MatMulAddFusion_weight
+
+Ä
+Ä*D
+val=
+
+Ä
+Ä*%
+@model_path/weights/weight.binÄ’‘*l
+named
+\
+Z"X
+Vmodel_segformer_encoder_block_3_0_attention_output_dense_MatMul_MatMulAddFusion_weight˝
+constW
+Fmodel_segformer_encoder_block_3_0_layer_norm_2_LayerNormalization_bias
+
+Ä*=
+val6
+
+Ä*%
+@model_path/weights/weight.bin¿’‰*\
+nameT
+L
+J"H
+Fmodel_segformer_encoder_block_3_0_layer_norm_2_LayerNormalization_biasÅ
+constY
+Hmodel_segformer_encoder_block_3_0_layer_norm_2_LayerNormalization_weight
+
+Ä*=
+val6
+
+Ä*%
+@model_path/weights/weight.binÄﬁ‰*^
+nameV
+N
+L"J
+Hmodel_segformer_encoder_block_3_0_layer_norm_2_LayerNormalization_weightÅ
+constY
+Hmodel_segformer_encoder_block_3_0_mlp_dense1_MatMul_MatMulAddFusion_bias
+
+Ä*=
+val6
+
+Ä*%
+@model_path/weights/weight.bin¿Ê‰*^
+nameV
+N
+L"J
+Hmodel_segformer_encoder_block_3_0_mlp_dense1_MatMul_MatMulAddFusion_biasì
+constb
+Jmodel_segformer_encoder_block_3_0_mlp_dense1_MatMul_MatMulAddFusion_weight
+
+Ä
+Ä*D
+val=
+
+Ä
+Ä*%
+@model_path/weights/weight.binÄáÂ*`
+nameX
+P
+N"L
+Jmodel_segformer_encoder_block_3_0_mlp_dense1_MatMul_MatMulAddFusion_weightÎ
+constN
+=model_segformer_encoder_block_3_0_mlp_dwconv_dwconv_Conv_bias
+
+Ä*=
+val6
+
+Ä*%
+@model_path/weights/weight.bin¿á•*S
+nameK
+C
+A"?
+=model_segformer_encoder_block_3_0_mlp_dwconv_dwconv_Conv_biasì
+constb
+?model_segformer_encoder_block_3_0_mlp_dwconv_dwconv_Conv_weight
+
+Ä
+
+
+*O
+valH
+
+Ä
+
+
+*%
+@model_path/weights/weight.binÄ®•*U
+nameM
+E
+C"A
+?model_segformer_encoder_block_3_0_mlp_dwconv_dwconv_Conv_weightÅ
+constY
+Hmodel_segformer_encoder_block_3_0_mlp_dense2_MatMul_MatMulAddFusion_bias
+
+Ä*=
+val6
+
+Ä*%
+@model_path/weights/weight.bin¿»ß*^
+nameV
+N
+L"J
+Hmodel_segformer_encoder_block_3_0_mlp_dense2_MatMul_MatMulAddFusion_biasì
+constb
+Jmodel_segformer_encoder_block_3_0_mlp_dense2_MatMul_MatMulAddFusion_weight
+
+Ä
+Ä*D
+val=
+
+Ä
+Ä*%
+@model_path/weights/weight.binÄ—ß*`
+nameX
+P
+N"L
+Jmodel_segformer_encoder_block_3_0_mlp_dense2_MatMul_MatMulAddFusion_weight˝
+constW
+Fmodel_segformer_encoder_block_3_1_layer_norm_1_LayerNormalization_bias
+
+Ä*=
+val6
+
+Ä*%
+@model_path/weights/weight.bin¿—Á*\
+nameT
+L
+J"H
+Fmodel_segformer_encoder_block_3_1_layer_norm_1_LayerNormalization_biasÅ
+constY
+Hmodel_segformer_encoder_block_3_1_layer_norm_1_LayerNormalization_weight
+
+Ä*=
+val6
+
+Ä*%
+@model_path/weights/weight.binÄ⁄Á*^
+nameV
+N
+L"J
+Hmodel_segformer_encoder_block_3_1_layer_norm_1_LayerNormalization_weightë
+consta
+Pmodel_segformer_encoder_block_3_1_attention_self_key_MatMul_MatMulAddFusion_bias
+
+Ä*=
+val6
+
+Ä*%
+@model_path/weights/weight.bin¿‚Á*f
+name^
+V
+T"R
+Pmodel_segformer_encoder_block_3_1_attention_self_key_MatMul_MatMulAddFusion_bias£
+constj
+Rmodel_segformer_encoder_block_3_1_attention_self_key_MatMul_MatMulAddFusion_weight
+
+Ä
+Ä*D
+val=
+
+Ä
+Ä*%
+@model_path/weights/weight.binÄÎÁ*h
+name`
+X
+V"T
+Rmodel_segformer_encoder_block_3_1_attention_self_key_MatMul_MatMulAddFusion_weightï
+constc
+Rmodel_segformer_encoder_block_3_1_attention_self_query_MatMul_MatMulAddFusion_bias
+
+Ä*=
+val6
+
+Ä*%
+@model_path/weights/weight.bin¿Î˜*h
+name`
+X
+V"T
+Rmodel_segformer_encoder_block_3_1_attention_self_query_MatMul_MatMulAddFusion_biasß
+constl
+Tmodel_segformer_encoder_block_3_1_attention_self_query_MatMul_MatMulAddFusion_weight
+
+Ä
+Ä*D
+val=
+
+Ä
+Ä*%
+@model_path/weights/weight.binÄÙ˜*j
+nameb
+Z
+X"V
+Tmodel_segformer_encoder_block_3_1_attention_self_query_MatMul_MatMulAddFusion_weightï
+constc
+Rmodel_segformer_encoder_block_3_1_attention_self_value_MatMul_MatMulAddFusion_bias
+
+Ä*=
+val6
+
+Ä*%
+@model_path/weights/weight.bin¿Ùá*h
+name`
+X
+V"T
+Rmodel_segformer_encoder_block_3_1_attention_self_value_MatMul_MatMulAddFusion_biasß
+constl
+Tmodel_segformer_encoder_block_3_1_attention_self_value_MatMul_MatMulAddFusion_weight
+
+Ä
+Ä*D
+val=
+
+Ä
+Ä*%
+@model_path/weights/weight.binÄ˝á*j
+nameb
+Z
+X"V
+Tmodel_segformer_encoder_block_3_1_attention_self_value_MatMul_MatMulAddFusion_weightô
+conste
+Tmodel_segformer_encoder_block_3_1_attention_output_dense_MatMul_MatMulAddFusion_bias
+
+Ä*=
+val6
+
+Ä*%
+@model_path/weights/weight.bin¿˝ó*j
+nameb
+Z
+X"V
+Tmodel_segformer_encoder_block_3_1_attention_output_dense_MatMul_MatMulAddFusion_bias´
+constn
+Vmodel_segformer_encoder_block_3_1_attention_output_dense_MatMul_MatMulAddFusion_weight
+
+Ä
+Ä*D
+val=
+
+Ä
+Ä*%
+@model_path/weights/weight.binÄÜò*l
+named
+\
+Z"X
+Vmodel_segformer_encoder_block_3_1_attention_output_dense_MatMul_MatMulAddFusion_weight˝
+constW
+Fmodel_segformer_encoder_block_3_1_layer_norm_2_LayerNormalization_bias
+
+Ä*=
+val6
+
+Ä*%
+@model_path/weights/weight.bin¿Ü®*\
+nameT
+L
+J"H
+Fmodel_segformer_encoder_block_3_1_layer_norm_2_LayerNormalization_biasÅ
+constY
+Hmodel_segformer_encoder_block_3_1_layer_norm_2_LayerNormalization_weight
+
+Ä*=
+val6
+
+Ä*%
+@model_path/weights/weight.binÄè®*^
+nameV
+N
+L"J
+Hmodel_segformer_encoder_block_3_1_layer_norm_2_LayerNormalization_weightÅ
+constY
+Hmodel_segformer_encoder_block_3_1_mlp_dense1_MatMul_MatMulAddFusion_bias
+
+Ä*=
+val6
+
+Ä*%
+@model_path/weights/weight.bin¿ó®*^
+nameV
+N
+L"J
+Hmodel_segformer_encoder_block_3_1_mlp_dense1_MatMul_MatMulAddFusion_biasì
+constb
+Jmodel_segformer_encoder_block_3_1_mlp_dense1_MatMul_MatMulAddFusion_weight
+
+Ä
+Ä*D
+val=
+
+Ä
+Ä*%
+@model_path/weights/weight.binÄ∏®*`
+nameX
+P
+N"L
+Jmodel_segformer_encoder_block_3_1_mlp_dense1_MatMul_MatMulAddFusion_weightÎ
+constN
+=model_segformer_encoder_block_3_1_mlp_dwconv_dwconv_Conv_bias
+
+Ä*=
+val6
+
+Ä*%
+@model_path/weights/weight.bin¿∏Ë*S
+nameK
+C
+A"?
+=model_segformer_encoder_block_3_1_mlp_dwconv_dwconv_Conv_biasì
+constb
+?model_segformer_encoder_block_3_1_mlp_dwconv_dwconv_Conv_weight
+
+Ä
+
+
+*O
+valH
+
+Ä
+
+
+*%
+@model_path/weights/weight.binÄŸË*U
+nameM
+E
+C"A
+?model_segformer_encoder_block_3_1_mlp_dwconv_dwconv_Conv_weightÅ
+constY
+Hmodel_segformer_encoder_block_3_1_mlp_dense2_MatMul_MatMulAddFusion_bias
+
+Ä*=
+val6
+
+Ä*%
+@model_path/weights/weight.bin¿˘Í*^
+nameV
+N
+L"J
+Hmodel_segformer_encoder_block_3_1_mlp_dense2_MatMul_MatMulAddFusion_biasì
+constb
+Jmodel_segformer_encoder_block_3_1_mlp_dense2_MatMul_MatMulAddFusion_weight
+
+Ä
+Ä*D
+val=
+
+Ä
+Ä*%
+@model_path/weights/weight.binÄÇÎ*`
+nameX
+P
+N"L
+Jmodel_segformer_encoder_block_3_1_mlp_dense2_MatMul_MatMulAddFusion_weightÈ
+constM
+<model_segformer_encoder_layer_norm_3_LayerNormalization_bias
+
+Ä*=
+val6
+
+Ä*%
+@model_path/weights/weight.bin¿Ç´*R
+nameJ
+B
+@">
+<model_segformer_encoder_layer_norm_3_LayerNormalization_biasÌ
+constO
+>model_segformer_encoder_layer_norm_3_LayerNormalization_weight
+
+Ä*=
+val6
+
+Ä*%
+@model_path/weights/weight.binÄã´*T
+nameL
+D
+B"@
+>model_segformer_encoder_layer_norm_3_LayerNormalization_weightÎ
+constN
+=model_decode_head_linear_c_3_proj_MatMul_MatMulAddFusion_bias
+
+Ä*=
+val6
+
+Ä*%
+@model_path/weights/weight.bin¿ì´*S
+nameK
+C
+A"?
+=model_decode_head_linear_c_3_proj_MatMul_MatMulAddFusion_bias˝
+constW
+?model_decode_head_linear_c_3_proj_MatMul_MatMulAddFusion_weight
+
+Ä
+Ä*D
+val=
+
+Ä
+Ä*%
+@model_path/weights/weight.binÄú´*U
+nameM
+E
+C"A
+?model_decode_head_linear_c_3_proj_MatMul_MatMulAddFusion_weightÎ
+constN
+=model_decode_head_linear_c_2_proj_MatMul_MatMulAddFusion_bias
+
+Ä*=
+val6
+
+Ä*%
+@model_path/weights/weight.bin¿úª*S
+nameK
+C
+A"?
+=model_decode_head_linear_c_2_proj_MatMul_MatMulAddFusion_bias˝
+constW
+?model_decode_head_linear_c_2_proj_MatMul_MatMulAddFusion_weight
+
+Ä
+†*D
+val=
+
+Ä
+†*%
+@model_path/weights/weight.binÄ•ª*U
+nameM
+E
+C"A
+?model_decode_head_linear_c_2_proj_MatMul_MatMulAddFusion_weightÎ
+constN
+=model_decode_head_linear_c_1_proj_MatMul_MatMulAddFusion_bias
+
+Ä*=
+val6
+
+Ä*%
+@model_path/weights/weight.bin¿•≈*S
+nameK
+C
+A"?
+=model_decode_head_linear_c_1_proj_MatMul_MatMulAddFusion_bias˚
+constV
+?model_decode_head_linear_c_1_proj_MatMul_MatMulAddFusion_weight
+
+Ä
+@*C
+val<
+
+Ä
+@*%
+@model_path/weights/weight.binÄÆ≈*U
+nameM
+E
+C"A
+?model_decode_head_linear_c_1_proj_MatMul_MatMulAddFusion_weightÎ
+constN
+=model_decode_head_linear_c_0_proj_MatMul_MatMulAddFusion_bias
+
+Ä*=
+val6
+
+Ä*%
+@model_path/weights/weight.bin¿Æ…*S
+nameK
+C
+A"?
+=model_decode_head_linear_c_0_proj_MatMul_MatMulAddFusion_bias˚
+constV
+?model_decode_head_linear_c_0_proj_MatMul_MatMulAddFusion_weight
+
+Ä
+ *C
+val<
+
+Ä
+ *%
+@model_path/weights/weight.binÄ∑…*U
+nameM
+E
+C"A
+?model_decode_head_linear_c_0_proj_MatMul_MatMulAddFusion_weightø
+const8
+'model_decode_head_linear_fuse_Conv_bias
+
+Ä*=
+val6
+
+Ä*%
+@model_path/weights/weight.bin¿∑À*=
+name5
+-
++")
+'model_decode_head_linear_fuse_Conv_biasÈ
+constM
+)model_decode_head_linear_fuse_Conv_weight 
+
+Ä
+Ä
+
+*P
+valI 
+
+Ä
+Ä
+
+*%
+@model_path/weights/weight.binÄ¿À*?
+name7
+/
+-"+
+)model_decode_head_linear_fuse_Conv_weight§
+const6
+&model_decode_head_classifier_Conv_bias
+
+
+*%
+val
+
+
+
+
+
+
+Â <dÂ º*<
+name4
+,
+*"(
+&model_decode_head_classifier_Conv_biasÂ
+constK
+(model_decode_head_classifier_Conv_weight
+
+
+Ä
+
+*O
+valH
+
+
+Ä
+
+*%
+@model_path/weights/weight.bin¿¿ã*>
+name6
+.
+,"*
+(model_decode_head_classifier_Conv_weightx
+const!
+input_tensor_1_pad_type_0
+*
+val
+
+
+"
+custom*/
+name'
+
+"
+input_tensor_1_pad_type_0|
+const$
+input_tensor_1_pad_0
+
+
+*!
+val
+
+
+
+
+
+**
+name"
+
+"
+input_tensor_1_pad_0Ç
+const(
+input_tensor_1_strides_0
+
+
+*
+val
+
+
+
+
+*.
+name&
+
+"
+input_tensor_1_strides_0Ü
+const*
+input_tensor_1_dilations_0
+
+
+*
+val
+
+
+
+
+*0
+name(
+ 
+"
+input_tensor_1_dilations_0o
+const
+input_tensor_1_groups_0
+*
+val
+
+
+*-
+name%
+
+"
+input_tensor_1_groups_0 
+conv
+pad
+
+input_tensor_1_pad_0
+x	
+
+input'
+strides
+
+input_tensor_1_strides_0+
+	dilations
+
+input_tensor_1_dilations_0)
+pad_type
+
+input_tensor_1_pad_type_0I
+weight?
+=
+;model_segformer_encoder_patch_embeddings_0_proj_Conv_weight%
+groups
+
+input_tensor_1_groups_0E
+bias=
+;
+9model_segformer_encoder_patch_embeddings_0_proj_Conv_bias1
+input_tensor_1
+
+
+ 
+
+Ä*$
+name
+
+"
+input_tensor_1i
+const
+var_461
+
+
+*)
+val"
+
+
+
+
+ ˇˇˇˇˇˇˇˇˇ*
+name
+
+
+"
+op_461ã
+reshape
+shape
+	
+var_461
+x
+
+input_tensor_1+
+input_tensor_3
+
+
+ 
+Ä *$
+name
+
+"
+input_tensor_3`
+const
+var_466
+
+
+* 
+val
+
+
+	
+
+ *
+name
+
+
+"
+op_466Q
+const
+var_469
+*
+val
+
+
+
+
+¨≈'7*
+name
+
+
+"
+op_469v
+const
+input_3_axes_0
+
+
+*'
+val 
+
+
+
+
+
+ˇˇˇˇˇˇˇˇˇ*$
+name
+
+"
+input_3_axes_0Ñ
+	transpose
+perm
+	
+var_466
+x
+
+input_tensor_3$
+input_1
+
+
+Ä 
+ *#
+name
+
+"
+transpose_123–
+
+layer_norm
+epsilon
+	
+var_469Y
+betaQ
+O
+Mmodel_segformer_encoder_patch_embeddings_0_layer_norm_LayerNormalization_bias
+x
+	
+input_1\
+gammaS
+Q
+Omodel_segformer_encoder_patch_embeddings_0_layer_norm_LayerNormalization_weight
+axes
+
+input_3_axes_0$
+input_3
+
+
+Ä 
+ *
+name
+
+"	
+input_3Q
+const
+var_476
+*
+val
+
+
+
+
+¨≈'7*
+name
+
+
+"
+op_476Ñ
+const%
+input_tensor_5_axes_0
+
+
+*'
+val 
+
+
+
+
+
+ˇˇˇˇˇˇˇˇˇ*+
+name#
+
+"
+input_tensor_5_axes_0◊
+
+layer_norm
+epsilon
+	
+var_476R
+betaJ
+H
+Fmodel_segformer_encoder_block_0_0_layer_norm_1_LayerNormalization_bias
+x
+	
+input_3U
+gammaL
+J
+Hmodel_segformer_encoder_block_0_0_layer_norm_1_LayerNormalization_weight!
+axes
+
+input_tensor_5_axes_0+
+input_tensor_5
+
+
+Ä 
+ *$
+name
+
+"
+input_tensor_5b
+const
+var_492
+
+
+*"
+val
+
+
+
+	
+Ä *
+name
+
+
+"
+op_492ë
+reshape
+shape
+	
+var_492
+x
+
+input_tensor_51
+input_tensor_7
+
+
+
+Ä
+ *$
+name
+
+"
+input_tensor_7a
+const
+var_498
+
+
+*!
+val
+
+
+
+
+
+ *
+name
+
+
+"
+op_498w
+const!
+input_tensor_9_pad_type_0
+*
+val
+
+	"
+valid*/
+name'
+
+"
+input_tensor_9_pad_type_0Ç
+const(
+input_tensor_9_strides_0
+
+
+*
+val
+
+
+
+
+*.
+name&
+
+"
+input_tensor_9_strides_0|
+const$
+input_tensor_9_pad_0
+
+
+*!
+val
+
+
+
+
+
+    **
+name"
+
+"
+input_tensor_9_pad_0Ü
+const*
+input_tensor_9_dilations_0
+
+
+*
+val
+
+
+
+
+*0
+name(
+ 
+"
+input_tensor_9_dilations_0o
+const
+input_tensor_9_groups_0
+*
+val
+
+
+*-
+name%
+
+"
+input_tensor_9_groups_0ä
+	transpose
+perm
+	
+var_498
+x
+
+input_tensor_7*
+input_5
+
+
+ 
+
+Ä*#
+name
+
+"
+transpose_122”
+conv
+pad
+
+input_tensor_9_pad_0
+x
+	
+input_5'
+strides
+
+input_tensor_9_strides_0+
+	dilations
+
+input_tensor_9_dilations_0)
+pad_type
+
+input_tensor_9_pad_type_0M
+weightC
+A
+?model_segformer_encoder_block_0_0_attention_self_sr_Conv_weight%
+groups
+
+input_tensor_9_groups_0I
+biasA
+?
+=model_segformer_encoder_block_0_0_attention_self_sr_Conv_bias0
+input_tensor_9
+
+
+ 
+
+ *$
+name
+
+"
+input_tensor_9i
+const
+var_520
+
+
+*)
+val"
+
+
+
+
+ ˇˇˇˇˇˇˇˇˇ*
+name
+
+
+"
+op_520å
+reshape
+shape
+	
+var_520
+x
+
+input_tensor_9+
+input_tensor_11
+
+
+ 
+@*%
+name
+
+"
+input_tensor_11`
+const
+var_525
+
+
+* 
+val
+
+
+	
+
+ *
+name
+
+
+"
+op_525Q
+const
+var_528
+*
+val
+
+
+
+
+¨≈'7*
+name
+
+
+"
+op_528Ü
+const&
+input_tensor_13_axes_0
+
+
+*'
+val 
+
+
+
+
+
+ˇˇˇˇˇˇˇˇˇ*,
+name$
+
+"
+input_tensor_13_axes_0Ñ
+	transpose
+perm
+	
+var_525
+x
+
+input_tensor_11#
+input_7
+
+
+@
+ *#
+name
+
+"
+transpose_121Û
+
+layer_norm
+epsilon
+	
+var_528_
+betaW
+U
+Smodel_segformer_encoder_block_0_0_attention_self_layer_norm_LayerNormalization_bias
+x
+	
+input_7b
+gammaY
+W
+Umodel_segformer_encoder_block_0_0_attention_self_layer_norm_LayerNormalization_weight"
+axes
+
+input_tensor_13_axes_0+
+input_tensor_13
+
+
+@
+ *%
+name
+
+"
+input_tensor_13_
+const
+var_540
+
+
+*
+val
+
+
+
+
+@ *
+name
+
+
+"
+op_540w
+reshape
+shape
+	
+var_540
+x
+
+input_tensor_13
+input_9
+
+@
+ *
+name
+
+"	
+input_9°
+linear`
+weightV
+T
+Rmodel_segformer_encoder_block_0_0_attention_self_key_MatMul_MatMulAddFusion_weight
+x
+	
+input_9\
+biasT
+R
+Pmodel_segformer_encoder_block_0_0_attention_self_key_MatMul_MatMulAddFusion_bias%
+input_tensor_15
+
+@
+ *
+name
+
+"
+
+linear_0a
+const
+var_555
+
+
+*!
+val
+
+
+
+
+
+@ *
+name
+
+
+"
+op_555ì
+reshape
+shape
+	
+var_555
+x
+
+input_tensor_151
+input_tensor_17
+
+
+@
+
+ *%
+name
+
+"
+input_tensor_17`
+const
+var_569
+
+
+* 
+val
+
+
+	
+
+Ä  *
+name
+
+
+"
+op_569y
+reshape
+shape
+	
+var_569
+x
+
+input_tensor_5
+input_11
+
+Ä 
+ *
+name
+
+"
+
+input_11ß
+linearb
+weightX
+V
+Tmodel_segformer_encoder_block_0_0_attention_self_query_MatMul_MatMulAddFusion_weight
+x
+
+
+input_11^
+biasV
+T
+Rmodel_segformer_encoder_block_0_0_attention_self_query_MatMul_MatMulAddFusion_bias&
+input_tensor_19
+
+Ä 
+ *
+name
+
+"
+
+linear_1b
+const
+var_584
+
+
+*"
+val
+
+
+
+	
+Ä  *
+name
+
+
+"
+op_584î
+reshape
+shape
+	
+var_584
+x
+
+input_tensor_192
+input_tensor_21
+
+
+Ä 
+
+ *%
+name
+
+"
+input_tensor_21k
+const
+first_1_transpose_x_0
+*
+val
+
+
+ *+
+name#
+
+"
+first_1_transpose_x_0k
+const
+first_1_transpose_y_0
+*
+val
+
+
+ *+
+name#
+
+"
+first_1_transpose_y_0å
+const#
+transpose_32_perm_0
+
+
+*3
+val,
+
+
+
+
+ ˝ˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇ*)
+name!
+
+"
+transpose_32_perm_0å
+const#
+transpose_33_perm_0
+
+
+*3
+val,
+
+
+
+
+ ˇˇˇˇˇˇˇˇˇ˝ˇˇˇˇˇˇˇˇ*)
+name!
+
+"
+transpose_33_perm_0õ
+	transpose
+perm
+
+transpose_33_perm_0
+x
+
+input_tensor_17.
+transpose_33
+
+
+
+ 
+@*#
+name
+
+"
+transpose_119ú
+	transpose
+perm
+
+transpose_32_perm_0
+x
+
+input_tensor_21/
+transpose_32
+
+
+
+Ä 
+ *#
+name
+
+"
+transpose_120’
+matmul(
+transpose_y
+
+first_1_transpose_y_0(
+transpose_x
+
+first_1_transpose_x_0
+y
+
+transpose_33
+x
+
+transpose_32*
+first_1
+
+
+
+Ä 
+@*
+name
+
+"	
+first_1p
+const
+_inversed_input_13_y_0
+*
+val
+
+
+
+
+Û5>*,
+name$
+
+"
+_inversed_input_13_y_0ô
+mul
+y
+
+_inversed_input_13_y_0
+x
+	
+first_15
+_inversed_input_13
+
+
+
+Ä 
+@*(
+name 
+
+"
+_inversed_input_13W
+const
+var_595
+*
+val
+
+
+
+ˇˇˇˇˇˇˇˇˇ*
+name
+
+
+"
+op_595~
+softmax
+x
+
+_inversed_input_13
+axis
+	
+var_595&
+x_3
+
+
+
+Ä 
+@*
+name
+	
+"
+x_3•
+linearb
+weightX
+V
+Tmodel_segformer_encoder_block_0_0_attention_self_value_MatMul_MatMulAddFusion_weight
+x
+	
+input_9^
+biasV
+T
+Rmodel_segformer_encoder_block_0_0_attention_self_value_MatMul_MatMulAddFusion_bias%
+input_tensor_23
+
+@
+ *
+name
+
+"
+
+linear_2a
+const
+var_618
+
+
+*!
+val
+
+
+
+
+
+@ *
+name
+
+
+"
+op_618ì
+reshape
+shape
+	
+var_618
+x
+
+input_tensor_231
+input_tensor_25
+
+
+@
+
+ *%
+name
+
+"
+input_tensor_25a
+const
+var_624
+
+
+*!
+val
+
+
+
+
+
+ *
+name
+
+
+"
+op_624{
+const%
+input_tensor_27_transpose_x_0
+*
+val
+
+
+ *3
+name+
+#
+!"
+input_tensor_27_transpose_x_0{
+const%
+input_tensor_27_transpose_y_0
+*
+val
+
+
+ *3
+name+
+#
+!"
+input_tensor_27_transpose_y_0Ü
+	transpose
+perm
+	
+var_624
+x
+
+input_tensor_25%
+y_3
+
+
+
+@
+ *#
+name
+
+"
+transpose_118„
+matmul0
+transpose_y!
+
+input_tensor_27_transpose_y_00
+transpose_x!
+
+input_tensor_27_transpose_x_0
+y
+
+y_3
+x
+
+x_32
+input_tensor_27
+
+
+
+Ä 
+ *%
+name
+
+"
+input_tensor_27a
+const
+var_631
+
+
+*!
+val
+
+
+
+
+
+ *
+name
+
+
+"
+op_631`
+const
+var_639
+
+
+* 
+val
+
+
+	
+
+Ä  *
+name
+
+
+"
+op_639ì
+	transpose
+perm
+	
+var_631
+x
+
+input_tensor_272
+input_tensor_29
+
+
+Ä 
+
+ *#
+name
+
+"
+transpose_117z
+reshape
+shape
+	
+var_639
+x
+
+input_tensor_29
+input_17
+
+Ä 
+ *
+name
+
+"
+
+input_17´
+lineard
+weightZ
+X
+Vmodel_segformer_encoder_block_0_0_attention_output_dense_MatMul_MatMulAddFusion_weight
+x
+
+
+input_17`
+biasX
+V
+Tmodel_segformer_encoder_block_0_0_attention_output_dense_MatMul_MatMulAddFusion_bias&
+input_tensor_31
+
+Ä 
+ *
+name
+
+"
+
+linear_3a
+const
+var_652
+
+
+*!
+val
+
+
+
+
+
+Ä  *
+name
+
+
+"
+op_652~
+reshape
+shape
+	
+var_652
+x
+
+input_tensor_31$
+first_3
+
+
+Ä 
+ *
+name
+
+"	
+first_3p
+add
+y
+	
+input_3
+x
+	
+first_3%
+input_19
+
+
+Ä 
+ *
+name
+
+"
+
+input_19Q
+const
+var_657
+*
+val
+
+
+
+
+¨≈'7*
+name
+
+
+"
+op_657Ü
+const&
+input_tensor_33_axes_0
+
+
+*'
+val 
+
+
+
+
+
+ˇˇˇˇˇˇˇˇˇ*,
+name$
+
+"
+input_tensor_33_axes_0€
+
+layer_norm
+epsilon
+	
+var_657R
+betaJ
+H
+Fmodel_segformer_encoder_block_0_0_layer_norm_2_LayerNormalization_bias
+x
+
+
+input_19U
+gammaL
+J
+Hmodel_segformer_encoder_block_0_0_layer_norm_2_LayerNormalization_weight"
+axes
+
+input_tensor_33_axes_0,
+input_tensor_33
+
+
+Ä 
+ *%
+name
+
+"
+input_tensor_33`
+const
+var_669
+
+
+* 
+val
+
+
+	
+
+Ä  *
+name
+
+
+"
+op_669z
+reshape
+shape
+	
+var_669
+x
+
+input_tensor_33
+input_21
+
+Ä 
+ *
+name
+
+"
+
+input_21î
+linearX
+weightN
+L
+Jmodel_segformer_encoder_block_0_0_mlp_dense1_MatMul_MatMulAddFusion_weight
+x
+
+
+input_21T
+biasL
+J
+Hmodel_segformer_encoder_block_0_0_mlp_dense1_MatMul_MatMulAddFusion_bias'
+input_tensor_35
+
+Ä 
+Ä*
+name
+
+"
+
+linear_4c
+const
+var_684
+
+
+*#
+val
+
+
+
+
+
+ÄÄ*
+name
+
+
+"
+op_684ï
+reshape
+shape
+	
+var_684
+x
+
+input_tensor_353
+input_tensor_37 
+
+
+
+Ä
+Ä*%
+name
+
+"
+input_tensor_37a
+const
+var_690
+
+
+*!
+val
+
+
+
+
+
+ *
+name
+
+
+"
+op_690z
+const"
+input_tensor_39_pad_type_0
+*
+val
+
+
+"
+custom*0
+name(
+ 
+"
+input_tensor_39_pad_type_0~
+const%
+input_tensor_39_pad_0
+
+
+*!
+val
+
+
+
+
+
+*+
+name#
+
+"
+input_tensor_39_pad_0r
+const 
+input_tensor_39_groups_0
+*
+val
+
+
+Ä*.
+name&
+
+"
+input_tensor_39_groups_0Ñ
+const)
+input_tensor_39_strides_0
+
+
+*
+val
+
+
+
+
+*/
+name'
+
+"
+input_tensor_39_strides_0à
+const+
+input_tensor_39_dilations_0
+
+
+*
+val
+
+
+
+
+*1
+name)
+!
+"
+input_tensor_39_dilations_0ç
+	transpose
+perm
+	
+var_690
+x
+
+input_tensor_37,
+input_23 
+
+
+Ä
+
+Ä*#
+name
+
+"
+transpose_116›
+conv 
+pad
+
+input_tensor_39_pad_0
+x
+
+
+input_23(
+strides
+
+input_tensor_39_strides_0,
+	dilations
+
+input_tensor_39_dilations_0*
+pad_type
+
+input_tensor_39_pad_type_0M
+weightC
+A
+?model_segformer_encoder_block_0_0_mlp_dwconv_dwconv_Conv_weight&
+groups
+
+input_tensor_39_groups_0I
+biasA
+?
+=model_segformer_encoder_block_0_0_mlp_dwconv_dwconv_Conv_bias3
+input_tensor_39 
+
+
+Ä
+
+Ä*%
+name
+
+"
+input_tensor_39j
+const
+var_712
+
+
+**
+val#
+
+
+
+
+Äˇˇˇˇˇˇˇˇˇ*
+name
+
+
+"
+op_712è
+reshape
+shape
+	
+var_712
+x
+
+input_tensor_39-
+input_tensor_41
+
+
+Ä
+Ä *%
+name
+
+"
+input_tensor_41`
+const
+var_717
+
+
+* 
+val
+
+
+	
+
+ *
+name
+
+
+"
+op_717q
+const
+input_tensor_45_mode_0
+*
+val
+
+	"
+EXACT*,
+name$
+
+"
+input_tensor_45_mode_0Ü
+	transpose
+perm
+	
+var_717
+x
+
+input_tensor_41%
+first_5
+
+
+Ä 
+Ä*#
+name
+
+"
+transpose_115í
+gelu"
+mode
+
+input_tensor_45_mode_0
+x
+	
+first_5-
+input_tensor_45
+
+
+Ä 
+Ä*%
+name
+
+"
+input_tensor_45a
+const
+var_731
+
+
+*!
+val
+
+
+
+
+
+Ä Ä*
+name
+
+
+"
+op_731{
+reshape
+shape
+	
+var_731
+x
+
+input_tensor_45 
+input_25
+
+Ä 
+Ä*
+name
+
+"
+
+input_25ì
+linearX
+weightN
+L
+Jmodel_segformer_encoder_block_0_0_mlp_dense2_MatMul_MatMulAddFusion_weight
+x
+
+
+input_25T
+biasL
+J
+Hmodel_segformer_encoder_block_0_0_mlp_dense2_MatMul_MatMulAddFusion_bias&
+input_tensor_47
+
+Ä 
+ *
+name
+
+"
+
+linear_5a
+const
+var_744
+
+
+*!
+val
+
+
+
+
+
+Ä  *
+name
+
+
+"
+op_744Ä
+reshape
+shape
+	
+var_744
+x
+
+input_tensor_47%
+first_11
+
+
+Ä 
+ *
+name
+
+"
+
+first_11r
+add
+y
+
+
+input_19
+x
+
+
+first_11%
+input_27
+
+
+Ä 
+ *
+name
+
+"
+
+input_27Q
+const
+var_749
+*
+val
+
+
+
+
+¨≈'7*
+name
+
+
+"
+op_749Ü
+const&
+input_tensor_49_axes_0
+
+
+*'
+val 
+
+
+
+
+
+ˇˇˇˇˇˇˇˇˇ*,
+name$
+
+"
+input_tensor_49_axes_0€
+
+layer_norm
+epsilon
+	
+var_749R
+betaJ
+H
+Fmodel_segformer_encoder_block_0_1_layer_norm_1_LayerNormalization_bias
+x
+
+
+input_27U
+gammaL
+J
+Hmodel_segformer_encoder_block_0_1_layer_norm_1_LayerNormalization_weight"
+axes
+
+input_tensor_49_axes_0,
+input_tensor_49
+
+
+Ä 
+ *%
+name
+
+"
+input_tensor_49b
+const
+var_765
+
+
+*"
+val
+
+
+
+	
+Ä *
+name
+
+
+"
+op_765î
+reshape
+shape
+	
+var_765
+x
+
+input_tensor_492
+input_tensor_51
+
+
+
+Ä
+ *%
+name
+
+"
+input_tensor_51a
+const
+var_771
+
+
+*!
+val
+
+
+
+
+
+ *
+name
+
+
+"
+op_771y
+const"
+input_tensor_53_pad_type_0
+*
+val
+
+	"
+valid*0
+name(
+ 
+"
+input_tensor_53_pad_type_0Ñ
+const)
+input_tensor_53_strides_0
+
+
+*
+val
+
+
+
+
+*/
+name'
+
+"
+input_tensor_53_strides_0~
+const%
+input_tensor_53_pad_0
+
+
+*!
+val
+
+
+
+
+
+    *+
+name#
+
+"
+input_tensor_53_pad_0à
+const+
+input_tensor_53_dilations_0
+
+
+*
+val
+
+
+
+
+*1
+name)
+!
+"
+input_tensor_53_dilations_0q
+const 
+input_tensor_53_groups_0
+*
+val
+
+
+*.
+name&
+
+"
+input_tensor_53_groups_0å
+	transpose
+perm
+	
+var_771
+x
+
+input_tensor_51+
+input_29
+
+
+ 
+
+Ä*#
+name
+
+"
+transpose_114€
+conv 
+pad
+
+input_tensor_53_pad_0
+x
+
+
+input_29(
+strides
+
+input_tensor_53_strides_0,
+	dilations
+
+input_tensor_53_dilations_0*
+pad_type
+
+input_tensor_53_pad_type_0M
+weightC
+A
+?model_segformer_encoder_block_0_1_attention_self_sr_Conv_weight&
+groups
+
+input_tensor_53_groups_0I
+biasA
+?
+=model_segformer_encoder_block_0_1_attention_self_sr_Conv_bias1
+input_tensor_53
+
+
+ 
+
+ *%
+name
+
+"
+input_tensor_53i
+const
+var_793
+
+
+*)
+val"
+
+
+
+
+ ˇˇˇˇˇˇˇˇˇ*
+name
+
+
+"
+op_793ç
+reshape
+shape
+	
+var_793
+x
+
+input_tensor_53+
+input_tensor_55
+
+
+ 
+@*%
+name
+
+"
+input_tensor_55`
+const
+var_798
+
+
+* 
+val
+
+
+	
+
+ *
+name
+
+
+"
+op_798Q
+const
+var_801
+*
+val
+
+
+
+
+¨≈'7*
+name
+
+
+"
+op_801Ü
+const&
+input_tensor_57_axes_0
+
+
+*'
+val 
+
+
+
+
+
+ˇˇˇˇˇˇˇˇˇ*,
+name$
+
+"
+input_tensor_57_axes_0Ö
+	transpose
+perm
+	
+var_798
+x
+
+input_tensor_55$
+input_31
+
+
+@
+ *#
+name
+
+"
+transpose_113Ù
+
+layer_norm
+epsilon
+	
+var_801_
+betaW
+U
+Smodel_segformer_encoder_block_0_1_attention_self_layer_norm_LayerNormalization_bias
+x
+
+
+input_31b
+gammaY
+W
+Umodel_segformer_encoder_block_0_1_attention_self_layer_norm_LayerNormalization_weight"
+axes
+
+input_tensor_57_axes_0+
+input_tensor_57
+
+
+@
+ *%
+name
+
+"
+input_tensor_57_
+const
+var_813
+
+
+*
+val
+
+
+
+
+@ *
+name
+
+
+"
+op_813y
+reshape
+shape
+	
+var_813
+x
+
+input_tensor_57
+input_33
+
+@
+ *
+name
+
+"
+
+input_33¢
+linear`
+weightV
+T
+Rmodel_segformer_encoder_block_0_1_attention_self_key_MatMul_MatMulAddFusion_weight
+x
+
+
+input_33\
+biasT
+R
+Pmodel_segformer_encoder_block_0_1_attention_self_key_MatMul_MatMulAddFusion_bias%
+input_tensor_59
+
+@
+ *
+name
+
+"
+
+linear_6a
+const
+var_828
+
+
+*!
+val
+
+
+
+
+
+@ *
+name
+
+
+"
+op_828ì
+reshape
+shape
+	
+var_828
+x
+
+input_tensor_591
+input_tensor_61
+
+
+@
+
+ *%
+name
+
+"
+input_tensor_61`
+const
+var_842
+
+
+* 
+val
+
+
+	
+
+Ä  *
+name
+
+
+"
+op_842z
+reshape
+shape
+	
+var_842
+x
+
+input_tensor_49
+input_35
+
+Ä 
+ *
+name
+
+"
+
+input_35ß
+linearb
+weightX
+V
+Tmodel_segformer_encoder_block_0_1_attention_self_query_MatMul_MatMulAddFusion_weight
+x
+
+
+input_35^
+biasV
+T
+Rmodel_segformer_encoder_block_0_1_attention_self_query_MatMul_MatMulAddFusion_bias&
+input_tensor_63
+
+Ä 
+ *
+name
+
+"
+
+linear_7b
+const
+var_857
+
+
+*"
+val
+
+
+
+	
+Ä  *
+name
+
+
+"
+op_857î
+reshape
+shape
+	
+var_857
+x
+
+input_tensor_632
+input_tensor_65
+
+
+Ä 
+
+ *%
+name
+
+"
+input_tensor_65m
+const
+first_13_transpose_x_0
+*
+val
+
+
+ *,
+name$
+
+"
+first_13_transpose_x_0m
+const
+first_13_transpose_y_0
+*
+val
+
+
+ *,
+name$
+
+"
+first_13_transpose_y_0å
+const#
+transpose_34_perm_0
+
+
+*3
+val,
+
+
+
+
+ ˝ˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇ*)
+name!
+
+"
+transpose_34_perm_0å
+const#
+transpose_35_perm_0
+
+
+*3
+val,
+
+
+
+
+ ˇˇˇˇˇˇˇˇˇ˝ˇˇˇˇˇˇˇˇ*)
+name!
+
+"
+transpose_35_perm_0õ
+	transpose
+perm
+
+transpose_35_perm_0
+x
+
+input_tensor_61.
+transpose_35
+
+
+
+ 
+@*#
+name
+
+"
+transpose_111ú
+	transpose
+perm
+
+transpose_34_perm_0
+x
+
+input_tensor_65/
+transpose_34
+
+
+
+Ä 
+ *#
+name
+
+"
+transpose_112Ÿ
+matmul)
+transpose_y
+
+first_13_transpose_y_0)
+transpose_x
+
+first_13_transpose_x_0
+y
+
+transpose_35
+x
+
+transpose_34+
+first_13
+
+
+
+Ä 
+@*
+name
+
+"
+
+first_13p
+const
+_inversed_input_37_y_0
+*
+val
+
+
+
+
+Û5>*,
+name$
+
+"
+_inversed_input_37_y_0ö
+mul
+y
+
+_inversed_input_37_y_0
+x
+
+
+first_135
+_inversed_input_37
+
+
+
+Ä 
+@*(
+name 
+
+"
+_inversed_input_37W
+const
+var_868
+*
+val
+
+
+
+ˇˇˇˇˇˇˇˇˇ*
+name
+
+
+"
+op_868~
+softmax
+x
+
+_inversed_input_37
+axis
+	
+var_868&
+x_7
+
+
+
+Ä 
+@*
+name
+	
+"
+x_7¶
+linearb
+weightX
+V
+Tmodel_segformer_encoder_block_0_1_attention_self_value_MatMul_MatMulAddFusion_weight
+x
+
+
+input_33^
+biasV
+T
+Rmodel_segformer_encoder_block_0_1_attention_self_value_MatMul_MatMulAddFusion_bias%
+input_tensor_67
+
+@
+ *
+name
+
+"
+
+linear_8a
+const
+var_891
+
+
+*!
+val
+
+
+
+
+
+@ *
+name
+
+
+"
+op_891ì
+reshape
+shape
+	
+var_891
+x
+
+input_tensor_671
+input_tensor_69
+
+
+@
+
+ *%
+name
+
+"
+input_tensor_69a
+const
+var_897
+
+
+*!
+val
+
+
+
+
+
+ *
+name
+
+
+"
+op_897{
+const%
+input_tensor_71_transpose_x_0
+*
+val
+
+
+ *3
+name+
+#
+!"
+input_tensor_71_transpose_x_0{
+const%
+input_tensor_71_transpose_y_0
+*
+val
+
+
+ *3
+name+
+#
+!"
+input_tensor_71_transpose_y_0Ü
+	transpose
+perm
+	
+var_897
+x
+
+input_tensor_69%
+y_7
+
+
+
+@
+ *#
+name
+
+"
+transpose_110„
+matmul0
+transpose_y!
+
+input_tensor_71_transpose_y_00
+transpose_x!
+
+input_tensor_71_transpose_x_0
+y
+
+y_7
+x
+
+x_72
+input_tensor_71
+
+
+
+Ä 
+ *%
+name
+
+"
+input_tensor_71a
+const
+var_904
+
+
+*!
+val
+
+
+
+
+
+ *
+name
+
+
+"
+op_904`
+const
+var_912
+
+
+* 
+val
+
+
+	
+
+Ä  *
+name
+
+
+"
+op_912ì
+	transpose
+perm
+	
+var_904
+x
+
+input_tensor_712
+input_tensor_73
+
+
+Ä 
+
+ *#
+name
+
+"
+transpose_109z
+reshape
+shape
+	
+var_912
+x
+
+input_tensor_73
+input_41
+
+Ä 
+ *
+name
+
+"
+
+input_41´
+lineard
+weightZ
+X
+Vmodel_segformer_encoder_block_0_1_attention_output_dense_MatMul_MatMulAddFusion_weight
+x
+
+
+input_41`
+biasX
+V
+Tmodel_segformer_encoder_block_0_1_attention_output_dense_MatMul_MatMulAddFusion_bias&
+input_tensor_75
+
+Ä 
+ *
+name
+
+"
+
+linear_9a
+const
+var_925
+
+
+*!
+val
+
+
+
+
+
+Ä  *
+name
+
+
+"
+op_925Ä
+reshape
+shape
+	
+var_925
+x
+
+input_tensor_75%
+first_15
+
+
+Ä 
+ *
+name
+
+"
+
+first_15r
+add
+y
+
+
+input_27
+x
+
+
+first_15%
+input_43
+
+
+Ä 
+ *
+name
+
+"
+
+input_43Q
+const
+var_930
+*
+val
+
+
+
+
+¨≈'7*
+name
+
+
+"
+op_930Ü
+const&
+input_tensor_77_axes_0
+
+
+*'
+val 
+
+
+
+
+
+ˇˇˇˇˇˇˇˇˇ*,
+name$
+
+"
+input_tensor_77_axes_0€
+
+layer_norm
+epsilon
+	
+var_930R
+betaJ
+H
+Fmodel_segformer_encoder_block_0_1_layer_norm_2_LayerNormalization_bias
+x
+
+
+input_43U
+gammaL
+J
+Hmodel_segformer_encoder_block_0_1_layer_norm_2_LayerNormalization_weight"
+axes
+
+input_tensor_77_axes_0,
+input_tensor_77
+
+
+Ä 
+ *%
+name
+
+"
+input_tensor_77`
+const
+var_942
+
+
+* 
+val
+
+
+	
+
+Ä  *
+name
+
+
+"
+op_942z
+reshape
+shape
+	
+var_942
+x
+
+input_tensor_77
+input_45
+
+Ä 
+ *
+name
+
+"
+
+input_45ï
+linearX
+weightN
+L
+Jmodel_segformer_encoder_block_0_1_mlp_dense1_MatMul_MatMulAddFusion_weight
+x
+
+
+input_45T
+biasL
+J
+Hmodel_segformer_encoder_block_0_1_mlp_dense1_MatMul_MatMulAddFusion_bias'
+input_tensor_79
+
+Ä 
+Ä*
+name
+
+"
+	linear_10c
+const
+var_957
+
+
+*#
+val
+
+
+
+
+
+ÄÄ*
+name
+
+
+"
+op_957ï
+reshape
+shape
+	
+var_957
+x
+
+input_tensor_793
+input_tensor_81 
+
+
+
+Ä
+Ä*%
+name
+
+"
+input_tensor_81a
+const
+var_963
+
+
+*!
+val
+
+
+
+
+
+ *
+name
+
+
+"
+op_963z
+const"
+input_tensor_83_pad_type_0
+*
+val
+
+
+"
+custom*0
+name(
+ 
+"
+input_tensor_83_pad_type_0~
+const%
+input_tensor_83_pad_0
+
+
+*!
+val
+
+
+
+
+
+*+
+name#
+
+"
+input_tensor_83_pad_0r
+const 
+input_tensor_83_groups_0
+*
+val
+
+
+Ä*.
+name&
+
+"
+input_tensor_83_groups_0Ñ
+const)
+input_tensor_83_strides_0
+
+
+*
+val
+
+
+
+
+*/
+name'
+
+"
+input_tensor_83_strides_0à
+const+
+input_tensor_83_dilations_0
+
+
+*
+val
+
+
+
+
+*1
+name)
+!
+"
+input_tensor_83_dilations_0ç
+	transpose
+perm
+	
+var_963
+x
+
+input_tensor_81,
+input_47 
+
+
+Ä
+
+Ä*#
+name
+
+"
+transpose_108›
+conv 
+pad
+
+input_tensor_83_pad_0
+x
+
+
+input_47(
+strides
+
+input_tensor_83_strides_0,
+	dilations
+
+input_tensor_83_dilations_0*
+pad_type
+
+input_tensor_83_pad_type_0M
+weightC
+A
+?model_segformer_encoder_block_0_1_mlp_dwconv_dwconv_Conv_weight&
+groups
+
+input_tensor_83_groups_0I
+biasA
+?
+=model_segformer_encoder_block_0_1_mlp_dwconv_dwconv_Conv_bias3
+input_tensor_83 
+
+
+Ä
+
+Ä*%
+name
+
+"
+input_tensor_83j
+const
+var_985
+
+
+**
+val#
+
+
+
+
+Äˇˇˇˇˇˇˇˇˇ*
+name
+
+
+"
+op_985è
+reshape
+shape
+	
+var_985
+x
+
+input_tensor_83-
+input_tensor_85
+
+
+Ä
+Ä *%
+name
+
+"
+input_tensor_85`
+const
+var_990
+
+
+* 
+val
+
+
+	
+
+ *
+name
+
+
+"
+op_990q
+const
+input_tensor_89_mode_0
+*
+val
+
+	"
+EXACT*,
+name$
+
+"
+input_tensor_89_mode_0á
+	transpose
+perm
+	
+var_990
+x
+
+input_tensor_85&
+first_17
+
+
+Ä 
+Ä*#
+name
+
+"
+transpose_107ì
+gelu"
+mode
+
+input_tensor_89_mode_0
+x
+
+
+first_17-
+input_tensor_89
+
+
+Ä 
+Ä*%
+name
+
+"
+input_tensor_89c
+const
+var_1004
+
+
+*!
+val
+
+
+
+
+
+Ä Ä*
+name
+
+"	
+op_1004|
+reshape
+shape
+
+
+var_1004
+x
+
+input_tensor_89 
+input_49
+
+Ä 
+Ä*
+name
+
+"
+
+input_49î
+linearX
+weightN
+L
+Jmodel_segformer_encoder_block_0_1_mlp_dense2_MatMul_MatMulAddFusion_weight
+x
+
+
+input_49T
+biasL
+J
+Hmodel_segformer_encoder_block_0_1_mlp_dense2_MatMul_MatMulAddFusion_bias&
+input_tensor_91
+
+Ä 
+ *
+name
+
+"
+	linear_11c
+const
+var_1017
+
+
+*!
+val
+
+
+
+
+
+Ä  *
+name
+
+"	
+op_1017Å
+reshape
+shape
+
+
+var_1017
+x
+
+input_tensor_91%
+first_23
+
+
+Ä 
+ *
+name
+
+"
+
+first_23r
+add
+y
+
+
+input_43
+x
+
+
+first_23%
+input_51
+
+
+Ä 
+ *
+name
+
+"
+
+input_51S
+const
+var_1022
+*
+val
+
+
+
+
+¨≈'7*
+name
+
+"	
+op_1022Ü
+const&
+input_tensor_93_axes_0
+
+
+*'
+val 
+
+
+
+
+
+ˇˇˇˇˇˇˇˇˇ*,
+name$
+
+"
+input_tensor_93_axes_0»
+
+layer_norm
+epsilon
+
+
+var_1022H
+beta@
+>
+<model_segformer_encoder_layer_norm_0_LayerNormalization_bias
+x
+
+
+input_51K
+gammaB
+@
+>model_segformer_encoder_layer_norm_0_LayerNormalization_weight"
+axes
+
+input_tensor_93_axes_0,
+input_tensor_93
+
+
+Ä 
+ *%
+name
+
+"
+input_tensor_93m
+const
+var_1038
+
+
+*+
+val$
+
+
+
+
+Äˇˇˇˇˇˇˇˇˇ*
+name
+
+"	
+op_1038ï
+reshape
+shape
+
+
+var_1038
+x
+
+input_tensor_932
+input_tensor_95
+
+
+
+Ä
+ *%
+name
+
+"
+input_tensor_95c
+const
+var_1044
+
+
+*!
+val
+
+
+
+
+
+ *
+name
+
+"	
+op_1044z
+const"
+input_tensor_97_pad_type_0
+*
+val
+
+
+"
+custom*0
+name(
+ 
+"
+input_tensor_97_pad_type_0~
+const%
+input_tensor_97_pad_0
+
+
+*!
+val
+
+
+
+
+
+*+
+name#
+
+"
+input_tensor_97_pad_0Ñ
+const)
+input_tensor_97_strides_0
+
+
+*
+val
+
+
+
+
+*/
+name'
+
+"
+input_tensor_97_strides_0à
+const+
+input_tensor_97_dilations_0
+
+
+*
+val
+
+
+
+
+*1
+name)
+!
+"
+input_tensor_97_dilations_0q
+const 
+input_tensor_97_groups_0
+*
+val
+
+
+*.
+name&
+
+"
+input_tensor_97_groups_0ç
+	transpose
+perm
+
+
+var_1044
+x
+
+input_tensor_95+
+input_53
+
+
+ 
+
+Ä*#
+name
+
+"
+transpose_106‘
+conv 
+pad
+
+input_tensor_97_pad_0
+x
+
+
+input_53(
+strides
+
+input_tensor_97_strides_0,
+	dilations
+
+input_tensor_97_dilations_0*
+pad_type
+
+input_tensor_97_pad_type_0I
+weight?
+=
+;model_segformer_encoder_patch_embeddings_1_proj_Conv_weight&
+groups
+
+input_tensor_97_groups_0E
+bias=
+;
+9model_segformer_encoder_patch_embeddings_1_proj_Conv_bias2
+input_tensor_97
+
+
+@
+
+Ä*%
+name
+
+"
+input_tensor_97k
+const
+var_1066
+
+
+*)
+val"
+
+
+
+
+@ˇˇˇˇˇˇˇˇˇ*
+name
+
+"	
+op_1066è
+reshape
+shape
+
+
+var_1066
+x
+
+input_tensor_97,
+input_tensor_99
+
+
+@
+Ä*%
+name
+
+"
+input_tensor_99b
+const
+var_1071
+
+
+* 
+val
+
+
+	
+
+ *
+name
+
+"	
+op_1071S
+const
+var_1074
+*
+val
+
+
+
+
+¨≈'7*
+name
+
+"	
+op_1074x
+const
+input_57_axes_0
+
+
+*'
+val 
+
+
+
+
+
+ˇˇˇˇˇˇˇˇˇ*%
+name
+
+"
+input_57_axes_0á
+	transpose
+perm
+
+
+var_1071
+x
+
+input_tensor_99%
+input_55
+
+
+Ä
+@*#
+name
+
+"
+transpose_105’
+
+layer_norm
+epsilon
+
+
+var_1074Y
+betaQ
+O
+Mmodel_segformer_encoder_patch_embeddings_1_layer_norm_LayerNormalization_bias
+x
+
+
+input_55\
+gammaS
+Q
+Omodel_segformer_encoder_patch_embeddings_1_layer_norm_LayerNormalization_weight
+axes
+
+input_57_axes_0%
+input_57
+
+
+Ä
+@*
+name
+
+"
+
+input_57S
+const
+var_1081
+*
+val
+
+
+
+
+¨≈'7*
+name
+
+"	
+op_1081à
+const'
+input_tensor_101_axes_0
+
+
+*'
+val 
+
+
+
+
+
+ˇˇˇˇˇˇˇˇˇ*-
+name%
+
+"
+input_tensor_101_axes_0ﬂ
+
+layer_norm
+epsilon
+
+
+var_1081R
+betaJ
+H
+Fmodel_segformer_encoder_block_1_0_layer_norm_1_LayerNormalization_bias
+x
+
+
+input_57U
+gammaL
+J
+Hmodel_segformer_encoder_block_1_0_layer_norm_1_LayerNormalization_weight#
+axes
+
+input_tensor_101_axes_0-
+input_tensor_101
+
+
+Ä
+@*&
+name
+
+"
+input_tensor_101d
+const
+var_1097
+
+
+*"
+val
+
+
+
+	
+Ä@*
+name
+
+"	
+op_1097ò
+reshape
+shape
+
+
+var_1097
+x
+
+input_tensor_1013
+input_tensor_103
+
+
+
+Ä
+@*&
+name
+
+"
+input_tensor_103c
+const
+var_1103
+
+
+*!
+val
+
+
+
+
+
+ *
+name
+
+"	
+op_1103{
+const#
+input_tensor_105_pad_type_0
+*
+val
+
+	"
+valid*1
+name)
+!
+"
+input_tensor_105_pad_type_0Ü
+const*
+input_tensor_105_strides_0
+
+
+*
+val
+
+
+
+
+*0
+name(
+ 
+"
+input_tensor_105_strides_0Ä
+const&
+input_tensor_105_pad_0
+
+
+*!
+val
+
+
+
+
+
+    *,
+name$
+
+"
+input_tensor_105_pad_0ä
+const,
+input_tensor_105_dilations_0
+
+
+*
+val
+
+
+
+
+*2
+name*
+"
+ "
+input_tensor_105_dilations_0s
+const!
+input_tensor_105_groups_0
+*
+val
+
+
+*/
+name'
+
+"
+input_tensor_105_groups_0é
+	transpose
+perm
+
+
+var_1103
+x
+
+input_tensor_103+
+input_59
+
+
+@
+
+Ä*#
+name
+
+"
+transpose_104‚
+conv!
+pad
+
+input_tensor_105_pad_0
+x
+
+
+input_59)
+strides
+
+input_tensor_105_strides_0-
+	dilations 
+
+input_tensor_105_dilations_0+
+pad_type
+
+input_tensor_105_pad_type_0M
+weightC
+A
+?model_segformer_encoder_block_1_0_attention_self_sr_Conv_weight'
+groups
+
+input_tensor_105_groups_0I
+biasA
+?
+=model_segformer_encoder_block_1_0_attention_self_sr_Conv_bias2
+input_tensor_105
+
+
+@
+
+ *&
+name
+
+"
+input_tensor_105k
+const
+var_1125
+
+
+*)
+val"
+
+
+
+
+@ˇˇˇˇˇˇˇˇˇ*
+name
+
+"	
+op_1125ë
+reshape
+shape
+
+
+var_1125
+x
+
+input_tensor_105,
+input_tensor_107
+
+
+@
+@*&
+name
+
+"
+input_tensor_107b
+const
+var_1130
+
+
+* 
+val
+
+
+	
+
+ *
+name
+
+"	
+op_1130S
+const
+var_1133
+*
+val
+
+
+
+
+¨≈'7*
+name
+
+"	
+op_1133à
+const'
+input_tensor_109_axes_0
+
+
+*'
+val 
+
+
+
+
+
+ˇˇˇˇˇˇˇˇˇ*-
+name%
+
+"
+input_tensor_109_axes_0á
+	transpose
+perm
+
+
+var_1130
+x
+
+input_tensor_107$
+input_61
+
+
+@
+@*#
+name
+
+"
+transpose_103¯
+
+layer_norm
+epsilon
+
+
+var_1133_
+betaW
+U
+Smodel_segformer_encoder_block_1_0_attention_self_layer_norm_LayerNormalization_bias
+x
+
+
+input_61b
+gammaY
+W
+Umodel_segformer_encoder_block_1_0_attention_self_layer_norm_LayerNormalization_weight#
+axes
+
+input_tensor_109_axes_0,
+input_tensor_109
+
+
+@
+@*&
+name
+
+"
+input_tensor_109a
+const
+var_1145
+
+
+*
+val
+
+
+
+
+@@*
+name
+
+"	
+op_1145{
+reshape
+shape
+
+
+var_1145
+x
+
+input_tensor_109
+input_63
+
+@
+@*
+name
+
+"
+
+input_63§
+linear`
+weightV
+T
+Rmodel_segformer_encoder_block_1_0_attention_self_key_MatMul_MatMulAddFusion_weight
+x
+
+
+input_63\
+biasT
+R
+Pmodel_segformer_encoder_block_1_0_attention_self_key_MatMul_MatMulAddFusion_bias&
+input_tensor_111
+
+@
+@*
+name
+
+"
+	linear_12c
+const
+var_1160
+
+
+*!
+val
+
+
+
+
+
+@ *
+name
+
+"	
+op_1160ó
+reshape
+shape
+
+
+var_1160
+x
+
+input_tensor_1112
+input_tensor_113
+
+
+@
+
+ *&
+name
+
+"
+input_tensor_113b
+const
+var_1174
+
+
+* 
+val
+
+
+	
+
+Ä@*
+name
+
+"	
+op_1174|
+reshape
+shape
+
+
+var_1174
+x
+
+input_tensor_101
+input_65
+
+Ä
+@*
+name
+
+"
+
+input_65©
+linearb
+weightX
+V
+Tmodel_segformer_encoder_block_1_0_attention_self_query_MatMul_MatMulAddFusion_weight
+x
+
+
+input_65^
+biasV
+T
+Rmodel_segformer_encoder_block_1_0_attention_self_query_MatMul_MatMulAddFusion_bias'
+input_tensor_115
+
+Ä
+@*
+name
+
+"
+	linear_13d
+const
+var_1189
+
+
+*"
+val
+
+
+
+	
+Ä *
+name
+
+"	
+op_1189ò
+reshape
+shape
+
+
+var_1189
+x
+
+input_tensor_1153
+input_tensor_117
+
+
+Ä
+
+ *&
+name
+
+"
+input_tensor_117m
+const
+first_25_transpose_x_0
+*
+val
+
+
+ *,
+name$
+
+"
+first_25_transpose_x_0m
+const
+first_25_transpose_y_0
+*
+val
+
+
+ *,
+name$
+
+"
+first_25_transpose_y_0å
+const#
+transpose_36_perm_0
+
+
+*3
+val,
+
+
+
+
+ ˝ˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇ*)
+name!
+
+"
+transpose_36_perm_0å
+const#
+transpose_37_perm_0
+
+
+*3
+val,
+
+
+
+
+ ˇˇˇˇˇˇˇˇˇ˝ˇˇˇˇˇˇˇˇ*)
+name!
+
+"
+transpose_37_perm_0ú
+	transpose
+perm
+
+transpose_37_perm_0
+x
+
+input_tensor_113.
+transpose_37
+
+
+
+ 
+@*#
+name
+
+"
+transpose_101ù
+	transpose
+perm
+
+transpose_36_perm_0
+x
+
+input_tensor_117/
+transpose_36
+
+
+
+Ä
+ *#
+name
+
+"
+transpose_102Ÿ
+matmul)
+transpose_y
+
+first_25_transpose_y_0)
+transpose_x
+
+first_25_transpose_x_0
+y
+
+transpose_37
+x
+
+transpose_36+
+first_25
+
+
+
+Ä
+@*
+name
+
+"
+
+first_25p
+const
+_inversed_input_67_y_0
+*
+val
+
+
+
+
+Û5>*,
+name$
+
+"
+_inversed_input_67_y_0ö
+mul
+y
+
+_inversed_input_67_y_0
+x
+
+
+first_255
+_inversed_input_67
+
+
+
+Ä
+@*(
+name 
+
+"
+_inversed_input_67Y
+const
+var_1200
+*
+val
+
+
+
+ˇˇˇˇˇˇˇˇˇ*
+name
+
+"	
+op_1200Å
+softmax
+x
+
+_inversed_input_67
+axis
+
+
+var_1200'
+x_11
+
+
+
+Ä
+@*
+name
+
+
+"
+x_11®
+linearb
+weightX
+V
+Tmodel_segformer_encoder_block_1_0_attention_self_value_MatMul_MatMulAddFusion_weight
+x
+
+
+input_63^
+biasV
+T
+Rmodel_segformer_encoder_block_1_0_attention_self_value_MatMul_MatMulAddFusion_bias&
+input_tensor_119
+
+@
+@*
+name
+
+"
+	linear_14c
+const
+var_1223
+
+
+*!
+val
+
+
+
+
+
+@ *
+name
+
+"	
+op_1223ó
+reshape
+shape
+
+
+var_1223
+x
+
+input_tensor_1192
+input_tensor_121
+
+
+@
+
+ *&
+name
+
+"
+input_tensor_121c
+const
+var_1229
+
+
+*!
+val
+
+
+
+
+
+ *
+name
+
+"	
+op_1229}
+const&
+input_tensor_123_transpose_x_0
+*
+val
+
+
+ *4
+name,
+$
+"" 
+input_tensor_123_transpose_x_0}
+const&
+input_tensor_123_transpose_y_0
+*
+val
+
+
+ *4
+name,
+$
+"" 
+input_tensor_123_transpose_y_0â
+	transpose
+perm
+
+
+var_1229
+x
+
+input_tensor_121&
+y_11
+
+
+
+@
+ *#
+name
+
+"
+transpose_100È
+matmul1
+transpose_y"
+ 
+input_tensor_123_transpose_y_01
+transpose_x"
+ 
+input_tensor_123_transpose_x_0
+y
+
+y_11
+x
+
+x_113
+input_tensor_123
+
+
+
+Ä
+ *&
+name
+
+"
+input_tensor_123c
+const
+var_1236
+
+
+*!
+val
+
+
+
+
+
+ *
+name
+
+"	
+op_1236b
+const
+var_1244
+
+
+* 
+val
+
+
+	
+
+Ä@*
+name
+
+"	
+op_1244ï
+	transpose
+perm
+
+
+var_1236
+x
+
+input_tensor_1233
+input_tensor_125
+
+
+Ä
+
+ *"
+name
+
+"
+transpose_99|
+reshape
+shape
+
+
+var_1244
+x
+
+input_tensor_125
+input_71
+
+Ä
+@*
+name
+
+"
+
+input_71≠
+lineard
+weightZ
+X
+Vmodel_segformer_encoder_block_1_0_attention_output_dense_MatMul_MatMulAddFusion_weight
+x
+
+
+input_71`
+biasX
+V
+Tmodel_segformer_encoder_block_1_0_attention_output_dense_MatMul_MatMulAddFusion_bias'
+input_tensor_127
+
+Ä
+@*
+name
+
+"
+	linear_15c
+const
+var_1257
+
+
+*!
+val
+
+
+
+
+
+Ä@*
+name
+
+"	
+op_1257Ç
+reshape
+shape
+
+
+var_1257
+x
+
+input_tensor_127%
+first_27
+
+
+Ä
+@*
+name
+
+"
+
+first_27r
+add
+y
+
+
+input_57
+x
+
+
+first_27%
+input_73
+
+
+Ä
+@*
+name
+
+"
+
+input_73S
+const
+var_1262
+*
+val
+
+
+
+
+¨≈'7*
+name
+
+"	
+op_1262à
+const'
+input_tensor_129_axes_0
+
+
+*'
+val 
+
+
+
+
+
+ˇˇˇˇˇˇˇˇˇ*-
+name%
+
+"
+input_tensor_129_axes_0ﬂ
+
+layer_norm
+epsilon
+
+
+var_1262R
+betaJ
+H
+Fmodel_segformer_encoder_block_1_0_layer_norm_2_LayerNormalization_bias
+x
+
+
+input_73U
+gammaL
+J
+Hmodel_segformer_encoder_block_1_0_layer_norm_2_LayerNormalization_weight#
+axes
+
+input_tensor_129_axes_0-
+input_tensor_129
+
+
+Ä
+@*&
+name
+
+"
+input_tensor_129b
+const
+var_1274
+
+
+* 
+val
+
+
+	
+
+Ä@*
+name
+
+"	
+op_1274|
+reshape
+shape
+
+
+var_1274
+x
+
+input_tensor_129
+input_75
+
+Ä
+@*
+name
+
+"
+
+input_75ñ
+linearX
+weightN
+L
+Jmodel_segformer_encoder_block_1_0_mlp_dense1_MatMul_MatMulAddFusion_weight
+x
+
+
+input_75T
+biasL
+J
+Hmodel_segformer_encoder_block_1_0_mlp_dense1_MatMul_MatMulAddFusion_bias(
+input_tensor_131
+
+Ä
+Ä*
+name
+
+"
+	linear_16e
+const
+var_1289
+
+
+*#
+val
+
+
+
+
+
+ÄÄ*
+name
+
+"	
+op_1289ô
+reshape
+shape
+
+
+var_1289
+x
+
+input_tensor_1314
+input_tensor_133 
+
+
+
+Ä
+Ä*&
+name
+
+"
+input_tensor_133c
+const
+var_1295
+
+
+*!
+val
+
+
+
+
+
+ *
+name
+
+"	
+op_1295|
+const#
+input_tensor_135_pad_type_0
+*
+val
+
+
+"
+custom*1
+name)
+!
+"
+input_tensor_135_pad_type_0Ä
+const&
+input_tensor_135_pad_0
+
+
+*!
+val
+
+
+
+
+
+*,
+name$
+
+"
+input_tensor_135_pad_0t
+const!
+input_tensor_135_groups_0
+*
+val
+
+
+Ä*/
+name'
+
+"
+input_tensor_135_groups_0Ü
+const*
+input_tensor_135_strides_0
+
+
+*
+val
+
+
+
+
+*0
+name(
+ 
+"
+input_tensor_135_strides_0ä
+const,
+input_tensor_135_dilations_0
+
+
+*
+val
+
+
+
+
+*2
+name*
+"
+ "
+input_tensor_135_dilations_0é
+	transpose
+perm
+
+
+var_1295
+x
+
+input_tensor_133,
+input_77 
+
+
+Ä
+
+Ä*"
+name
+
+"
+transpose_98‰
+conv!
+pad
+
+input_tensor_135_pad_0
+x
+
+
+input_77)
+strides
+
+input_tensor_135_strides_0-
+	dilations 
+
+input_tensor_135_dilations_0+
+pad_type
+
+input_tensor_135_pad_type_0M
+weightC
+A
+?model_segformer_encoder_block_1_0_mlp_dwconv_dwconv_Conv_weight'
+groups
+
+input_tensor_135_groups_0I
+biasA
+?
+=model_segformer_encoder_block_1_0_mlp_dwconv_dwconv_Conv_bias4
+input_tensor_135 
+
+
+Ä
+
+Ä*&
+name
+
+"
+input_tensor_135l
+const
+var_1317
+
+
+**
+val#
+
+
+
+
+Äˇˇˇˇˇˇˇˇˇ*
+name
+
+"	
+op_1317ì
+reshape
+shape
+
+
+var_1317
+x
+
+input_tensor_135.
+input_tensor_137
+
+
+Ä
+Ä*&
+name
+
+"
+input_tensor_137b
+const
+var_1322
+
+
+* 
+val
+
+
+	
+
+ *
+name
+
+"	
+op_1322s
+const
+input_tensor_141_mode_0
+*
+val
+
+	"
+EXACT*-
+name%
+
+"
+input_tensor_141_mode_0à
+	transpose
+perm
+
+
+var_1322
+x
+
+input_tensor_137&
+first_29
+
+
+Ä
+Ä*"
+name
+
+"
+transpose_97ñ
+gelu#
+mode
+
+input_tensor_141_mode_0
+x
+
+
+first_29.
+input_tensor_141
+
+
+Ä
+Ä*&
+name
+
+"
+input_tensor_141c
+const
+var_1336
+
+
+*!
+val
+
+
+
+
+
+ÄÄ*
+name
+
+"	
+op_1336}
+reshape
+shape
+
+
+var_1336
+x
+
+input_tensor_141 
+input_79
+
+Ä
+Ä*
+name
+
+"
+
+input_79ï
+linearX
+weightN
+L
+Jmodel_segformer_encoder_block_1_0_mlp_dense2_MatMul_MatMulAddFusion_weight
+x
+
+
+input_79T
+biasL
+J
+Hmodel_segformer_encoder_block_1_0_mlp_dense2_MatMul_MatMulAddFusion_bias'
+input_tensor_143
+
+Ä
+@*
+name
+
+"
+	linear_17c
+const
+var_1349
+
+
+*!
+val
+
+
+
+
+
+Ä@*
+name
+
+"	
+op_1349Ç
+reshape
+shape
+
+
+var_1349
+x
+
+input_tensor_143%
+first_35
+
+
+Ä
+@*
+name
+
+"
+
+first_35r
+add
+y
+
+
+input_73
+x
+
+
+first_35%
+input_81
+
+
+Ä
+@*
+name
+
+"
+
+input_81S
+const
+var_1354
+*
+val
+
+
+
+
+¨≈'7*
+name
+
+"	
+op_1354à
+const'
+input_tensor_145_axes_0
+
+
+*'
+val 
+
+
+
+
+
+ˇˇˇˇˇˇˇˇˇ*-
+name%
+
+"
+input_tensor_145_axes_0ﬂ
+
+layer_norm
+epsilon
+
+
+var_1354R
+betaJ
+H
+Fmodel_segformer_encoder_block_1_1_layer_norm_1_LayerNormalization_bias
+x
+
+
+input_81U
+gammaL
+J
+Hmodel_segformer_encoder_block_1_1_layer_norm_1_LayerNormalization_weight#
+axes
+
+input_tensor_145_axes_0-
+input_tensor_145
+
+
+Ä
+@*&
+name
+
+"
+input_tensor_145d
+const
+var_1370
+
+
+*"
+val
+
+
+
+	
+Ä@*
+name
+
+"	
+op_1370ò
+reshape
+shape
+
+
+var_1370
+x
+
+input_tensor_1453
+input_tensor_147
+
+
+
+Ä
+@*&
+name
+
+"
+input_tensor_147c
+const
+var_1376
+
+
+*!
+val
+
+
+
+
+
+ *
+name
+
+"	
+op_1376{
+const#
+input_tensor_149_pad_type_0
+*
+val
+
+	"
+valid*1
+name)
+!
+"
+input_tensor_149_pad_type_0Ü
+const*
+input_tensor_149_strides_0
+
+
+*
+val
+
+
+
+
+*0
+name(
+ 
+"
+input_tensor_149_strides_0Ä
+const&
+input_tensor_149_pad_0
+
+
+*!
+val
+
+
+
+
+
+    *,
+name$
+
+"
+input_tensor_149_pad_0ä
+const,
+input_tensor_149_dilations_0
+
+
+*
+val
+
+
+
+
+*2
+name*
+"
+ "
+input_tensor_149_dilations_0s
+const!
+input_tensor_149_groups_0
+*
+val
+
+
+*/
+name'
+
+"
+input_tensor_149_groups_0ç
+	transpose
+perm
+
+
+var_1376
+x
+
+input_tensor_147+
+input_83
+
+
+@
+
+Ä*"
+name
+
+"
+transpose_96‚
+conv!
+pad
+
+input_tensor_149_pad_0
+x
+
+
+input_83)
+strides
+
+input_tensor_149_strides_0-
+	dilations 
+
+input_tensor_149_dilations_0+
+pad_type
+
+input_tensor_149_pad_type_0M
+weightC
+A
+?model_segformer_encoder_block_1_1_attention_self_sr_Conv_weight'
+groups
+
+input_tensor_149_groups_0I
+biasA
+?
+=model_segformer_encoder_block_1_1_attention_self_sr_Conv_bias2
+input_tensor_149
+
+
+@
+
+ *&
+name
+
+"
+input_tensor_149k
+const
+var_1398
+
+
+*)
+val"
+
+
+
+
+@ˇˇˇˇˇˇˇˇˇ*
+name
+
+"	
+op_1398ë
+reshape
+shape
+
+
+var_1398
+x
+
+input_tensor_149,
+input_tensor_151
+
+
+@
+@*&
+name
+
+"
+input_tensor_151b
+const
+var_1403
+
+
+* 
+val
+
+
+	
+
+ *
+name
+
+"	
+op_1403S
+const
+var_1406
+*
+val
+
+
+
+
+¨≈'7*
+name
+
+"	
+op_1406à
+const'
+input_tensor_153_axes_0
+
+
+*'
+val 
+
+
+
+
+
+ˇˇˇˇˇˇˇˇˇ*-
+name%
+
+"
+input_tensor_153_axes_0Ü
+	transpose
+perm
+
+
+var_1403
+x
+
+input_tensor_151$
+input_85
+
+
+@
+@*"
+name
+
+"
+transpose_95¯
+
+layer_norm
+epsilon
+
+
+var_1406_
+betaW
+U
+Smodel_segformer_encoder_block_1_1_attention_self_layer_norm_LayerNormalization_bias
+x
+
+
+input_85b
+gammaY
+W
+Umodel_segformer_encoder_block_1_1_attention_self_layer_norm_LayerNormalization_weight#
+axes
+
+input_tensor_153_axes_0,
+input_tensor_153
+
+
+@
+@*&
+name
+
+"
+input_tensor_153a
+const
+var_1418
+
+
+*
+val
+
+
+
+
+@@*
+name
+
+"	
+op_1418{
+reshape
+shape
+
+
+var_1418
+x
+
+input_tensor_153
+input_87
+
+@
+@*
+name
+
+"
+
+input_87§
+linear`
+weightV
+T
+Rmodel_segformer_encoder_block_1_1_attention_self_key_MatMul_MatMulAddFusion_weight
+x
+
+
+input_87\
+biasT
+R
+Pmodel_segformer_encoder_block_1_1_attention_self_key_MatMul_MatMulAddFusion_bias&
+input_tensor_155
+
+@
+@*
+name
+
+"
+	linear_18c
+const
+var_1433
+
+
+*!
+val
+
+
+
+
+
+@ *
+name
+
+"	
+op_1433ó
+reshape
+shape
+
+
+var_1433
+x
+
+input_tensor_1552
+input_tensor_157
+
+
+@
+
+ *&
+name
+
+"
+input_tensor_157b
+const
+var_1447
+
+
+* 
+val
+
+
+	
+
+Ä@*
+name
+
+"	
+op_1447|
+reshape
+shape
+
+
+var_1447
+x
+
+input_tensor_145
+input_89
+
+Ä
+@*
+name
+
+"
+
+input_89©
+linearb
+weightX
+V
+Tmodel_segformer_encoder_block_1_1_attention_self_query_MatMul_MatMulAddFusion_weight
+x
+
+
+input_89^
+biasV
+T
+Rmodel_segformer_encoder_block_1_1_attention_self_query_MatMul_MatMulAddFusion_bias'
+input_tensor_159
+
+Ä
+@*
+name
+
+"
+	linear_19d
+const
+var_1462
+
+
+*"
+val
+
+
+
+	
+Ä *
+name
+
+"	
+op_1462ò
+reshape
+shape
+
+
+var_1462
+x
+
+input_tensor_1593
+input_tensor_161
+
+
+Ä
+
+ *&
+name
+
+"
+input_tensor_161m
+const
+first_37_transpose_x_0
+*
+val
+
+
+ *,
+name$
+
+"
+first_37_transpose_x_0m
+const
+first_37_transpose_y_0
+*
+val
+
+
+ *,
+name$
+
+"
+first_37_transpose_y_0å
+const#
+transpose_38_perm_0
+
+
+*3
+val,
+
+
+
+
+ ˝ˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇ*)
+name!
+
+"
+transpose_38_perm_0å
+const#
+transpose_39_perm_0
+
+
+*3
+val,
+
+
+
+
+ ˇˇˇˇˇˇˇˇˇ˝ˇˇˇˇˇˇˇˇ*)
+name!
+
+"
+transpose_39_perm_0õ
+	transpose
+perm
+
+transpose_39_perm_0
+x
+
+input_tensor_157.
+transpose_39
+
+
+
+ 
+@*"
+name
+
+"
+transpose_93ú
+	transpose
+perm
+
+transpose_38_perm_0
+x
+
+input_tensor_161/
+transpose_38
+
+
+
+Ä
+ *"
+name
+
+"
+transpose_94Ÿ
+matmul)
+transpose_y
+
+first_37_transpose_y_0)
+transpose_x
+
+first_37_transpose_x_0
+y
+
+transpose_39
+x
+
+transpose_38+
+first_37
+
+
+
+Ä
+@*
+name
+
+"
+
+first_37p
+const
+_inversed_input_91_y_0
+*
+val
+
+
+
+
+Û5>*,
+name$
+
+"
+_inversed_input_91_y_0ö
+mul
+y
+
+_inversed_input_91_y_0
+x
+
+
+first_375
+_inversed_input_91
+
+
+
+Ä
+@*(
+name 
+
+"
+_inversed_input_91Y
+const
+var_1473
+*
+val
+
+
+
+ˇˇˇˇˇˇˇˇˇ*
+name
+
+"	
+op_1473Å
+softmax
+x
+
+_inversed_input_91
+axis
+
+
+var_1473'
+x_15
+
+
+
+Ä
+@*
+name
+
+
+"
+x_15®
+linearb
+weightX
+V
+Tmodel_segformer_encoder_block_1_1_attention_self_value_MatMul_MatMulAddFusion_weight
+x
+
+
+input_87^
+biasV
+T
+Rmodel_segformer_encoder_block_1_1_attention_self_value_MatMul_MatMulAddFusion_bias&
+input_tensor_163
+
+@
+@*
+name
+
+"
+	linear_20c
+const
+var_1496
+
+
+*!
+val
+
+
+
+
+
+@ *
+name
+
+"	
+op_1496ó
+reshape
+shape
+
+
+var_1496
+x
+
+input_tensor_1632
+input_tensor_165
+
+
+@
+
+ *&
+name
+
+"
+input_tensor_165c
+const
+var_1502
+
+
+*!
+val
+
+
+
+
+
+ *
+name
+
+"	
+op_1502}
+const&
+input_tensor_167_transpose_x_0
+*
+val
+
+
+ *4
+name,
+$
+"" 
+input_tensor_167_transpose_x_0}
+const&
+input_tensor_167_transpose_y_0
+*
+val
+
+
+ *4
+name,
+$
+"" 
+input_tensor_167_transpose_y_0à
+	transpose
+perm
+
+
+var_1502
+x
+
+input_tensor_165&
+y_15
+
+
+
+@
+ *"
+name
+
+"
+transpose_92È
+matmul1
+transpose_y"
+ 
+input_tensor_167_transpose_y_01
+transpose_x"
+ 
+input_tensor_167_transpose_x_0
+y
+
+y_15
+x
+
+x_153
+input_tensor_167
+
+
+
+Ä
+ *&
+name
+
+"
+input_tensor_167c
+const
+var_1509
+
+
+*!
+val
+
+
+
+
+
+ *
+name
+
+"	
+op_1509b
+const
+var_1517
+
+
+* 
+val
+
+
+	
+
+Ä@*
+name
+
+"	
+op_1517ï
+	transpose
+perm
+
+
+var_1509
+x
+
+input_tensor_1673
+input_tensor_169
+
+
+Ä
+
+ *"
+name
+
+"
+transpose_91|
+reshape
+shape
+
+
+var_1517
+x
+
+input_tensor_169
+input_95
+
+Ä
+@*
+name
+
+"
+
+input_95≠
+lineard
+weightZ
+X
+Vmodel_segformer_encoder_block_1_1_attention_output_dense_MatMul_MatMulAddFusion_weight
+x
+
+
+input_95`
+biasX
+V
+Tmodel_segformer_encoder_block_1_1_attention_output_dense_MatMul_MatMulAddFusion_bias'
+input_tensor_171
+
+Ä
+@*
+name
+
+"
+	linear_21c
+const
+var_1530
+
+
+*!
+val
+
+
+
+
+
+Ä@*
+name
+
+"	
+op_1530Ç
+reshape
+shape
+
+
+var_1530
+x
+
+input_tensor_171%
+first_39
+
+
+Ä
+@*
+name
+
+"
+
+first_39r
+add
+y
+
+
+input_81
+x
+
+
+first_39%
+input_97
+
+
+Ä
+@*
+name
+
+"
+
+input_97S
+const
+var_1535
+*
+val
+
+
+
+
+¨≈'7*
+name
+
+"	
+op_1535à
+const'
+input_tensor_173_axes_0
+
+
+*'
+val 
+
+
+
+
+
+ˇˇˇˇˇˇˇˇˇ*-
+name%
+
+"
+input_tensor_173_axes_0ﬂ
+
+layer_norm
+epsilon
+
+
+var_1535R
+betaJ
+H
+Fmodel_segformer_encoder_block_1_1_layer_norm_2_LayerNormalization_bias
+x
+
+
+input_97U
+gammaL
+J
+Hmodel_segformer_encoder_block_1_1_layer_norm_2_LayerNormalization_weight#
+axes
+
+input_tensor_173_axes_0-
+input_tensor_173
+
+
+Ä
+@*&
+name
+
+"
+input_tensor_173b
+const
+var_1547
+
+
+* 
+val
+
+
+	
+
+Ä@*
+name
+
+"	
+op_1547|
+reshape
+shape
+
+
+var_1547
+x
+
+input_tensor_173
+input_99
+
+Ä
+@*
+name
+
+"
+
+input_99ñ
+linearX
+weightN
+L
+Jmodel_segformer_encoder_block_1_1_mlp_dense1_MatMul_MatMulAddFusion_weight
+x
+
+
+input_99T
+biasL
+J
+Hmodel_segformer_encoder_block_1_1_mlp_dense1_MatMul_MatMulAddFusion_bias(
+input_tensor_175
+
+Ä
+Ä*
+name
+
+"
+	linear_22e
+const
+var_1562
+
+
+*#
+val
+
+
+
+
+
+ÄÄ*
+name
+
+"	
+op_1562ô
+reshape
+shape
+
+
+var_1562
+x
+
+input_tensor_1754
+input_tensor_177 
+
+
+
+Ä
+Ä*&
+name
+
+"
+input_tensor_177c
+const
+var_1568
+
+
+*!
+val
+
+
+
+
+
+ *
+name
+
+"	
+op_1568|
+const#
+input_tensor_179_pad_type_0
+*
+val
+
+
+"
+custom*1
+name)
+!
+"
+input_tensor_179_pad_type_0Ä
+const&
+input_tensor_179_pad_0
+
+
+*!
+val
+
+
+
+
+
+*,
+name$
+
+"
+input_tensor_179_pad_0t
+const!
+input_tensor_179_groups_0
+*
+val
+
+
+Ä*/
+name'
+
+"
+input_tensor_179_groups_0Ü
+const*
+input_tensor_179_strides_0
+
+
+*
+val
+
+
+
+
+*0
+name(
+ 
+"
+input_tensor_179_strides_0ä
+const,
+input_tensor_179_dilations_0
+
+
+*
+val
+
+
+
+
+*2
+name*
+"
+ "
+input_tensor_179_dilations_0è
+	transpose
+perm
+
+
+var_1568
+x
+
+input_tensor_177-
+	input_101 
+
+
+Ä
+
+Ä*"
+name
+
+"
+transpose_90Â
+conv!
+pad
+
+input_tensor_179_pad_0
+x
+
+	input_101)
+strides
+
+input_tensor_179_strides_0-
+	dilations 
+
+input_tensor_179_dilations_0+
+pad_type
+
+input_tensor_179_pad_type_0M
+weightC
+A
+?model_segformer_encoder_block_1_1_mlp_dwconv_dwconv_Conv_weight'
+groups
+
+input_tensor_179_groups_0I
+biasA
+?
+=model_segformer_encoder_block_1_1_mlp_dwconv_dwconv_Conv_bias4
+input_tensor_179 
+
+
+Ä
+
+Ä*&
+name
+
+"
+input_tensor_179l
+const
+var_1590
+
+
+**
+val#
+
+
+
+
+Äˇˇˇˇˇˇˇˇˇ*
+name
+
+"	
+op_1590ì
+reshape
+shape
+
+
+var_1590
+x
+
+input_tensor_179.
+input_tensor_181
+
+
+Ä
+Ä*&
+name
+
+"
+input_tensor_181b
+const
+var_1595
+
+
+* 
+val
+
+
+	
+
+ *
+name
+
+"	
+op_1595s
+const
+input_tensor_185_mode_0
+*
+val
+
+	"
+EXACT*-
+name%
+
+"
+input_tensor_185_mode_0à
+	transpose
+perm
+
+
+var_1595
+x
+
+input_tensor_181&
+first_41
+
+
+Ä
+Ä*"
+name
+
+"
+transpose_89ñ
+gelu#
+mode
+
+input_tensor_185_mode_0
+x
+
+
+first_41.
+input_tensor_185
+
+
+Ä
+Ä*&
+name
+
+"
+input_tensor_185c
+const
+var_1609
+
+
+*!
+val
+
+
+
+
+
+ÄÄ*
+name
+
+"	
+op_1609
+reshape
+shape
+
+
+var_1609
+x
+
+input_tensor_185!
+	input_103
+
+Ä
+Ä*
+name
+
+"
+	input_103ñ
+linearX
+weightN
+L
+Jmodel_segformer_encoder_block_1_1_mlp_dense2_MatMul_MatMulAddFusion_weight
+x
+
+	input_103T
+biasL
+J
+Hmodel_segformer_encoder_block_1_1_mlp_dense2_MatMul_MatMulAddFusion_bias'
+input_tensor_187
+
+Ä
+@*
+name
+
+"
+	linear_23c
+const
+var_1622
+
+
+*!
+val
+
+
+
+
+
+Ä@*
+name
+
+"	
+op_1622Ç
+reshape
+shape
+
+
+var_1622
+x
+
+input_tensor_187%
+first_47
+
+
+Ä
+@*
+name
+
+"
+
+first_47t
+add
+y
+
+
+input_97
+x
+
+
+first_47&
+	input_105
+
+
+Ä
+@*
+name
+
+"
+	input_105S
+const
+var_1627
+*
+val
+
+
+
+
+¨≈'7*
+name
+
+"	
+op_1627à
+const'
+input_tensor_189_axes_0
+
+
+*'
+val 
+
+
+
+
+
+ˇˇˇˇˇˇˇˇˇ*-
+name%
+
+"
+input_tensor_189_axes_0Ã
+
+layer_norm
+epsilon
+
+
+var_1627H
+beta@
+>
+<model_segformer_encoder_layer_norm_1_LayerNormalization_bias
+x
+
+	input_105K
+gammaB
+@
+>model_segformer_encoder_layer_norm_1_LayerNormalization_weight#
+axes
+
+input_tensor_189_axes_0-
+input_tensor_189
+
+
+Ä
+@*&
+name
+
+"
+input_tensor_189m
+const
+var_1643
+
+
+*+
+val$
+
+
+
+
+Äˇˇˇˇˇˇˇˇˇ*
+name
+
+"	
+op_1643ò
+reshape
+shape
+
+
+var_1643
+x
+
+input_tensor_1893
+input_tensor_191
+
+
+
+Ä
+@*&
+name
+
+"
+input_tensor_191c
+const
+var_1649
+
+
+*!
+val
+
+
+
+
+
+ *
+name
+
+"	
+op_1649|
+const#
+input_tensor_193_pad_type_0
+*
+val
+
+
+"
+custom*1
+name)
+!
+"
+input_tensor_193_pad_type_0Ä
+const&
+input_tensor_193_pad_0
+
+
+*!
+val
+
+
+
+
+
+*,
+name$
+
+"
+input_tensor_193_pad_0Ü
+const*
+input_tensor_193_strides_0
+
+
+*
+val
+
+
+
+
+*0
+name(
+ 
+"
+input_tensor_193_strides_0ä
+const,
+input_tensor_193_dilations_0
+
+
+*
+val
+
+
+
+
+*2
+name*
+"
+ "
+input_tensor_193_dilations_0s
+const!
+input_tensor_193_groups_0
+*
+val
+
+
+*/
+name'
+
+"
+input_tensor_193_groups_0é
+	transpose
+perm
+
+
+var_1649
+x
+
+input_tensor_191,
+	input_107
+
+
+@
+
+Ä*"
+name
+
+"
+transpose_88‹
+conv!
+pad
+
+input_tensor_193_pad_0
+x
+
+	input_107)
+strides
+
+input_tensor_193_strides_0-
+	dilations 
+
+input_tensor_193_dilations_0+
+pad_type
+
+input_tensor_193_pad_type_0I
+weight?
+=
+;model_segformer_encoder_patch_embeddings_2_proj_Conv_weight'
+groups
+
+input_tensor_193_groups_0E
+bias=
+;
+9model_segformer_encoder_patch_embeddings_2_proj_Conv_bias3
+input_tensor_193
+
+
+†
+
+@*&
+name
+
+"
+input_tensor_193l
+const
+var_1671
+
+
+**
+val#
+
+
+
+
+†ˇˇˇˇˇˇˇˇˇ*
+name
+
+"	
+op_1671ì
+reshape
+shape
+
+
+var_1671
+x
+
+input_tensor_193.
+input_tensor_195
+
+
+†
+Ä*&
+name
+
+"
+input_tensor_195b
+const
+var_1676
+
+
+* 
+val
+
+
+	
+
+ *
+name
+
+"	
+op_1676S
+const
+var_1679
+*
+val
+
+
+
+
+¨≈'7*
+name
+
+"	
+op_1679z
+const 
+input_111_axes_0
+
+
+*'
+val 
+
+
+
+
+
+ˇˇˇˇˇˇˇˇˇ*&
+name
+
+"
+input_111_axes_0â
+	transpose
+perm
+
+
+var_1676
+x
+
+input_tensor_195'
+	input_109
+
+
+Ä
+†*"
+name
+
+"
+transpose_87⁄
+
+layer_norm
+epsilon
+
+
+var_1679Y
+betaQ
+O
+Mmodel_segformer_encoder_patch_embeddings_2_layer_norm_LayerNormalization_bias
+x
+
+	input_109\
+gammaS
+Q
+Omodel_segformer_encoder_patch_embeddings_2_layer_norm_LayerNormalization_weight
+axes
+
+input_111_axes_0'
+	input_111
+
+
+Ä
+†*
+name
+
+"
+	input_111S
+const
+var_1686
+*
+val
+
+
+
+
+¨≈'7*
+name
+
+"	
+op_1686à
+const'
+input_tensor_197_axes_0
+
+
+*'
+val 
+
+
+
+
+
+ˇˇˇˇˇˇˇˇˇ*-
+name%
+
+"
+input_tensor_197_axes_0·
+
+layer_norm
+epsilon
+
+
+var_1686R
+betaJ
+H
+Fmodel_segformer_encoder_block_2_0_layer_norm_1_LayerNormalization_bias
+x
+
+	input_111U
+gammaL
+J
+Hmodel_segformer_encoder_block_2_0_layer_norm_1_LayerNormalization_weight#
+axes
+
+input_tensor_197_axes_0.
+input_tensor_197
+
+
+Ä
+†*&
+name
+
+"
+input_tensor_197d
+const
+var_1702
+
+
+*"
+val
+
+
+
+	
+@†*
+name
+
+"	
+op_1702ò
+reshape
+shape
+
+
+var_1702
+x
+
+input_tensor_1973
+input_tensor_199
+
+
+
+@
+†*&
+name
+
+"
+input_tensor_199c
+const
+var_1708
+
+
+*!
+val
+
+
+
+
+
+ *
+name
+
+"	
+op_1708{
+const#
+input_tensor_201_pad_type_0
+*
+val
+
+	"
+valid*1
+name)
+!
+"
+input_tensor_201_pad_type_0Ü
+const*
+input_tensor_201_strides_0
+
+
+*
+val
+
+
+
+
+*0
+name(
+ 
+"
+input_tensor_201_strides_0Ä
+const&
+input_tensor_201_pad_0
+
+
+*!
+val
+
+
+
+
+
+    *,
+name$
+
+"
+input_tensor_201_pad_0ä
+const,
+input_tensor_201_dilations_0
+
+
+*
+val
+
+
+
+
+*2
+name*
+"
+ "
+input_tensor_201_dilations_0s
+const!
+input_tensor_201_groups_0
+*
+val
+
+
+*/
+name'
+
+"
+input_tensor_201_groups_0é
+	transpose
+perm
+
+
+var_1708
+x
+
+input_tensor_199,
+	input_113
+
+
+†
+
+@*"
+name
+
+"
+transpose_86‰
+conv!
+pad
+
+input_tensor_201_pad_0
+x
+
+	input_113)
+strides
+
+input_tensor_201_strides_0-
+	dilations 
+
+input_tensor_201_dilations_0+
+pad_type
+
+input_tensor_201_pad_type_0M
+weightC
+A
+?model_segformer_encoder_block_2_0_attention_self_sr_Conv_weight'
+groups
+
+input_tensor_201_groups_0I
+biasA
+?
+=model_segformer_encoder_block_2_0_attention_self_sr_Conv_bias3
+input_tensor_201
+
+
+†
+
+ *&
+name
+
+"
+input_tensor_201l
+const
+var_1730
+
+
+**
+val#
+
+
+
+
+†ˇˇˇˇˇˇˇˇˇ*
+name
+
+"	
+op_1730í
+reshape
+shape
+
+
+var_1730
+x
+
+input_tensor_201-
+input_tensor_203
+
+
+†
+@*&
+name
+
+"
+input_tensor_203b
+const
+var_1735
+
+
+* 
+val
+
+
+	
+
+ *
+name
+
+"	
+op_1735S
+const
+var_1738
+*
+val
+
+
+
+
+¨≈'7*
+name
+
+"	
+op_1738à
+const'
+input_tensor_205_axes_0
+
+
+*'
+val 
+
+
+
+
+
+ˇˇˇˇˇˇˇˇˇ*-
+name%
+
+"
+input_tensor_205_axes_0à
+	transpose
+perm
+
+
+var_1735
+x
+
+input_tensor_203&
+	input_115
+
+
+@
+†*"
+name
+
+"
+transpose_85˙
+
+layer_norm
+epsilon
+
+
+var_1738_
+betaW
+U
+Smodel_segformer_encoder_block_2_0_attention_self_layer_norm_LayerNormalization_bias
+x
+
+	input_115b
+gammaY
+W
+Umodel_segformer_encoder_block_2_0_attention_self_layer_norm_LayerNormalization_weight#
+axes
+
+input_tensor_205_axes_0-
+input_tensor_205
+
+
+@
+†*&
+name
+
+"
+input_tensor_205b
+const
+var_1750
+
+
+* 
+val
+
+
+	
+
+@†*
+name
+
+"	
+op_1750~
+reshape
+shape
+
+
+var_1750
+x
+
+input_tensor_205 
+	input_117
+
+@
+†*
+name
+
+"
+	input_117¶
+linear`
+weightV
+T
+Rmodel_segformer_encoder_block_2_0_attention_self_key_MatMul_MatMulAddFusion_weight
+x
+
+	input_117\
+biasT
+R
+Pmodel_segformer_encoder_block_2_0_attention_self_key_MatMul_MatMulAddFusion_bias'
+input_tensor_207
+
+@
+†*
+name
+
+"
+	linear_24c
+const
+var_1765
+
+
+*!
+val
+
+
+
+
+
+@ *
+name
+
+"	
+op_1765ó
+reshape
+shape
+
+
+var_1765
+x
+
+input_tensor_2072
+input_tensor_209
+
+
+@
+
+ *&
+name
+
+"
+input_tensor_209c
+const
+var_1779
+
+
+*!
+val
+
+
+
+
+
+Ä†*
+name
+
+"	
+op_1779
+reshape
+shape
+
+
+var_1779
+x
+
+input_tensor_197!
+	input_119
+
+Ä
+†*
+name
+
+"
+	input_119´
+linearb
+weightX
+V
+Tmodel_segformer_encoder_block_2_0_attention_self_query_MatMul_MatMulAddFusion_weight
+x
+
+	input_119^
+biasV
+T
+Rmodel_segformer_encoder_block_2_0_attention_self_query_MatMul_MatMulAddFusion_bias(
+input_tensor_211
+
+Ä
+†*
+name
+
+"
+	linear_25d
+const
+var_1794
+
+
+*"
+val
+
+
+
+	
+Ä *
+name
+
+"	
+op_1794ò
+reshape
+shape
+
+
+var_1794
+x
+
+input_tensor_2113
+input_tensor_213
+
+
+Ä
+
+ *&
+name
+
+"
+input_tensor_213m
+const
+first_49_transpose_x_0
+*
+val
+
+
+ *,
+name$
+
+"
+first_49_transpose_x_0m
+const
+first_49_transpose_y_0
+*
+val
+
+
+ *,
+name$
+
+"
+first_49_transpose_y_0å
+const#
+transpose_40_perm_0
+
+
+*3
+val,
+
+
+
+
+ ˝ˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇ*)
+name!
+
+"
+transpose_40_perm_0å
+const#
+transpose_41_perm_0
+
+
+*3
+val,
+
+
+
+
+ ˇˇˇˇˇˇˇˇˇ˝ˇˇˇˇˇˇˇˇ*)
+name!
+
+"
+transpose_41_perm_0õ
+	transpose
+perm
+
+transpose_41_perm_0
+x
+
+input_tensor_209.
+transpose_41
+
+
+
+ 
+@*"
+name
+
+"
+transpose_83ú
+	transpose
+perm
+
+transpose_40_perm_0
+x
+
+input_tensor_213/
+transpose_40
+
+
+
+Ä
+ *"
+name
+
+"
+transpose_84Ÿ
+matmul)
+transpose_y
+
+first_49_transpose_y_0)
+transpose_x
+
+first_49_transpose_x_0
+y
+
+transpose_41
+x
+
+transpose_40+
+first_49
+
+
+
+Ä
+@*
+name
+
+"
+
+first_49r
+const
+_inversed_input_121_y_0
+*
+val
+
+
+
+
+Û5>*-
+name%
+
+"
+_inversed_input_121_y_0ù
+mul 
+y
+
+_inversed_input_121_y_0
+x
+
+
+first_496
+_inversed_input_121
+
+
+
+Ä
+@*)
+name!
+
+"
+_inversed_input_121Y
+const
+var_1805
+*
+val
+
+
+
+ˇˇˇˇˇˇˇˇˇ*
+name
+
+"	
+op_1805Ç
+softmax
+x
+
+_inversed_input_121
+axis
+
+
+var_1805'
+x_19
+
+
+
+Ä
+@*
+name
+
+
+"
+x_19™
+linearb
+weightX
+V
+Tmodel_segformer_encoder_block_2_0_attention_self_value_MatMul_MatMulAddFusion_weight
+x
+
+	input_117^
+biasV
+T
+Rmodel_segformer_encoder_block_2_0_attention_self_value_MatMul_MatMulAddFusion_bias'
+input_tensor_215
+
+@
+†*
+name
+
+"
+	linear_26c
+const
+var_1828
+
+
+*!
+val
+
+
+
+
+
+@ *
+name
+
+"	
+op_1828ó
+reshape
+shape
+
+
+var_1828
+x
+
+input_tensor_2152
+input_tensor_217
+
+
+@
+
+ *&
+name
+
+"
+input_tensor_217c
+const
+var_1834
+
+
+*!
+val
+
+
+
+
+
+ *
+name
+
+"	
+op_1834}
+const&
+input_tensor_219_transpose_x_0
+*
+val
+
+
+ *4
+name,
+$
+"" 
+input_tensor_219_transpose_x_0}
+const&
+input_tensor_219_transpose_y_0
+*
+val
+
+
+ *4
+name,
+$
+"" 
+input_tensor_219_transpose_y_0à
+	transpose
+perm
+
+
+var_1834
+x
+
+input_tensor_217&
+y_19
+
+
+
+@
+ *"
+name
+
+"
+transpose_82È
+matmul1
+transpose_y"
+ 
+input_tensor_219_transpose_y_01
+transpose_x"
+ 
+input_tensor_219_transpose_x_0
+y
+
+y_19
+x
+
+x_193
+input_tensor_219
+
+
+
+Ä
+ *&
+name
+
+"
+input_tensor_219c
+const
+var_1841
+
+
+*!
+val
+
+
+
+
+
+ *
+name
+
+"	
+op_1841c
+const
+var_1849
+
+
+*!
+val
+
+
+
+
+
+Ä†*
+name
+
+"	
+op_1849ï
+	transpose
+perm
+
+
+var_1841
+x
+
+input_tensor_2193
+input_tensor_221
+
+
+Ä
+
+ *"
+name
+
+"
+transpose_81
+reshape
+shape
+
+
+var_1849
+x
+
+input_tensor_221!
+	input_125
+
+Ä
+†*
+name
+
+"
+	input_125Ø
+lineard
+weightZ
+X
+Vmodel_segformer_encoder_block_2_0_attention_output_dense_MatMul_MatMulAddFusion_weight
+x
+
+	input_125`
+biasX
+V
+Tmodel_segformer_encoder_block_2_0_attention_output_dense_MatMul_MatMulAddFusion_bias(
+input_tensor_223
+
+Ä
+†*
+name
+
+"
+	linear_27d
+const
+var_1862
+
+
+*"
+val
+
+
+
+	
+Ä†*
+name
+
+"	
+op_1862É
+reshape
+shape
+
+
+var_1862
+x
+
+input_tensor_223&
+first_51
+
+
+Ä
+†*
+name
+
+"
+
+first_51v
+add
+y
+
+	input_111
+x
+
+
+first_51'
+	input_127
+
+
+Ä
+†*
+name
+
+"
+	input_127S
+const
+var_1867
+*
+val
+
+
+
+
+¨≈'7*
+name
+
+"	
+op_1867à
+const'
+input_tensor_225_axes_0
+
+
+*'
+val 
+
+
+
+
+
+ˇˇˇˇˇˇˇˇˇ*-
+name%
+
+"
+input_tensor_225_axes_0·
+
+layer_norm
+epsilon
+
+
+var_1867R
+betaJ
+H
+Fmodel_segformer_encoder_block_2_0_layer_norm_2_LayerNormalization_bias
+x
+
+	input_127U
+gammaL
+J
+Hmodel_segformer_encoder_block_2_0_layer_norm_2_LayerNormalization_weight#
+axes
+
+input_tensor_225_axes_0.
+input_tensor_225
+
+
+Ä
+†*&
+name
+
+"
+input_tensor_225c
+const
+var_1879
+
+
+*!
+val
+
+
+
+
+
+Ä†*
+name
+
+"	
+op_1879
+reshape
+shape
+
+
+var_1879
+x
+
+input_tensor_225!
+	input_129
+
+Ä
+†*
+name
+
+"
+	input_129ó
+linearX
+weightN
+L
+Jmodel_segformer_encoder_block_2_0_mlp_dense1_MatMul_MatMulAddFusion_weight
+x
+
+	input_129T
+biasL
+J
+Hmodel_segformer_encoder_block_2_0_mlp_dense1_MatMul_MatMulAddFusion_bias(
+input_tensor_227
+
+Ä
+Ä*
+name
+
+"
+	linear_28d
+const
+var_1894
+
+
+*"
+val
+
+
+
+	
+@Ä*
+name
+
+"	
+op_1894ò
+reshape
+shape
+
+
+var_1894
+x
+
+input_tensor_2273
+input_tensor_229
+
+
+
+@
+Ä*&
+name
+
+"
+input_tensor_229c
+const
+var_1900
+
+
+*!
+val
+
+
+
+
+
+ *
+name
+
+"	
+op_1900|
+const#
+input_tensor_231_pad_type_0
+*
+val
+
+
+"
+custom*1
+name)
+!
+"
+input_tensor_231_pad_type_0Ä
+const&
+input_tensor_231_pad_0
+
+
+*!
+val
+
+
+
+
+
+*,
+name$
+
+"
+input_tensor_231_pad_0t
+const!
+input_tensor_231_groups_0
+*
+val
+
+
+Ä*/
+name'
+
+"
+input_tensor_231_groups_0Ü
+const*
+input_tensor_231_strides_0
+
+
+*
+val
+
+
+
+
+*0
+name(
+ 
+"
+input_tensor_231_strides_0ä
+const,
+input_tensor_231_dilations_0
+
+
+*
+val
+
+
+
+
+*2
+name*
+"
+ "
+input_tensor_231_dilations_0é
+	transpose
+perm
+
+
+var_1900
+x
+
+input_tensor_229,
+	input_131
+
+
+Ä
+
+@*"
+name
+
+"
+transpose_80‰
+conv!
+pad
+
+input_tensor_231_pad_0
+x
+
+	input_131)
+strides
+
+input_tensor_231_strides_0-
+	dilations 
+
+input_tensor_231_dilations_0+
+pad_type
+
+input_tensor_231_pad_type_0M
+weightC
+A
+?model_segformer_encoder_block_2_0_mlp_dwconv_dwconv_Conv_weight'
+groups
+
+input_tensor_231_groups_0I
+biasA
+?
+=model_segformer_encoder_block_2_0_mlp_dwconv_dwconv_Conv_bias3
+input_tensor_231
+
+
+Ä
+
+@*&
+name
+
+"
+input_tensor_231l
+const
+var_1922
+
+
+**
+val#
+
+
+
+
+Äˇˇˇˇˇˇˇˇˇ*
+name
+
+"	
+op_1922ì
+reshape
+shape
+
+
+var_1922
+x
+
+input_tensor_231.
+input_tensor_233
+
+
+Ä
+Ä*&
+name
+
+"
+input_tensor_233b
+const
+var_1927
+
+
+* 
+val
+
+
+	
+
+ *
+name
+
+"	
+op_1927s
+const
+input_tensor_237_mode_0
+*
+val
+
+	"
+EXACT*-
+name%
+
+"
+input_tensor_237_mode_0à
+	transpose
+perm
+
+
+var_1927
+x
+
+input_tensor_233&
+first_53
+
+
+Ä
+Ä*"
+name
+
+"
+transpose_79ñ
+gelu#
+mode
+
+input_tensor_237_mode_0
+x
+
+
+first_53.
+input_tensor_237
+
+
+Ä
+Ä*&
+name
+
+"
+input_tensor_237c
+const
+var_1941
+
+
+*!
+val
+
+
+
+
+
+ÄÄ*
+name
+
+"	
+op_1941
+reshape
+shape
+
+
+var_1941
+x
+
+input_tensor_237!
+	input_133
+
+Ä
+Ä*
+name
+
+"
+	input_133ó
+linearX
+weightN
+L
+Jmodel_segformer_encoder_block_2_0_mlp_dense2_MatMul_MatMulAddFusion_weight
+x
+
+	input_133T
+biasL
+J
+Hmodel_segformer_encoder_block_2_0_mlp_dense2_MatMul_MatMulAddFusion_bias(
+input_tensor_239
+
+Ä
+†*
+name
+
+"
+	linear_29d
+const
+var_1954
+
+
+*"
+val
+
+
+
+	
+Ä†*
+name
+
+"	
+op_1954É
+reshape
+shape
+
+
+var_1954
+x
+
+input_tensor_239&
+first_59
+
+
+Ä
+†*
+name
+
+"
+
+first_59v
+add
+y
+
+	input_127
+x
+
+
+first_59'
+	input_135
+
+
+Ä
+†*
+name
+
+"
+	input_135S
+const
+var_1959
+*
+val
+
+
+
+
+¨≈'7*
+name
+
+"	
+op_1959à
+const'
+input_tensor_241_axes_0
+
+
+*'
+val 
+
+
+
+
+
+ˇˇˇˇˇˇˇˇˇ*-
+name%
+
+"
+input_tensor_241_axes_0·
+
+layer_norm
+epsilon
+
+
+var_1959R
+betaJ
+H
+Fmodel_segformer_encoder_block_2_1_layer_norm_1_LayerNormalization_bias
+x
+
+	input_135U
+gammaL
+J
+Hmodel_segformer_encoder_block_2_1_layer_norm_1_LayerNormalization_weight#
+axes
+
+input_tensor_241_axes_0.
+input_tensor_241
+
+
+Ä
+†*&
+name
+
+"
+input_tensor_241d
+const
+var_1975
+
+
+*"
+val
+
+
+
+	
+@†*
+name
+
+"	
+op_1975ò
+reshape
+shape
+
+
+var_1975
+x
+
+input_tensor_2413
+input_tensor_243
+
+
+
+@
+†*&
+name
+
+"
+input_tensor_243c
+const
+var_1981
+
+
+*!
+val
+
+
+
+
+
+ *
+name
+
+"	
+op_1981{
+const#
+input_tensor_245_pad_type_0
+*
+val
+
+	"
+valid*1
+name)
+!
+"
+input_tensor_245_pad_type_0Ü
+const*
+input_tensor_245_strides_0
+
+
+*
+val
+
+
+
+
+*0
+name(
+ 
+"
+input_tensor_245_strides_0Ä
+const&
+input_tensor_245_pad_0
+
+
+*!
+val
+
+
+
+
+
+    *,
+name$
+
+"
+input_tensor_245_pad_0ä
+const,
+input_tensor_245_dilations_0
+
+
+*
+val
+
+
+
+
+*2
+name*
+"
+ "
+input_tensor_245_dilations_0s
+const!
+input_tensor_245_groups_0
+*
+val
+
+
+*/
+name'
+
+"
+input_tensor_245_groups_0é
+	transpose
+perm
+
+
+var_1981
+x
+
+input_tensor_243,
+	input_137
+
+
+†
+
+@*"
+name
+
+"
+transpose_78‰
+conv!
+pad
+
+input_tensor_245_pad_0
+x
+
+	input_137)
+strides
+
+input_tensor_245_strides_0-
+	dilations 
+
+input_tensor_245_dilations_0+
+pad_type
+
+input_tensor_245_pad_type_0M
+weightC
+A
+?model_segformer_encoder_block_2_1_attention_self_sr_Conv_weight'
+groups
+
+input_tensor_245_groups_0I
+biasA
+?
+=model_segformer_encoder_block_2_1_attention_self_sr_Conv_bias3
+input_tensor_245
+
+
+†
+
+ *&
+name
+
+"
+input_tensor_245l
+const
+var_2003
+
+
+**
+val#
+
+
+
+
+†ˇˇˇˇˇˇˇˇˇ*
+name
+
+"	
+op_2003í
+reshape
+shape
+
+
+var_2003
+x
+
+input_tensor_245-
+input_tensor_247
+
+
+†
+@*&
+name
+
+"
+input_tensor_247b
+const
+var_2008
+
+
+* 
+val
+
+
+	
+
+ *
+name
+
+"	
+op_2008S
+const
+var_2011
+*
+val
+
+
+
+
+¨≈'7*
+name
+
+"	
+op_2011à
+const'
+input_tensor_249_axes_0
+
+
+*'
+val 
+
+
+
+
+
+ˇˇˇˇˇˇˇˇˇ*-
+name%
+
+"
+input_tensor_249_axes_0à
+	transpose
+perm
+
+
+var_2008
+x
+
+input_tensor_247&
+	input_139
+
+
+@
+†*"
+name
+
+"
+transpose_77˙
+
+layer_norm
+epsilon
+
+
+var_2011_
+betaW
+U
+Smodel_segformer_encoder_block_2_1_attention_self_layer_norm_LayerNormalization_bias
+x
+
+	input_139b
+gammaY
+W
+Umodel_segformer_encoder_block_2_1_attention_self_layer_norm_LayerNormalization_weight#
+axes
+
+input_tensor_249_axes_0-
+input_tensor_249
+
+
+@
+†*&
+name
+
+"
+input_tensor_249b
+const
+var_2023
+
+
+* 
+val
+
+
+	
+
+@†*
+name
+
+"	
+op_2023~
+reshape
+shape
+
+
+var_2023
+x
+
+input_tensor_249 
+	input_141
+
+@
+†*
+name
+
+"
+	input_141¶
+linear`
+weightV
+T
+Rmodel_segformer_encoder_block_2_1_attention_self_key_MatMul_MatMulAddFusion_weight
+x
+
+	input_141\
+biasT
+R
+Pmodel_segformer_encoder_block_2_1_attention_self_key_MatMul_MatMulAddFusion_bias'
+input_tensor_251
+
+@
+†*
+name
+
+"
+	linear_30c
+const
+var_2038
+
+
+*!
+val
+
+
+
+
+
+@ *
+name
+
+"	
+op_2038ó
+reshape
+shape
+
+
+var_2038
+x
+
+input_tensor_2512
+input_tensor_253
+
+
+@
+
+ *&
+name
+
+"
+input_tensor_253c
+const
+var_2052
+
+
+*!
+val
+
+
+
+
+
+Ä†*
+name
+
+"	
+op_2052
+reshape
+shape
+
+
+var_2052
+x
+
+input_tensor_241!
+	input_143
+
+Ä
+†*
+name
+
+"
+	input_143´
+linearb
+weightX
+V
+Tmodel_segformer_encoder_block_2_1_attention_self_query_MatMul_MatMulAddFusion_weight
+x
+
+	input_143^
+biasV
+T
+Rmodel_segformer_encoder_block_2_1_attention_self_query_MatMul_MatMulAddFusion_bias(
+input_tensor_255
+
+Ä
+†*
+name
+
+"
+	linear_31d
+const
+var_2067
+
+
+*"
+val
+
+
+
+	
+Ä *
+name
+
+"	
+op_2067ò
+reshape
+shape
+
+
+var_2067
+x
+
+input_tensor_2553
+input_tensor_257
+
+
+Ä
+
+ *&
+name
+
+"
+input_tensor_257m
+const
+first_61_transpose_x_0
+*
+val
+
+
+ *,
+name$
+
+"
+first_61_transpose_x_0m
+const
+first_61_transpose_y_0
+*
+val
+
+
+ *,
+name$
+
+"
+first_61_transpose_y_0å
+const#
+transpose_42_perm_0
+
+
+*3
+val,
+
+
+
+
+ ˝ˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇ*)
+name!
+
+"
+transpose_42_perm_0å
+const#
+transpose_43_perm_0
+
+
+*3
+val,
+
+
+
+
+ ˇˇˇˇˇˇˇˇˇ˝ˇˇˇˇˇˇˇˇ*)
+name!
+
+"
+transpose_43_perm_0õ
+	transpose
+perm
+
+transpose_43_perm_0
+x
+
+input_tensor_253.
+transpose_43
+
+
+
+ 
+@*"
+name
+
+"
+transpose_75ú
+	transpose
+perm
+
+transpose_42_perm_0
+x
+
+input_tensor_257/
+transpose_42
+
+
+
+Ä
+ *"
+name
+
+"
+transpose_76Ÿ
+matmul)
+transpose_y
+
+first_61_transpose_y_0)
+transpose_x
+
+first_61_transpose_x_0
+y
+
+transpose_43
+x
+
+transpose_42+
+first_61
+
+
+
+Ä
+@*
+name
+
+"
+
+first_61r
+const
+_inversed_input_145_y_0
+*
+val
+
+
+
+
+Û5>*-
+name%
+
+"
+_inversed_input_145_y_0ù
+mul 
+y
+
+_inversed_input_145_y_0
+x
+
+
+first_616
+_inversed_input_145
+
+
+
+Ä
+@*)
+name!
+
+"
+_inversed_input_145Y
+const
+var_2078
+*
+val
+
+
+
+ˇˇˇˇˇˇˇˇˇ*
+name
+
+"	
+op_2078Ç
+softmax
+x
+
+_inversed_input_145
+axis
+
+
+var_2078'
+x_23
+
+
+
+Ä
+@*
+name
+
+
+"
+x_23™
+linearb
+weightX
+V
+Tmodel_segformer_encoder_block_2_1_attention_self_value_MatMul_MatMulAddFusion_weight
+x
+
+	input_141^
+biasV
+T
+Rmodel_segformer_encoder_block_2_1_attention_self_value_MatMul_MatMulAddFusion_bias'
+input_tensor_259
+
+@
+†*
+name
+
+"
+	linear_32c
+const
+var_2101
+
+
+*!
+val
+
+
+
+
+
+@ *
+name
+
+"	
+op_2101ó
+reshape
+shape
+
+
+var_2101
+x
+
+input_tensor_2592
+input_tensor_261
+
+
+@
+
+ *&
+name
+
+"
+input_tensor_261c
+const
+var_2107
+
+
+*!
+val
+
+
+
+
+
+ *
+name
+
+"	
+op_2107}
+const&
+input_tensor_263_transpose_x_0
+*
+val
+
+
+ *4
+name,
+$
+"" 
+input_tensor_263_transpose_x_0}
+const&
+input_tensor_263_transpose_y_0
+*
+val
+
+
+ *4
+name,
+$
+"" 
+input_tensor_263_transpose_y_0à
+	transpose
+perm
+
+
+var_2107
+x
+
+input_tensor_261&
+y_23
+
+
+
+@
+ *"
+name
+
+"
+transpose_74È
+matmul1
+transpose_y"
+ 
+input_tensor_263_transpose_y_01
+transpose_x"
+ 
+input_tensor_263_transpose_x_0
+y
+
+y_23
+x
+
+x_233
+input_tensor_263
+
+
+
+Ä
+ *&
+name
+
+"
+input_tensor_263c
+const
+var_2114
+
+
+*!
+val
+
+
+
+
+
+ *
+name
+
+"	
+op_2114c
+const
+var_2122
+
+
+*!
+val
+
+
+
+
+
+Ä†*
+name
+
+"	
+op_2122ï
+	transpose
+perm
+
+
+var_2114
+x
+
+input_tensor_2633
+input_tensor_265
+
+
+Ä
+
+ *"
+name
+
+"
+transpose_73
+reshape
+shape
+
+
+var_2122
+x
+
+input_tensor_265!
+	input_149
+
+Ä
+†*
+name
+
+"
+	input_149Ø
+lineard
+weightZ
+X
+Vmodel_segformer_encoder_block_2_1_attention_output_dense_MatMul_MatMulAddFusion_weight
+x
+
+	input_149`
+biasX
+V
+Tmodel_segformer_encoder_block_2_1_attention_output_dense_MatMul_MatMulAddFusion_bias(
+input_tensor_267
+
+Ä
+†*
+name
+
+"
+	linear_33d
+const
+var_2135
+
+
+*"
+val
+
+
+
+	
+Ä†*
+name
+
+"	
+op_2135É
+reshape
+shape
+
+
+var_2135
+x
+
+input_tensor_267&
+first_63
+
+
+Ä
+†*
+name
+
+"
+
+first_63v
+add
+y
+
+	input_135
+x
+
+
+first_63'
+	input_151
+
+
+Ä
+†*
+name
+
+"
+	input_151S
+const
+var_2140
+*
+val
+
+
+
+
+¨≈'7*
+name
+
+"	
+op_2140à
+const'
+input_tensor_269_axes_0
+
+
+*'
+val 
+
+
+
+
+
+ˇˇˇˇˇˇˇˇˇ*-
+name%
+
+"
+input_tensor_269_axes_0·
+
+layer_norm
+epsilon
+
+
+var_2140R
+betaJ
+H
+Fmodel_segformer_encoder_block_2_1_layer_norm_2_LayerNormalization_bias
+x
+
+	input_151U
+gammaL
+J
+Hmodel_segformer_encoder_block_2_1_layer_norm_2_LayerNormalization_weight#
+axes
+
+input_tensor_269_axes_0.
+input_tensor_269
+
+
+Ä
+†*&
+name
+
+"
+input_tensor_269c
+const
+var_2152
+
+
+*!
+val
+
+
+
+
+
+Ä†*
+name
+
+"	
+op_2152
+reshape
+shape
+
+
+var_2152
+x
+
+input_tensor_269!
+	input_153
+
+Ä
+†*
+name
+
+"
+	input_153ó
+linearX
+weightN
+L
+Jmodel_segformer_encoder_block_2_1_mlp_dense1_MatMul_MatMulAddFusion_weight
+x
+
+	input_153T
+biasL
+J
+Hmodel_segformer_encoder_block_2_1_mlp_dense1_MatMul_MatMulAddFusion_bias(
+input_tensor_271
+
+Ä
+Ä*
+name
+
+"
+	linear_34d
+const
+var_2167
+
+
+*"
+val
+
+
+
+	
+@Ä*
+name
+
+"	
+op_2167ò
+reshape
+shape
+
+
+var_2167
+x
+
+input_tensor_2713
+input_tensor_273
+
+
+
+@
+Ä*&
+name
+
+"
+input_tensor_273c
+const
+var_2173
+
+
+*!
+val
+
+
+
+
+
+ *
+name
+
+"	
+op_2173|
+const#
+input_tensor_275_pad_type_0
+*
+val
+
+
+"
+custom*1
+name)
+!
+"
+input_tensor_275_pad_type_0Ä
+const&
+input_tensor_275_pad_0
+
+
+*!
+val
+
+
+
+
+
+*,
+name$
+
+"
+input_tensor_275_pad_0t
+const!
+input_tensor_275_groups_0
+*
+val
+
+
+Ä*/
+name'
+
+"
+input_tensor_275_groups_0Ü
+const*
+input_tensor_275_strides_0
+
+
+*
+val
+
+
+
+
+*0
+name(
+ 
+"
+input_tensor_275_strides_0ä
+const,
+input_tensor_275_dilations_0
+
+
+*
+val
+
+
+
+
+*2
+name*
+"
+ "
+input_tensor_275_dilations_0é
+	transpose
+perm
+
+
+var_2173
+x
+
+input_tensor_273,
+	input_155
+
+
+Ä
+
+@*"
+name
+
+"
+transpose_72‰
+conv!
+pad
+
+input_tensor_275_pad_0
+x
+
+	input_155)
+strides
+
+input_tensor_275_strides_0-
+	dilations 
+
+input_tensor_275_dilations_0+
+pad_type
+
+input_tensor_275_pad_type_0M
+weightC
+A
+?model_segformer_encoder_block_2_1_mlp_dwconv_dwconv_Conv_weight'
+groups
+
+input_tensor_275_groups_0I
+biasA
+?
+=model_segformer_encoder_block_2_1_mlp_dwconv_dwconv_Conv_bias3
+input_tensor_275
+
+
+Ä
+
+@*&
+name
+
+"
+input_tensor_275l
+const
+var_2195
+
+
+**
+val#
+
+
+
+
+Äˇˇˇˇˇˇˇˇˇ*
+name
+
+"	
+op_2195ì
+reshape
+shape
+
+
+var_2195
+x
+
+input_tensor_275.
+input_tensor_277
+
+
+Ä
+Ä*&
+name
+
+"
+input_tensor_277b
+const
+var_2200
+
+
+* 
+val
+
+
+	
+
+ *
+name
+
+"	
+op_2200s
+const
+input_tensor_281_mode_0
+*
+val
+
+	"
+EXACT*-
+name%
+
+"
+input_tensor_281_mode_0à
+	transpose
+perm
+
+
+var_2200
+x
+
+input_tensor_277&
+first_65
+
+
+Ä
+Ä*"
+name
+
+"
+transpose_71ñ
+gelu#
+mode
+
+input_tensor_281_mode_0
+x
+
+
+first_65.
+input_tensor_281
+
+
+Ä
+Ä*&
+name
+
+"
+input_tensor_281c
+const
+var_2214
+
+
+*!
+val
+
+
+
+
+
+ÄÄ*
+name
+
+"	
+op_2214
+reshape
+shape
+
+
+var_2214
+x
+
+input_tensor_281!
+	input_157
+
+Ä
+Ä*
+name
+
+"
+	input_157ó
+linearX
+weightN
+L
+Jmodel_segformer_encoder_block_2_1_mlp_dense2_MatMul_MatMulAddFusion_weight
+x
+
+	input_157T
+biasL
+J
+Hmodel_segformer_encoder_block_2_1_mlp_dense2_MatMul_MatMulAddFusion_bias(
+input_tensor_283
+
+Ä
+†*
+name
+
+"
+	linear_35d
+const
+var_2227
+
+
+*"
+val
+
+
+
+	
+Ä†*
+name
+
+"	
+op_2227É
+reshape
+shape
+
+
+var_2227
+x
+
+input_tensor_283&
+first_71
+
+
+Ä
+†*
+name
+
+"
+
+first_71v
+add
+y
+
+	input_151
+x
+
+
+first_71'
+	input_159
+
+
+Ä
+†*
+name
+
+"
+	input_159S
+const
+var_2232
+*
+val
+
+
+
+
+¨≈'7*
+name
+
+"	
+op_2232à
+const'
+input_tensor_285_axes_0
+
+
+*'
+val 
+
+
+
+
+
+ˇˇˇˇˇˇˇˇˇ*-
+name%
+
+"
+input_tensor_285_axes_0Õ
+
+layer_norm
+epsilon
+
+
+var_2232H
+beta@
+>
+<model_segformer_encoder_layer_norm_2_LayerNormalization_bias
+x
+
+	input_159K
+gammaB
+@
+>model_segformer_encoder_layer_norm_2_LayerNormalization_weight#
+axes
+
+input_tensor_285_axes_0.
+input_tensor_285
+
+
+Ä
+†*&
+name
+
+"
+input_tensor_285l
+const
+var_2248
+
+
+**
+val#
+
+
+
+
+@ˇˇˇˇˇˇˇˇˇ*
+name
+
+"	
+op_2248ò
+reshape
+shape
+
+
+var_2248
+x
+
+input_tensor_2853
+input_tensor_287
+
+
+
+@
+†*&
+name
+
+"
+input_tensor_287c
+const
+var_2254
+
+
+*!
+val
+
+
+
+
+
+ *
+name
+
+"	
+op_2254|
+const#
+input_tensor_289_pad_type_0
+*
+val
+
+
+"
+custom*1
+name)
+!
+"
+input_tensor_289_pad_type_0Ä
+const&
+input_tensor_289_pad_0
+
+
+*!
+val
+
+
+
+
+
+*,
+name$
+
+"
+input_tensor_289_pad_0Ü
+const*
+input_tensor_289_strides_0
+
+
+*
+val
+
+
+
+
+*0
+name(
+ 
+"
+input_tensor_289_strides_0ä
+const,
+input_tensor_289_dilations_0
+
+
+*
+val
+
+
+
+
+*2
+name*
+"
+ "
+input_tensor_289_dilations_0s
+const!
+input_tensor_289_groups_0
+*
+val
+
+
+*/
+name'
+
+"
+input_tensor_289_groups_0é
+	transpose
+perm
+
+
+var_2254
+x
+
+input_tensor_287,
+	input_161
+
+
+†
+
+@*"
+name
+
+"
+transpose_70‹
+conv!
+pad
+
+input_tensor_289_pad_0
+x
+
+	input_161)
+strides
+
+input_tensor_289_strides_0-
+	dilations 
+
+input_tensor_289_dilations_0+
+pad_type
+
+input_tensor_289_pad_type_0I
+weight?
+=
+;model_segformer_encoder_patch_embeddings_3_proj_Conv_weight'
+groups
+
+input_tensor_289_groups_0E
+bias=
+;
+9model_segformer_encoder_patch_embeddings_3_proj_Conv_bias3
+input_tensor_289
+
+
+Ä
+
+ *&
+name
+
+"
+input_tensor_289l
+const
+var_2276
+
+
+**
+val#
+
+
+
+
+Äˇˇˇˇˇˇˇˇˇ*
+name
+
+"	
+op_2276í
+reshape
+shape
+
+
+var_2276
+x
+
+input_tensor_289-
+input_tensor_291
+
+
+Ä
+@*&
+name
+
+"
+input_tensor_291b
+const
+var_2281
+
+
+* 
+val
+
+
+	
+
+ *
+name
+
+"	
+op_2281S
+const
+var_2284
+*
+val
+
+
+
+
+¨≈'7*
+name
+
+"	
+op_2284z
+const 
+input_165_axes_0
+
+
+*'
+val 
+
+
+
+
+
+ˇˇˇˇˇˇˇˇˇ*&
+name
+
+"
+input_165_axes_0à
+	transpose
+perm
+
+
+var_2281
+x
+
+input_tensor_291&
+	input_163
+
+
+@
+Ä*"
+name
+
+"
+transpose_69Ÿ
+
+layer_norm
+epsilon
+
+
+var_2284Y
+betaQ
+O
+Mmodel_segformer_encoder_patch_embeddings_3_layer_norm_LayerNormalization_bias
+x
+
+	input_163\
+gammaS
+Q
+Omodel_segformer_encoder_patch_embeddings_3_layer_norm_LayerNormalization_weight
+axes
+
+input_165_axes_0&
+	input_165
+
+
+@
+Ä*
+name
+
+"
+	input_165S
+const
+var_2291
+*
+val
+
+
+
+
+¨≈'7*
+name
+
+"	
+op_2291à
+const'
+input_tensor_293_axes_0
+
+
+*'
+val 
+
+
+
+
+
+ˇˇˇˇˇˇˇˇˇ*-
+name%
+
+"
+input_tensor_293_axes_0‡
+
+layer_norm
+epsilon
+
+
+var_2291R
+betaJ
+H
+Fmodel_segformer_encoder_block_3_0_layer_norm_1_LayerNormalization_bias
+x
+
+	input_165U
+gammaL
+J
+Hmodel_segformer_encoder_block_3_0_layer_norm_1_LayerNormalization_weight#
+axes
+
+input_tensor_293_axes_0-
+input_tensor_293
+
+
+@
+Ä*&
+name
+
+"
+input_tensor_293b
+const
+var_2303
+
+
+* 
+val
+
+
+	
+
+@Ä*
+name
+
+"	
+op_2303~
+reshape
+shape
+
+
+var_2303
+x
+
+input_tensor_293 
+	input_167
+
+@
+Ä*
+name
+
+"
+	input_167¶
+linear`
+weightV
+T
+Rmodel_segformer_encoder_block_3_0_attention_self_key_MatMul_MatMulAddFusion_weight
+x
+
+	input_167\
+biasT
+R
+Pmodel_segformer_encoder_block_3_0_attention_self_key_MatMul_MatMulAddFusion_bias'
+input_tensor_295
+
+@
+Ä*
+name
+
+"
+	linear_36c
+const
+var_2318
+
+
+*!
+val
+
+
+
+
+
+@ *
+name
+
+"	
+op_2318ó
+reshape
+shape
+
+
+var_2318
+x
+
+input_tensor_2952
+input_tensor_297
+
+
+@
+
+ *&
+name
+
+"
+input_tensor_297™
+linearb
+weightX
+V
+Tmodel_segformer_encoder_block_3_0_attention_self_query_MatMul_MatMulAddFusion_weight
+x
+
+	input_167^
+biasV
+T
+Rmodel_segformer_encoder_block_3_0_attention_self_query_MatMul_MatMulAddFusion_bias'
+input_tensor_299
+
+@
+Ä*
+name
+
+"
+	linear_37c
+const
+var_2347
+
+
+*!
+val
+
+
+
+
+
+@ *
+name
+
+"	
+op_2347ó
+reshape
+shape
+
+
+var_2347
+x
+
+input_tensor_2992
+input_tensor_301
+
+
+@
+
+ *&
+name
+
+"
+input_tensor_301m
+const
+first_73_transpose_x_0
+*
+val
+
+
+ *,
+name$
+
+"
+first_73_transpose_x_0m
+const
+first_73_transpose_y_0
+*
+val
+
+
+ *,
+name$
+
+"
+first_73_transpose_y_0å
+const#
+transpose_44_perm_0
+
+
+*3
+val,
+
+
+
+
+ ˝ˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇ*)
+name!
+
+"
+transpose_44_perm_0å
+const#
+transpose_45_perm_0
+
+
+*3
+val,
+
+
+
+
+ ˇˇˇˇˇˇˇˇˇ˝ˇˇˇˇˇˇˇˇ*)
+name!
+
+"
+transpose_45_perm_0õ
+	transpose
+perm
+
+transpose_45_perm_0
+x
+
+input_tensor_297.
+transpose_45
+
+
+
+ 
+@*"
+name
+
+"
+transpose_67õ
+	transpose
+perm
+
+transpose_44_perm_0
+x
+
+input_tensor_301.
+transpose_44
+
+
+
+@
+ *"
+name
+
+"
+transpose_68ÿ
+matmul)
+transpose_y
+
+first_73_transpose_y_0)
+transpose_x
+
+first_73_transpose_x_0
+y
+
+transpose_45
+x
+
+transpose_44*
+first_73
+
+
+
+@
+@*
+name
+
+"
+
+first_73r
+const
+_inversed_input_171_y_0
+*
+val
+
+
+
+
+Û5>*-
+name%
+
+"
+_inversed_input_171_y_0ú
+mul 
+y
+
+_inversed_input_171_y_0
+x
+
+
+first_735
+_inversed_input_171
+
+
+
+@
+@*)
+name!
+
+"
+_inversed_input_171Y
+const
+var_2358
+*
+val
+
+
+
+ˇˇˇˇˇˇˇˇˇ*
+name
+
+"	
+op_2358Å
+softmax
+x
+
+_inversed_input_171
+axis
+
+
+var_2358&
+x_27
+
+
+
+@
+@*
+name
+
+
+"
+x_27™
+linearb
+weightX
+V
+Tmodel_segformer_encoder_block_3_0_attention_self_value_MatMul_MatMulAddFusion_weight
+x
+
+	input_167^
+biasV
+T
+Rmodel_segformer_encoder_block_3_0_attention_self_value_MatMul_MatMulAddFusion_bias'
+input_tensor_303
+
+@
+Ä*
+name
+
+"
+	linear_38c
+const
+var_2381
+
+
+*!
+val
+
+
+
+
+
+@ *
+name
+
+"	
+op_2381ó
+reshape
+shape
+
+
+var_2381
+x
+
+input_tensor_3032
+input_tensor_305
+
+
+@
+
+ *&
+name
+
+"
+input_tensor_305c
+const
+var_2387
+
+
+*!
+val
+
+
+
+
+
+ *
+name
+
+"	
+op_2387}
+const&
+input_tensor_307_transpose_x_0
+*
+val
+
+
+ *4
+name,
+$
+"" 
+input_tensor_307_transpose_x_0}
+const&
+input_tensor_307_transpose_y_0
+*
+val
+
+
+ *4
+name,
+$
+"" 
+input_tensor_307_transpose_y_0à
+	transpose
+perm
+
+
+var_2387
+x
+
+input_tensor_305&
+y_27
+
+
+
+@
+ *"
+name
+
+"
+transpose_66Ë
+matmul1
+transpose_y"
+ 
+input_tensor_307_transpose_y_01
+transpose_x"
+ 
+input_tensor_307_transpose_x_0
+y
+
+y_27
+x
+
+x_272
+input_tensor_307
+
+
+
+@
+ *&
+name
+
+"
+input_tensor_307c
+const
+var_2394
+
+
+*!
+val
+
+
+
+
+
+ *
+name
+
+"	
+op_2394b
+const
+var_2402
+
+
+* 
+val
+
+
+	
+
+@Ä*
+name
+
+"	
+op_2402î
+	transpose
+perm
+
+
+var_2394
+x
+
+input_tensor_3072
+input_tensor_309
+
+
+@
+
+ *"
+name
+
+"
+transpose_65~
+reshape
+shape
+
+
+var_2402
+x
+
+input_tensor_309 
+	input_175
+
+@
+Ä*
+name
+
+"
+	input_175Æ
+lineard
+weightZ
+X
+Vmodel_segformer_encoder_block_3_0_attention_output_dense_MatMul_MatMulAddFusion_weight
+x
+
+	input_175`
+biasX
+V
+Tmodel_segformer_encoder_block_3_0_attention_output_dense_MatMul_MatMulAddFusion_bias'
+input_tensor_311
+
+@
+Ä*
+name
+
+"
+	linear_39c
+const
+var_2415
+
+
+*!
+val
+
+
+
+
+
+@Ä*
+name
+
+"	
+op_2415Ç
+reshape
+shape
+
+
+var_2415
+x
+
+input_tensor_311%
+first_75
+
+
+@
+Ä*
+name
+
+"
+
+first_75u
+add
+y
+
+	input_165
+x
+
+
+first_75&
+	input_177
+
+
+@
+Ä*
+name
+
+"
+	input_177S
+const
+var_2420
+*
+val
+
+
+
+
+¨≈'7*
+name
+
+"	
+op_2420à
+const'
+input_tensor_313_axes_0
+
+
+*'
+val 
+
+
+
+
+
+ˇˇˇˇˇˇˇˇˇ*-
+name%
+
+"
+input_tensor_313_axes_0‡
+
+layer_norm
+epsilon
+
+
+var_2420R
+betaJ
+H
+Fmodel_segformer_encoder_block_3_0_layer_norm_2_LayerNormalization_bias
+x
+
+	input_177U
+gammaL
+J
+Hmodel_segformer_encoder_block_3_0_layer_norm_2_LayerNormalization_weight#
+axes
+
+input_tensor_313_axes_0-
+input_tensor_313
+
+
+@
+Ä*&
+name
+
+"
+input_tensor_313b
+const
+var_2432
+
+
+* 
+val
+
+
+	
+
+@Ä*
+name
+
+"	
+op_2432~
+reshape
+shape
+
+
+var_2432
+x
+
+input_tensor_313 
+	input_179
+
+@
+Ä*
+name
+
+"
+	input_179ñ
+linearX
+weightN
+L
+Jmodel_segformer_encoder_block_3_0_mlp_dense1_MatMul_MatMulAddFusion_weight
+x
+
+	input_179T
+biasL
+J
+Hmodel_segformer_encoder_block_3_0_mlp_dense1_MatMul_MatMulAddFusion_bias'
+input_tensor_315
+
+@
+Ä*
+name
+
+"
+	linear_40d
+const
+var_2447
+
+
+*"
+val
+
+
+
+	
+ Ä*
+name
+
+"	
+op_2447ò
+reshape
+shape
+
+
+var_2447
+x
+
+input_tensor_3153
+input_tensor_317
+
+
+
+ 
+Ä*&
+name
+
+"
+input_tensor_317c
+const
+var_2453
+
+
+*!
+val
+
+
+
+
+
+ *
+name
+
+"	
+op_2453|
+const#
+input_tensor_319_pad_type_0
+*
+val
+
+
+"
+custom*1
+name)
+!
+"
+input_tensor_319_pad_type_0Ä
+const&
+input_tensor_319_pad_0
+
+
+*!
+val
+
+
+
+
+
+*,
+name$
+
+"
+input_tensor_319_pad_0t
+const!
+input_tensor_319_groups_0
+*
+val
+
+
+Ä*/
+name'
+
+"
+input_tensor_319_groups_0Ü
+const*
+input_tensor_319_strides_0
+
+
+*
+val
+
+
+
+
+*0
+name(
+ 
+"
+input_tensor_319_strides_0ä
+const,
+input_tensor_319_dilations_0
+
+
+*
+val
+
+
+
+
+*2
+name*
+"
+ "
+input_tensor_319_dilations_0é
+	transpose
+perm
+
+
+var_2453
+x
+
+input_tensor_317,
+	input_181
+
+
+Ä
+
+ *"
+name
+
+"
+transpose_64‰
+conv!
+pad
+
+input_tensor_319_pad_0
+x
+
+	input_181)
+strides
+
+input_tensor_319_strides_0-
+	dilations 
+
+input_tensor_319_dilations_0+
+pad_type
+
+input_tensor_319_pad_type_0M
+weightC
+A
+?model_segformer_encoder_block_3_0_mlp_dwconv_dwconv_Conv_weight'
+groups
+
+input_tensor_319_groups_0I
+biasA
+?
+=model_segformer_encoder_block_3_0_mlp_dwconv_dwconv_Conv_bias3
+input_tensor_319
+
+
+Ä
+
+ *&
+name
+
+"
+input_tensor_319l
+const
+var_2475
+
+
+**
+val#
+
+
+
+
+Äˇˇˇˇˇˇˇˇˇ*
+name
+
+"	
+op_2475í
+reshape
+shape
+
+
+var_2475
+x
+
+input_tensor_319-
+input_tensor_321
+
+
+Ä
+@*&
+name
+
+"
+input_tensor_321b
+const
+var_2480
+
+
+* 
+val
+
+
+	
+
+ *
+name
+
+"	
+op_2480s
+const
+input_tensor_325_mode_0
+*
+val
+
+	"
+EXACT*-
+name%
+
+"
+input_tensor_325_mode_0á
+	transpose
+perm
+
+
+var_2480
+x
+
+input_tensor_321%
+first_77
+
+
+@
+Ä*"
+name
+
+"
+transpose_63ï
+gelu#
+mode
+
+input_tensor_325_mode_0
+x
+
+
+first_77-
+input_tensor_325
+
+
+@
+Ä*&
+name
+
+"
+input_tensor_325b
+const
+var_2494
+
+
+* 
+val
+
+
+	
+
+@Ä*
+name
+
+"	
+op_2494~
+reshape
+shape
+
+
+var_2494
+x
+
+input_tensor_325 
+	input_183
+
+@
+Ä*
+name
+
+"
+	input_183ñ
+linearX
+weightN
+L
+Jmodel_segformer_encoder_block_3_0_mlp_dense2_MatMul_MatMulAddFusion_weight
+x
+
+	input_183T
+biasL
+J
+Hmodel_segformer_encoder_block_3_0_mlp_dense2_MatMul_MatMulAddFusion_bias'
+input_tensor_327
+
+@
+Ä*
+name
+
+"
+	linear_41c
+const
+var_2507
+
+
+*!
+val
+
+
+
+
+
+@Ä*
+name
+
+"	
+op_2507Ç
+reshape
+shape
+
+
+var_2507
+x
+
+input_tensor_327%
+first_83
+
+
+@
+Ä*
+name
+
+"
+
+first_83u
+add
+y
+
+	input_177
+x
+
+
+first_83&
+	input_185
+
+
+@
+Ä*
+name
+
+"
+	input_185S
+const
+var_2512
+*
+val
+
+
+
+
+¨≈'7*
+name
+
+"	
+op_2512à
+const'
+input_tensor_329_axes_0
+
+
+*'
+val 
+
+
+
+
+
+ˇˇˇˇˇˇˇˇˇ*-
+name%
+
+"
+input_tensor_329_axes_0‡
+
+layer_norm
+epsilon
+
+
+var_2512R
+betaJ
+H
+Fmodel_segformer_encoder_block_3_1_layer_norm_1_LayerNormalization_bias
+x
+
+	input_185U
+gammaL
+J
+Hmodel_segformer_encoder_block_3_1_layer_norm_1_LayerNormalization_weight#
+axes
+
+input_tensor_329_axes_0-
+input_tensor_329
+
+
+@
+Ä*&
+name
+
+"
+input_tensor_329b
+const
+var_2524
+
+
+* 
+val
+
+
+	
+
+@Ä*
+name
+
+"	
+op_2524~
+reshape
+shape
+
+
+var_2524
+x
+
+input_tensor_329 
+	input_187
+
+@
+Ä*
+name
+
+"
+	input_187¶
+linear`
+weightV
+T
+Rmodel_segformer_encoder_block_3_1_attention_self_key_MatMul_MatMulAddFusion_weight
+x
+
+	input_187\
+biasT
+R
+Pmodel_segformer_encoder_block_3_1_attention_self_key_MatMul_MatMulAddFusion_bias'
+input_tensor_331
+
+@
+Ä*
+name
+
+"
+	linear_42c
+const
+var_2539
+
+
+*!
+val
+
+
+
+
+
+@ *
+name
+
+"	
+op_2539ó
+reshape
+shape
+
+
+var_2539
+x
+
+input_tensor_3312
+input_tensor_333
+
+
+@
+
+ *&
+name
+
+"
+input_tensor_333™
+linearb
+weightX
+V
+Tmodel_segformer_encoder_block_3_1_attention_self_query_MatMul_MatMulAddFusion_weight
+x
+
+	input_187^
+biasV
+T
+Rmodel_segformer_encoder_block_3_1_attention_self_query_MatMul_MatMulAddFusion_bias'
+input_tensor_335
+
+@
+Ä*
+name
+
+"
+	linear_43c
+const
+var_2568
+
+
+*!
+val
+
+
+
+
+
+@ *
+name
+
+"	
+op_2568ó
+reshape
+shape
+
+
+var_2568
+x
+
+input_tensor_3352
+input_tensor_337
+
+
+@
+
+ *&
+name
+
+"
+input_tensor_337m
+const
+first_85_transpose_x_0
+*
+val
+
+
+ *,
+name$
+
+"
+first_85_transpose_x_0m
+const
+first_85_transpose_y_0
+*
+val
+
+
+ *,
+name$
+
+"
+first_85_transpose_y_0å
+const#
+transpose_46_perm_0
+
+
+*3
+val,
+
+
+
+
+ ˝ˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇ*)
+name!
+
+"
+transpose_46_perm_0å
+const#
+transpose_47_perm_0
+
+
+*3
+val,
+
+
+
+
+ ˇˇˇˇˇˇˇˇˇ˝ˇˇˇˇˇˇˇˇ*)
+name!
+
+"
+transpose_47_perm_0õ
+	transpose
+perm
+
+transpose_47_perm_0
+x
+
+input_tensor_333.
+transpose_47
+
+
+
+ 
+@*"
+name
+
+"
+transpose_61õ
+	transpose
+perm
+
+transpose_46_perm_0
+x
+
+input_tensor_337.
+transpose_46
+
+
+
+@
+ *"
+name
+
+"
+transpose_62ÿ
+matmul)
+transpose_y
+
+first_85_transpose_y_0)
+transpose_x
+
+first_85_transpose_x_0
+y
+
+transpose_47
+x
+
+transpose_46*
+first_85
+
+
+
+@
+@*
+name
+
+"
+
+first_85r
+const
+_inversed_input_191_y_0
+*
+val
+
+
+
+
+Û5>*-
+name%
+
+"
+_inversed_input_191_y_0ú
+mul 
+y
+
+_inversed_input_191_y_0
+x
+
+
+first_855
+_inversed_input_191
+
+
+
+@
+@*)
+name!
+
+"
+_inversed_input_191Y
+const
+var_2579
+*
+val
+
+
+
+ˇˇˇˇˇˇˇˇˇ*
+name
+
+"	
+op_2579{
+softmax
+x
+
+_inversed_input_191
+axis
+
+
+var_2579#
+x
+
+
+
+@
+@*
+name
+
+"
+x™
+linearb
+weightX
+V
+Tmodel_segformer_encoder_block_3_1_attention_self_value_MatMul_MatMulAddFusion_weight
+x
+
+	input_187^
+biasV
+T
+Rmodel_segformer_encoder_block_3_1_attention_self_value_MatMul_MatMulAddFusion_bias'
+input_tensor_339
+
+@
+Ä*
+name
+
+"
+	linear_44c
+const
+var_2602
+
+
+*!
+val
+
+
+
+
+
+@ *
+name
+
+"	
+op_2602ó
+reshape
+shape
+
+
+var_2602
+x
+
+input_tensor_3392
+input_tensor_341
+
+
+@
+
+ *&
+name
+
+"
+input_tensor_341c
+const
+var_2608
+
+
+*!
+val
+
+
+
+
+
+ *
+name
+
+"	
+op_2608}
+const&
+input_tensor_343_transpose_x_0
+*
+val
+
+
+ *4
+name,
+$
+"" 
+input_tensor_343_transpose_x_0}
+const&
+input_tensor_343_transpose_y_0
+*
+val
+
+
+ *4
+name,
+$
+"" 
+input_tensor_343_transpose_y_0Ö
+	transpose
+perm
+
+
+var_2608
+x
+
+input_tensor_341#
+y
+
+
+
+@
+ *"
+name
+
+"
+transpose_60‚
+matmul1
+transpose_y"
+ 
+input_tensor_343_transpose_y_01
+transpose_x"
+ 
+input_tensor_343_transpose_x_0
+
+y
+
+y
+
+x
+
+x2
+input_tensor_343
+
+
+
+@
+ *&
+name
+
+"
+input_tensor_343c
+const
+var_2615
+
+
+*!
+val
+
+
+
+
+
+ *
+name
+
+"	
+op_2615b
+const
+var_2623
+
+
+* 
+val
+
+
+	
+
+@Ä*
+name
+
+"	
+op_2623î
+	transpose
+perm
+
+
+var_2615
+x
+
+input_tensor_3432
+input_tensor_345
+
+
+@
+
+ *"
+name
+
+"
+transpose_59~
+reshape
+shape
+
+
+var_2623
+x
+
+input_tensor_345 
+	input_195
+
+@
+Ä*
+name
+
+"
+	input_195Æ
+lineard
+weightZ
+X
+Vmodel_segformer_encoder_block_3_1_attention_output_dense_MatMul_MatMulAddFusion_weight
+x
+
+	input_195`
+biasX
+V
+Tmodel_segformer_encoder_block_3_1_attention_output_dense_MatMul_MatMulAddFusion_bias'
+input_tensor_347
+
+@
+Ä*
+name
+
+"
+	linear_45c
+const
+var_2636
+
+
+*!
+val
+
+
+
+
+
+@Ä*
+name
+
+"	
+op_2636Ç
+reshape
+shape
+
+
+var_2636
+x
+
+input_tensor_347%
+first_87
+
+
+@
+Ä*
+name
+
+"
+
+first_87u
+add
+y
+
+	input_185
+x
+
+
+first_87&
+	input_197
+
+
+@
+Ä*
+name
+
+"
+	input_197S
+const
+var_2641
+*
+val
+
+
+
+
+¨≈'7*
+name
+
+"	
+op_2641à
+const'
+input_tensor_349_axes_0
+
+
+*'
+val 
+
+
+
+
+
+ˇˇˇˇˇˇˇˇˇ*-
+name%
+
+"
+input_tensor_349_axes_0‡
+
+layer_norm
+epsilon
+
+
+var_2641R
+betaJ
+H
+Fmodel_segformer_encoder_block_3_1_layer_norm_2_LayerNormalization_bias
+x
+
+	input_197U
+gammaL
+J
+Hmodel_segformer_encoder_block_3_1_layer_norm_2_LayerNormalization_weight#
+axes
+
+input_tensor_349_axes_0-
+input_tensor_349
+
+
+@
+Ä*&
+name
+
+"
+input_tensor_349b
+const
+var_2653
+
+
+* 
+val
+
+
+	
+
+@Ä*
+name
+
+"	
+op_2653~
+reshape
+shape
+
+
+var_2653
+x
+
+input_tensor_349 
+	input_199
+
+@
+Ä*
+name
+
+"
+	input_199ñ
+linearX
+weightN
+L
+Jmodel_segformer_encoder_block_3_1_mlp_dense1_MatMul_MatMulAddFusion_weight
+x
+
+	input_199T
+biasL
+J
+Hmodel_segformer_encoder_block_3_1_mlp_dense1_MatMul_MatMulAddFusion_bias'
+input_tensor_351
+
+@
+Ä*
+name
+
+"
+	linear_46d
+const
+var_2668
+
+
+*"
+val
+
+
+
+	
+ Ä*
+name
+
+"	
+op_2668ò
+reshape
+shape
+
+
+var_2668
+x
+
+input_tensor_3513
+input_tensor_353
+
+
+
+ 
+Ä*&
+name
+
+"
+input_tensor_353c
+const
+var_2674
+
+
+*!
+val
+
+
+
+
+
+ *
+name
+
+"	
+op_2674|
+const#
+input_tensor_355_pad_type_0
+*
+val
+
+
+"
+custom*1
+name)
+!
+"
+input_tensor_355_pad_type_0Ä
+const&
+input_tensor_355_pad_0
+
+
+*!
+val
+
+
+
+
+
+*,
+name$
+
+"
+input_tensor_355_pad_0t
+const!
+input_tensor_355_groups_0
+*
+val
+
+
+Ä*/
+name'
+
+"
+input_tensor_355_groups_0Ü
+const*
+input_tensor_355_strides_0
+
+
+*
+val
+
+
+
+
+*0
+name(
+ 
+"
+input_tensor_355_strides_0ä
+const,
+input_tensor_355_dilations_0
+
+
+*
+val
+
+
+
+
+*2
+name*
+"
+ "
+input_tensor_355_dilations_0é
+	transpose
+perm
+
+
+var_2674
+x
+
+input_tensor_353,
+	input_201
+
+
+Ä
+
+ *"
+name
+
+"
+transpose_58‰
+conv!
+pad
+
+input_tensor_355_pad_0
+x
+
+	input_201)
+strides
+
+input_tensor_355_strides_0-
+	dilations 
+
+input_tensor_355_dilations_0+
+pad_type
+
+input_tensor_355_pad_type_0M
+weightC
+A
+?model_segformer_encoder_block_3_1_mlp_dwconv_dwconv_Conv_weight'
+groups
+
+input_tensor_355_groups_0I
+biasA
+?
+=model_segformer_encoder_block_3_1_mlp_dwconv_dwconv_Conv_bias3
+input_tensor_355
+
+
+Ä
+
+ *&
+name
+
+"
+input_tensor_355l
+const
+var_2696
+
+
+**
+val#
+
+
+
+
+Äˇˇˇˇˇˇˇˇˇ*
+name
+
+"	
+op_2696í
+reshape
+shape
+
+
+var_2696
+x
+
+input_tensor_355-
+input_tensor_357
+
+
+Ä
+@*&
+name
+
+"
+input_tensor_357b
+const
+var_2701
+
+
+* 
+val
+
+
+	
+
+ *
+name
+
+"	
+op_2701s
+const
+input_tensor_361_mode_0
+*
+val
+
+	"
+EXACT*-
+name%
+
+"
+input_tensor_361_mode_0á
+	transpose
+perm
+
+
+var_2701
+x
+
+input_tensor_357%
+first_89
+
+
+@
+Ä*"
+name
+
+"
+transpose_57ï
+gelu#
+mode
+
+input_tensor_361_mode_0
+x
+
+
+first_89-
+input_tensor_361
+
+
+@
+Ä*&
+name
+
+"
+input_tensor_361b
+const
+var_2715
+
+
+* 
+val
+
+
+	
+
+@Ä*
+name
+
+"	
+op_2715~
+reshape
+shape
+
+
+var_2715
+x
+
+input_tensor_361 
+	input_203
+
+@
+Ä*
+name
+
+"
+	input_203ñ
+linearX
+weightN
+L
+Jmodel_segformer_encoder_block_3_1_mlp_dense2_MatMul_MatMulAddFusion_weight
+x
+
+	input_203T
+biasL
+J
+Hmodel_segformer_encoder_block_3_1_mlp_dense2_MatMul_MatMulAddFusion_bias'
+input_tensor_363
+
+@
+Ä*
+name
+
+"
+	linear_47c
+const
+var_2728
+
+
+*!
+val
+
+
+
+
+
+@Ä*
+name
+
+"	
+op_2728|
+reshape
+shape
+
+
+var_2728
+x
+
+input_tensor_363"
+first
+
+
+@
+Ä*
+name
+
+	"
+firstr
+add
+y
+
+	input_197
+x	
+
+first&
+	input_205
+
+
+@
+Ä*
+name
+
+"
+	input_205S
+const
+var_2733
+*
+val
+
+
+
+
+¨≈'7*
+name
+
+"	
+op_2733à
+const'
+input_tensor_365_axes_0
+
+
+*'
+val 
+
+
+
+
+
+ˇˇˇˇˇˇˇˇˇ*-
+name%
+
+"
+input_tensor_365_axes_0Ã
+
+layer_norm
+epsilon
+
+
+var_2733H
+beta@
+>
+<model_segformer_encoder_layer_norm_3_LayerNormalization_bias
+x
+
+	input_205K
+gammaB
+@
+>model_segformer_encoder_layer_norm_3_LayerNormalization_weight#
+axes
+
+input_tensor_365_axes_0-
+input_tensor_365
+
+
+@
+Ä*&
+name
+
+"
+input_tensor_365l
+const
+var_2749
+
+
+**
+val#
+
+
+
+
+ ˇˇˇˇˇˇˇˇˇ*
+name
+
+"	
+op_2749ò
+reshape
+shape
+
+
+var_2749
+x
+
+input_tensor_3653
+input_tensor_367
+
+
+
+ 
+Ä*&
+name
+
+"
+input_tensor_367c
+const
+var_2755
+
+
+*!
+val
+
+
+
+
+
+ *
+name
+
+"	
+op_2755l
+const
+var_2765
+
+
+**
+val#
+
+
+
+
+Äˇˇˇˇˇˇˇˇˇ*
+name
+
+"	
+op_2765ï
+	transpose
+perm
+
+
+var_2755
+x
+
+input_tensor_3673
+input_tensor_369
+
+
+Ä
+
+ *"
+name
+
+"
+transpose_56í
+reshape
+shape
+
+
+var_2765
+x
+
+input_tensor_369-
+input_tensor_371
+
+
+Ä
+@*&
+name
+
+"
+input_tensor_371b
+const
+var_2770
+
+
+* 
+val
+
+
+	
+
+ *
+name
+
+"	
+op_2770b
+const
+var_2778
+
+
+* 
+val
+
+
+	
+
+@Ä*
+name
+
+"	
+op_2778è
+	transpose
+perm
+
+
+var_2770
+x
+
+input_tensor_371-
+input_tensor_373
+
+
+@
+Ä*"
+name
+
+"
+transpose_55~
+reshape
+shape
+
+
+var_2778
+x
+
+input_tensor_373 
+	input_207
+
+@
+Ä*
+name
+
+"
+	input_207Ä
+linearM
+weightC
+A
+?model_decode_head_linear_c_3_proj_MatMul_MatMulAddFusion_weight
+x
+
+	input_207I
+biasA
+?
+=model_decode_head_linear_c_3_proj_MatMul_MatMulAddFusion_bias'
+input_tensor_375
+
+@
+Ä*
+name
+
+"
+	linear_48d
+const
+var_2793
+
+
+*"
+val
+
+
+
+	
+ Ä*
+name
+
+"	
+op_2793ò
+reshape
+shape
+
+
+var_2793
+x
+
+input_tensor_3753
+input_tensor_377
+
+
+
+ 
+Ä*&
+name
+
+"
+input_tensor_377c
+const
+var_2799
+
+
+*!
+val
+
+
+
+
+
+ *
+name
+
+"	
+op_2799
+const&
+var_2806_scale_factor_height_0
+*
+val
+
+
+
+
+   A*3
+name+
+#
+!"
+op_2806_scale_factor_height_0}
+const%
+var_2806_scale_factor_width_0
+*
+val
+
+
+
+
+   A*2
+name*
+"
+ "
+op_2806_scale_factor_width_0p
+const 
+var_2806_align_corners_0
+*
+val
+
+
+ *-
+name%
+
+"
+op_2806_align_corners_0ï
+	transpose
+perm
+
+
+var_2799
+x
+
+input_tensor_3773
+input_tensor_379
+
+
+Ä
+
+ *"
+name
+
+"
+transpose_54û
+upsample_bilinear7
+scale_factor_width!
+
+var_2806_scale_factor_width_0-
+align_corners
+
+var_2806_align_corners_09
+scale_factor_height"
+ 
+var_2806_scale_factor_height_0
+x
+
+input_tensor_379,
+var_2806 
+
+
+Ä
+
+Ä*
+name
+
+"	
+op_2806l
+const
+var_2815
+
+
+**
+val#
+
+
+
+
+†ˇˇˇˇˇˇˇˇˇ*
+name
+
+"	
+op_2815å
+reshape
+shape
+
+
+var_2815
+x
+
+	input_161.
+input_tensor_381
+
+
+†
+Ä*&
+name
+
+"
+input_tensor_381b
+const
+var_2820
+
+
+* 
+val
+
+
+	
+
+ *
+name
+
+"	
+op_2820c
+const
+var_2828
+
+
+*!
+val
+
+
+
+
+
+Ä†*
+name
+
+"	
+op_2828ê
+	transpose
+perm
+
+
+var_2820
+x
+
+input_tensor_381.
+input_tensor_383
+
+
+Ä
+†*"
+name
+
+"
+transpose_53
+reshape
+shape
+
+
+var_2828
+x
+
+input_tensor_383!
+	input_209
+
+Ä
+†*
+name
+
+"
+	input_209Å
+linearM
+weightC
+A
+?model_decode_head_linear_c_2_proj_MatMul_MatMulAddFusion_weight
+x
+
+	input_209I
+biasA
+?
+=model_decode_head_linear_c_2_proj_MatMul_MatMulAddFusion_bias(
+input_tensor_385
+
+Ä
+Ä*
+name
+
+"
+	linear_49d
+const
+var_2843
+
+
+*"
+val
+
+
+
+	
+@Ä*
+name
+
+"	
+op_2843ò
+reshape
+shape
+
+
+var_2843
+x
+
+input_tensor_3853
+input_tensor_387
+
+
+
+@
+Ä*&
+name
+
+"
+input_tensor_387c
+const
+var_2849
+
+
+*!
+val
+
+
+
+
+
+ *
+name
+
+"	
+op_2849
+const&
+var_2856_scale_factor_height_0
+*
+val
+
+
+
+
+  Ä@*3
+name+
+#
+!"
+op_2856_scale_factor_height_0}
+const%
+var_2856_scale_factor_width_0
+*
+val
+
+
+
+
+  Ä@*2
+name*
+"
+ "
+op_2856_scale_factor_width_0p
+const 
+var_2856_align_corners_0
+*
+val
+
+
+ *-
+name%
+
+"
+op_2856_align_corners_0ï
+	transpose
+perm
+
+
+var_2849
+x
+
+input_tensor_3873
+input_tensor_389
+
+
+Ä
+
+@*"
+name
+
+"
+transpose_52û
+upsample_bilinear7
+scale_factor_width!
+
+var_2856_scale_factor_width_0-
+align_corners
+
+var_2856_align_corners_09
+scale_factor_height"
+ 
+var_2856_scale_factor_height_0
+x
+
+input_tensor_389,
+var_2856 
+
+
+Ä
+
+Ä*
+name
+
+"	
+op_2856k
+const
+var_2865
+
+
+*)
+val"
+
+
+
+
+@ˇˇˇˇˇˇˇˇˇ*
+name
+
+"	
+op_2865ã
+reshape
+shape
+
+
+var_2865
+x
+
+	input_107-
+input_tensor_391
+
+
+@
+Ä*&
+name
+
+"
+input_tensor_391b
+const
+var_2870
+
+
+* 
+val
+
+
+	
+
+ *
+name
+
+"	
+op_2870b
+const
+var_2878
+
+
+* 
+val
+
+
+	
+
+Ä@*
+name
+
+"	
+op_2878è
+	transpose
+perm
+
+
+var_2870
+x
+
+input_tensor_391-
+input_tensor_393
+
+
+Ä
+@*"
+name
+
+"
+transpose_51~
+reshape
+shape
+
+
+var_2878
+x
+
+input_tensor_393 
+	input_211
+
+Ä
+@*
+name
+
+"
+	input_211Å
+linearM
+weightC
+A
+?model_decode_head_linear_c_1_proj_MatMul_MatMulAddFusion_weight
+x
+
+	input_211I
+biasA
+?
+=model_decode_head_linear_c_1_proj_MatMul_MatMulAddFusion_bias(
+input_tensor_395
+
+Ä
+Ä*
+name
+
+"
+	linear_50e
+const
+var_2893
+
+
+*#
+val
+
+
+
+
+
+ÄÄ*
+name
+
+"	
+op_2893ô
+reshape
+shape
+
+
+var_2893
+x
+
+input_tensor_3954
+input_tensor_397 
+
+
+
+Ä
+Ä*&
+name
+
+"
+input_tensor_397c
+const
+var_2899
+
+
+*!
+val
+
+
+
+
+
+ *
+name
+
+"	
+op_2899
+const&
+var_2906_scale_factor_height_0
+*
+val
+
+
+
+
+   @*3
+name+
+#
+!"
+op_2906_scale_factor_height_0}
+const%
+var_2906_scale_factor_width_0
+*
+val
+
+
+
+
+   @*2
+name*
+"
+ "
+op_2906_scale_factor_width_0p
+const 
+var_2906_align_corners_0
+*
+val
+
+
+ *-
+name%
+
+"
+op_2906_align_corners_0ñ
+	transpose
+perm
+
+
+var_2899
+x
+
+input_tensor_3974
+input_tensor_399 
+
+
+Ä
+
+Ä*"
+name
+
+"
+transpose_50û
+upsample_bilinear7
+scale_factor_width!
+
+var_2906_scale_factor_width_0-
+align_corners
+
+var_2906_align_corners_09
+scale_factor_height"
+ 
+var_2906_scale_factor_height_0
+x
+
+input_tensor_399,
+var_2906 
+
+
+Ä
+
+Ä*
+name
+
+"	
+op_2906k
+const
+var_2915
+
+
+*)
+val"
+
+
+
+
+ ˇˇˇˇˇˇˇˇˇ*
+name
+
+"	
+op_2915ä
+reshape
+shape
+
+
+var_2915
+x
+
+
+input_53-
+input_tensor_401
+
+
+ 
+Ä *&
+name
+
+"
+input_tensor_401b
+const
+var_2920
+
+
+* 
+val
+
+
+	
+
+ *
+name
+
+"	
+op_2920b
+const
+var_2928
+
+
+* 
+val
+
+
+	
+
+Ä  *
+name
+
+"	
+op_2928è
+	transpose
+perm
+
+
+var_2920
+x
+
+input_tensor_401-
+input_tensor_403
+
+
+Ä 
+ *"
+name
+
+"
+transpose_49~
+reshape
+shape
+
+
+var_2928
+x
+
+input_tensor_403 
+	input_213
+
+Ä 
+ *
+name
+
+"
+	input_213Å
+linearM
+weightC
+A
+?model_decode_head_linear_c_0_proj_MatMul_MatMulAddFusion_weight
+x
+
+	input_213I
+biasA
+?
+=model_decode_head_linear_c_0_proj_MatMul_MatMulAddFusion_bias(
+input_tensor_405
+
+Ä 
+Ä*
+name
+
+"
+	linear_51e
+const
+var_2943
+
+
+*#
+val
+
+
+
+
+
+ÄÄ*
+name
+
+"	
+op_2943ô
+reshape
+shape
+
+
+var_2943
+x
+
+input_tensor_4054
+input_tensor_407 
+
+
+
+Ä
+Ä*&
+name
+
+"
+input_tensor_407c
+const
+var_2949
+
+
+*!
+val
+
+
+
+
+
+ *
+name
+
+"	
+op_2949P
+const
+var_2957
+*
+val
+
+
+*
+name
+
+"	
+op_2957m
+const
+input_215_interleave_0
+*
+val
+
+
+ *,
+name$
+
+"
+input_215_interleave_0ñ
+	transpose
+perm
+
+
+var_2949
+x
+
+input_tensor_4074
+input_tensor_409 
+
+
+Ä
+
+Ä*"
+name
+
+"
+transpose_48‹
+concatB
+values8
+
+
+var_2806
+
+
+var_2856
+
+
+var_2906
+
+input_tensor_409(
+
+interleave
+
+input_215_interleave_0
+axis
+
+
+var_2957-
+	input_215 
+
+
+Ä
+
+Ä*
+name
+
+"
+	input_215m
+const
+input_217_pad_type_0
+*
+val
+
+	"
+valid**
+name"
+
+"
+input_217_pad_type_0x
+const#
+input_217_strides_0
+
+
+*
+val
+
+
+
+
+*)
+name!
+
+"
+input_217_strides_0r
+const
+input_217_pad_0
+
+
+*!
+val
+
+
+
+
+
+    *%
+name
+
+"
+input_217_pad_0|
+const%
+input_217_dilations_0
+
+
+*
+val
+
+
+
+
+*+
+name#
+
+"
+input_217_dilations_0e
+const
+input_217_groups_0
+*
+val
+
+
+*(
+name 
+
+"
+input_217_groups_0à
+conv
+pad
+
+input_217_pad_0
+x
+
+	input_215"
+strides
+
+input_217_strides_0&
+	dilations
+
+input_217_dilations_0$
+pad_type
+
+input_217_pad_type_07
+weight-
++
+)model_decode_head_linear_fuse_Conv_weight 
+groups
+
+input_217_groups_03
+bias+
+)
+'model_decode_head_linear_fuse_Conv_bias-
+	input_217 
+
+
+Ä
+
+Ä*
+name
+
+"
+	input_217f
+relu
+x
+
+	input_217-
+	input_1_1 
+
+
+Ä
+
+Ä*
+name
+
+	"
+inputs
+const
+input_tensor_pad_type_0
+*
+val
+
+	"
+valid*-
+name%
+
+"
+input_tensor_pad_type_0~
+const&
+input_tensor_strides_0
+
+
+*
+val
+
+
+
+
+*,
+name$
+
+"
+input_tensor_strides_0x
+const"
+input_tensor_pad_0
+
+
+*!
+val
+
+
+
+
+
+    *(
+name 
+
+"
+input_tensor_pad_0Ç
+const(
+input_tensor_dilations_0
+
+
+*
+val
+
+
+
+
+*.
+name&
+
+"
+input_tensor_dilations_0k
+const
+input_tensor_groups_0
+*
+val
+
+
+*+
+name#
+
+"
+input_tensor_groups_0ö
+conv
+pad
+
+input_tensor_pad_0
+x
+
+	input_1_1%
+strides
+
+input_tensor_strides_0)
+	dilations
+
+input_tensor_dilations_0'
+pad_type
+
+input_tensor_pad_type_06
+weight,
+*
+(model_decode_head_classifier_Conv_weight#
+groups
+
+input_tensor_groups_02
+bias*
+(
+&model_decode_head_classifier_Conv_bias/
+input_tensor
+
+
+
+
+Ä*"
+name
+
+"
+input_tensor
+const&
+var_2988_scale_factor_height_0
+*
+val
+
+
+
+
+  Ä@*3
+name+
+#
+!"
+op_2988_scale_factor_height_0}
+const%
+var_2988_scale_factor_width_0
+*
+val
+
+
+
+
+  Ä@*2
+name*
+"
+ "
+op_2988_scale_factor_width_0p
+const 
+var_2988_align_corners_0
+*
+val
+
+
+ *-
+name%
+
+"
+op_2988_align_corners_0ó
+upsample_bilinear7
+scale_factor_width!
+
+var_2988_scale_factor_width_0-
+align_corners
+
+var_2988_align_corners_09
+scale_factor_height"
+ 
+var_2988_scale_factor_height_0
+x
+
+input_tensor)
+output
+
+
+
+@
+Ä*
+name
+
+"	
+op_2988"Ê
+	buildInfoÿ"
+
+
+≈"¬
+6
+!
+
+"
+coremltools-version
+	
+"
+9.0
+A
+)
+!
+"
+coremltools-component-torch
+
+
+"
+2.14.1
+E
+(
+ 
+"
+coremltools-source-dialect
+
+"
+TorchScript
